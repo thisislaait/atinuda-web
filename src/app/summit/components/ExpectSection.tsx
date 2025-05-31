@@ -75,7 +75,7 @@ const ExpectSummit = () => {
 };
 
 const ExperienceCard = ({ data }: { data: Experience }) => {
-  const linkHref = data.id === 1 ? "/join-the-waitlist" : "/ticket-payment";
+  // const linkHref = data.id === 1 ? "/join-the-waitlist" : "/ticket-payment";
 
   return (
     <div className="w-full md:w-1/2 bg-white shadow-lg p-6 flex flex-col gap-2">
@@ -99,7 +99,7 @@ const ExperienceCard = ({ data }: { data: Experience }) => {
           <ArrowRight size={20} />
         </button>
       
-        <Link href={linkHref} passHref>
+        <Link href="/join-the-waitlist" passHref>
         <motion.a
           whileHover={{ backgroundColor: "#ff7f41" }}
           transition={{ duration: 0.3, ease: "easeInOut" }}

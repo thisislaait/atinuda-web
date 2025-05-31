@@ -27,7 +27,7 @@ const Payment = () => {
 
    const router = useRouter();
 
-  const { user, openAuthModal, logout } = useAuth(); // ✅ added logout
+  const { user, openAuthModal, logout } = useAuth(); 
 
   const selectedTicket = ticketOptions.find((t) => t.type === selected);
   const totalAmount = selectedTicket ? selectedTicket.price * quantity : 0;

@@ -15,8 +15,8 @@ const speakers = [
     company: 'Preston Bailey Events',
     image: '/assets/images/Preston.jpeg',
     topic: 'Designing Dreams: Transforming Spaces with Emotion',
-    bio: 'Preston Bailey is a celebrated floral and event designer known for his ability to transform ordinary spaces into lavish theatrical environments...',
-  },
+    bio: 'Preston Bailey is an internationally celebrated event designer known for his ability to transform ordinary spaces into theatrical environments. With a career spanning over four decades, he has become a leading figure in the event and wedding design industry. Born in Panama and later relocating to New York City, Preston initially pursued fashion modeling before discovering his passion for floral design. He launched his design business in 1980, and quickly gained recognition for his bold, opulent, and immersive event experiences. His client list includes celebrities, royalty, CEOs, and high-profile weddings and galas around the world.'
+    },
   {
     id: 2,
     name: 'TY Bello',
@@ -24,7 +24,7 @@ const speakers = [
     company: 'TY Bello Photography',
     image: '/assets/images/TY.png',
     topic: 'The Power of Storytelling Through Photography',
-    bio: 'TY Bello is a renowned photographer and singer with a keen eye for beauty and human emotion...',
+    bio: 'TY Bello is renowned for her distinctive portrait style and has photographed presidents, celebrities, and everyday people with equal grace. One of her most viral moments came in 2016 when she discovered Olajumoke Orisaguna, a bread seller, during a street shoot with British rapper Tinie Tempah. TY’s photo of Jumoke led to the her modeling career and widespread media attention.'
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const speakers = [
     company: 'ONE Campaign',
     image: '/assets/images/Ndidi.jpeg',
     topic: 'Leadership with Purpose: Building for Impact',
-    bio: 'Ndidi is a social entrepreneur and leadership advocate passionate about driving sustainable change in Africa...',
+    bio: 'Ndidi Okonkwo Nwuneli is a globally recognized expert in agriculture, nutrition, social innovation, and entrepreneurship, with over 25 years of international development experience. In April 2024, she became the President and CEO of The ONE Campaign, a global advocacy organization dedicated to ending extreme poverty and preventable diseases, particularly in Africa.',
   },
   {
     id: 4,
@@ -42,7 +42,7 @@ const speakers = [
     company: 'David Tutera Experience',
     image: '/assets/images/David.jpg',
     topic: 'Designing Dreams: Transforming Spaces with Emotion',
-    bio: 'Preston Bailey is a celebrated floral and event designer known for his ability to transform ordinary spaces into lavish theatrical environments...',
+    bio: 'David Tutera is a globally celebrated lifestyle and event expert with over 30 years of experience in designing luxurious weddings, parties, and special events for celebrities, royalty, politicians, and discerning clients worldwide. Known for his meticulous attention to detail and unique artistic vision, David has built a reputation as one of the most talented and sought-after event planners in the world. Tutera began his career at the age of 19 with just one client and quickly rose to prominence through his innovative designs and passion for creating memorable experiences.',
   },
   {
     id: 5,
@@ -127,7 +127,7 @@ const SummitSpeakers = () => {
       {/* Section Header */}
       <h2 className="text-6xl font-primary hero-text mb-4">Atinuda Speakers</h2>
       <p className="max-w-2xl text-2xl hero-text text-gray-300">
-        Meet our industry leaders and visionaries who will share invaluable insights at the summit.
+        Meet our industry leaders and visionaries who have shared invaluable insights at the summit.
       </p>
 
       {/* Scrollable Speaker List */}

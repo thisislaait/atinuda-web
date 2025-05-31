@@ -18,7 +18,7 @@ const AboutPage = () => {
         <div className="absolute inset-0 bg-black/45 60 z-10" />
         <div className="absolute inset-0 flex items-center justify-center text-left px-6 z-20">
           <h1 className="text-white hero-text text-4xl md:text-5xl font-semibold tracking-wide max-w-4xl leading-snug">
-            We’re an independent, lifestyle management agency providing high-end experiences for everyone.
+            We’re an independent, lifestyle event providing high-end experiences for everyone.
           </h1>
         </div>
       </div>
