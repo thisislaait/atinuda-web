@@ -104,9 +104,9 @@ const HeaderNav = () => {
           <nav className="flex flex-col space-y-6 text-white text-4xl header-text h-full justify-center">
             {[
               'Our Story',
-              'Private Membership',
+              'Membership',
               'Brands Activation',
-              'Spark The Future 2025 - Register',
+              'Spark The Future 2025',
               'Regional Events'
             ].map((item, index) => (
               <motion.span

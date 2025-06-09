@@ -16,9 +16,9 @@ import { useRouter } from 'next/navigation';
 
 
 const ticketOptions = [
-  { type: 'Member', price: 25, desc: 'Discounted rate for registered members.' },
-  { type: 'Non-Member', price: 450, desc: 'Standard access for non-members.' },
-  { type: 'VIP', price: 750, desc: 'Front row seating, exclusive dinner invite.' },
+  { type: 'Member', price: 250000, desc: 'Discounted rate for registered members.' },
+  { type: 'Non-Member', price: 450000, desc: 'Standard access for non-members.' },
+  { type: 'VIP', price: 750000, desc: 'Front row seating, exclusive dinner invite.' },
 ];
 
 const Payment = () => {
