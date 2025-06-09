@@ -75,7 +75,7 @@ const ExpectSummit = () => {
 };
 
 const ExperienceCard = ({ data }: { data: Experience }) => {
-  // const linkHref = data.id === 1 ? "/join-the-waitlist" : "/ticket-payment";
+  const linkHref = data.id === 1 ? "/join-the-waitlist" : "/ticket-payment";
 
   return (
     <div className="w-full md:w-1/2 bg-white shadow-lg p-6 flex flex-col gap-2">
@@ -99,16 +99,17 @@ const ExperienceCard = ({ data }: { data: Experience }) => {
           <ArrowRight size={20} />
         </button>
       
-        <Link href="/join-the-waitlist" passHref>
-        <motion.a
-          whileHover={{ backgroundColor: "#ff7f41" }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="relative px-6 py-2 border border-gray-500 text-black nav-text font-medium uppercase overflow-hidden group"
-        >
-          <span className="relative z-10">Make a Reservation</span>
-          <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
-        </motion.a>
+        <Link href={linkHref} passHref>
+          <motion.a
+            whileHover={{ backgroundColor: "#ff7f41" }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="relative px-6 py-2 border border-gray-500 text-black nav-text font-medium uppercase overflow-hidden group"
+          >
+            <span className="relative z-10">Make a Reservation</span>
+            <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
+          </motion.a>
         </Link>
+
       </div>
     </div>
   );
