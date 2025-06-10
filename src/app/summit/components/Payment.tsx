@@ -17,8 +17,10 @@ import { useRouter } from 'next/navigation';
 
 const ticketOptions = [
   { type: 'Member', price: 250000, desc: 'Discounted rate for registered members.' },
-  { type: 'Non-Member', price: 450000, desc: 'Standard access for non-members.' },
-  { type: 'VIP', price: 750000, desc: 'Front row seating, exclusive dinner invite.' },
+  { type: 'Non-Member', price: 295000, desc: 'Standard access for non-members.' },
+  { type: 'VIP', price: 500000, desc: 'Front row seating, exclusive dinner invite.' },
+  { type: 'Non-Member', price: 650000, desc: 'Standard access for non-members.' },
+  { type: 'VIP', price: 250000, desc: 'Front row seating, exclusive dinner invite.' },
 ];
 
 const Payment = () => {
@@ -206,10 +208,11 @@ const Payment = () => {
                   
                 }
               }}
-              className="relative px-8 py-3 border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
+              className="relative z-50 px-8 py-3 border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4" // Added z-50 to try and fix potential overlay issue on Vercel
             >
               Proceed to Payment
             </button>
+            {/* If the button is still not clickable on Vercel, inspect the element in the browser developer tools to see if another element is covering it. */}
             {/* <button
               onClick={() => signOut(auth)}
               className="text-sm hover:text-red-600 transition relative px-8 py-3 border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
@@ -227,4 +230,3 @@ const Payment = () => {
 };
 
 export default Payment;
-

@@ -38,8 +38,22 @@ const experiences: Experience[] = [
   {
     id: 4,
     title: 'Brands Cocktail Mixer',
-    tag: 'VIP Access',
+    tag: 'Limited Entry',
     description: 'An evening of style, connections, and quiet power moves. Let’s talk, sip, and make things happen.',
+    image: '/assets/images/CocktailMixer.png',
+  },
+  {
+    id: 5,
+    title: 'Atelier Masterclass',
+    tag: 'VIP Access',
+    description: 'A hands-on deep dive with the masters. Focused Practical lessons, real experiences, and tools you can actually use.',
+    image: '/assets/images/Dinner.png',
+  },
+  {
+    id: 6,
+    title: 'Regional Meetups',
+    tag: 'Insider Circle',
+    description: ' Meet other members in your city. Share ideas, talk business, and build real connections without the pressure.',
     image: '/assets/images/CocktailMixer.png',
   },
 ];

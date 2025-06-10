@@ -125,7 +125,7 @@ const SummitSpeakers = () => {
       </div>
 
       {/* Section Header */}
-      <h2 className="text-6xl font-primary hero-text mb-4">Atinuda Speakers</h2>
+      <h2 className="text-6xl font-primary hero-text mb-4">Past Atinuda Speakers</h2>
       <p className="max-w-2xl text-2xl hero-text text-gray-300">
         Meet our industry leaders and visionaries who have shared invaluable insights at the summit.
       </p>
