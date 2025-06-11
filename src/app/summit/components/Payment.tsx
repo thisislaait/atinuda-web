@@ -7,7 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import AuthModal from '@/components/AuthModal';
-import emailjs from 'emailjs-com';
+// import emailjs from 'emailjs-com';
 import { useRouter } from 'next/navigation';
 
 
@@ -181,23 +181,23 @@ const Payment = () => {
                       console.log('Payment success:', response);
                       closePaymentModal();
                   
-                      // Send confirmation email
-                      emailjs.send(
-                        'service_0hr9j1c',
-                        'template_lza9v4x',
-                        {
-                          user_name: user?.firstName || 'Guest',
-                          user_email: user?.email,
-                          ticket_type: selected,
-                          ticket_quantity: quantity,
-                          total_amount: totalAmount.toLocaleString(),
-                        },
-                        'UVyr_S1vJexPjIQ2A'
-                      ).then(() => {
-                        console.log('Email sent successfully!');
-                      }).catch((err) => {
-                        console.error('Email sending failed:', err);
-                      });
+                      // // Send confirmation email
+                      // emailjs.send(
+                      //   'service_0hr9j1c',
+                      //   'template_lza9v4x',
+                      //   {
+                      //     user_name: user?.firstName || 'Guest',
+                      //     user_email: user?.email,
+                      //     ticket_type: selected,
+                      //     ticket_quantity: quantity,
+                      //     total_amount: totalAmount.toLocaleString(),
+                      //   },
+                      //   'UVyr_S1vJexPjIQ2A'
+                      // ).then(() => {
+                      //   console.log('Email sent successfully!');
+                      // }).catch((err) => {
+                      //   console.error('Email sending failed:', err);
+                      // });
                   
                       router.push('/success'); // Optional redirect
                     },
