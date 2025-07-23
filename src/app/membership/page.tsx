@@ -75,7 +75,7 @@ export default function MembersPage() {
         <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 px-6 max-w-6xl mx-auto">
           <Image src="/assets/images/Morrocco.webp" alt="Morrocco" width={300} height={200} className="rounded-xl" />
           <Image src="/assets/images/kigali.jpg" alt="Kigali" width={300} height={200} className="rounded-xl" />
-          <Image src="/assets/images/mauritius2.png" alt="Mauritius" width={300} height={200} className="rounded-xl" />
+          <Image src="/assets/images/Mauritius2.png" alt="Mauritius" width={300} height={200} className="rounded-xl" />
           <Image src="/assets/images/theatre.png" alt="Lagos" width={300} height={200} className="rounded-xl" />
         </div>
       </section>
