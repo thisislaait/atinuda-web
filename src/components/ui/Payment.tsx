@@ -165,7 +165,7 @@ const Payment = () => {
           <p><strong>Location:</strong> Lagos, Nigeria</p>
           <p><strong>Time:</strong> 10:00 AM – 6:00 PM Daily</p>
           <p className="mt-4 text-sm text-gray-500">
-            Early bird pricing ends July 1st. No refunds after purchase.
+            Early bird pricing ends August 1st. No refunds after purchase.
           </p>
           <Link
             href="https://instagram.com/atinuda_"
