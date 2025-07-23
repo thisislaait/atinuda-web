@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
