@@ -2,6 +2,10 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+
+
+const MotionLink = motion(Link);
 
 const SummitAbout = () => {
   return (
@@ -38,14 +42,16 @@ const SummitAbout = () => {
           </p>
 
           <div className="flex justify-center md:justify-start">
-            <motion.button
-              whileHover={{ backgroundColor: '#ff7f41' }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="relative px-6 py-2 border border-gray-500 text-black nav-text font-medium uppercase overflow-hidden group"
-            >
-              <span className="relative z-10">Secure A Seat</span>
-              <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
-            </motion.button>
+            <Link href="/ticket-payment">
+              <motion.button
+                whileHover={{ backgroundColor: '#ff7f41' }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="relative px-6 py-2 border border-gray-500 text-black nav-text font-medium uppercase overflow-hidden group"
+              >
+                <span className="relative z-10">Secure A Seat</span>
+                <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
+              </motion.button>
+            </Link>
           </div>
         </div>
       </div>

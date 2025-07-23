@@ -32,7 +32,7 @@ const ticketOptions = [
     priceNGN: 500000,
     priceUSD: 340,
     desc: 'Includes full Conference + Workshop access with an exclusive bundled rate. Enjoy curated content and actionable insights.',
-    image: '/assets/images/executive.jpeg',
+    image: '/assets/images/executive2.png',
   },
   {
     type: 'Executive Access',
