@@ -50,7 +50,7 @@ const BottomNav = () => {
           <span className="block sm:inline">Become A</span>{" "}
           <span className="block sm:inline">Sponsor</span>
         </NavItem>
-        <NavItem href="/https://atinuda.africa/membership/">
+        <NavItem href="/membership">
           <span className="block sm:inline">Invite</span>{" "}
           <span className="block sm:inline">Only</span>
         </NavItem>

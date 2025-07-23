@@ -4,20 +4,60 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { db } from '@/firebase/config'; // adjust the import path
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+
 const JoinWaitlist = () => {
-    type FormDataType = {
-        name: string;
-        company: string;
-        email: string;
-        goals: string;
-        activities: string[];
-        dietary: string;
-        accommodation: string;
-        location: string;
-        earlybird: string;
-      };
-      
-      const [formData, setFormData] = useState<FormDataType>({
+  type FormDataType = {
+    name: string;
+    company: string;
+    email: string;
+    goals: string;
+    activities: string[];
+    dietary: string;
+    accommodation: string;
+    location: string;
+    earlybird: string;
+  };
+
+  const [formData, setFormData] = useState<FormDataType>({
+    name: '',
+    company: '',
+    email: '',
+    goals: '',
+    activities: [],
+    dietary: '',
+    accommodation: '',
+    location: '',
+    earlybird: '',
+  });
+
+  const inputClass =
+    'w-full p-2 border-b border-white/40 bg-transparent text-white placeholder-white/60 focus:outline-none focus:border-white transition duration-300';
+
+  const selectClass =
+    'w-full p-2 bg-white text-black border-b border-white/40 focus:outline-none focus:border-white transition duration-300 rounded-md';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      // Send to Firebase
+      await addDoc(collection(db, 'mauritius_waitlist'), formData);
+
+      // Send to FormSubmit as backup/confirmation
+      await fetch('https://formsubmit.co/ajax/resort@atinuda.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      toast.success('Thank you for joining the waitlist!');
+      setFormData({
         name: '',
         company: '',
         email: '',
@@ -28,46 +68,9 @@ const JoinWaitlist = () => {
         location: '',
         earlybird: '',
       });
-      
-
-  const [status, setStatus] = useState('');
-
-  const inputClass =
-    'w-full p-2 border-b border-white/40 bg-transparent text-white placeholder-white/60 focus:outline-none focus:border-white transition duration-300';
-
-const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 focus:outline-none focus:border-white transition duration-300 rounded-md";
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch('https://formsubmit.co/ajax/resort@atinuda.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setStatus('Thank you for joining the waitlist!');
-        setFormData({
-          name: '',
-          company: '',
-          email: '',
-          goals: '',
-          activities: [],
-          dietary: '',
-          accommodation: '',
-          location: '',
-          earlybird: '',
-        });
-      } else {
-        setStatus('Something went wrong. Please try again.');
-      }
-    } catch {
-      setStatus('Network error. Please try again.');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error('Something went wrong. Please try again.');
     }
   };
 
@@ -77,11 +80,10 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
         <Image
           src="/assets/images/Mauritius2.png"
           alt="Hero Background"
-          layout="fill"
-          objectFit="cover"
-          className="w-full h-full"
+          fill
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-[#1f2340]/40"></div>
+        <div className="absolute inset-0 bg-[#1f2340]/40" />
       </div>
 
       <div className="max-w-xl w-full mt-36 bg-white/10 backdrop-blur-md border border-white/30 shadow-lg text-black p-6 sm:p-8 rounded-xl">
@@ -113,12 +115,11 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             className={inputClass}
           />
 
-          {/* Goals */}
           <select
             required
             value={formData.goals}
             onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
-            className={selectClass} 
+            className={selectClass}
           >
             <option value="">What do you hope to gain?</option>
             <option value="Relaxation">Relaxation</option>
@@ -127,7 +128,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             <option value="Wellness">Wellness</option>
           </select>
 
-          {/* Activities */}
           <div>
             <p className="mb-1">Preferred Activities:</p>
             {['Yoga', 'Adventure Tours', 'Workshops', 'Fireside Chats', 'Spa Treatments'].map((activity) => (
@@ -149,7 +149,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             ))}
           </div>
 
-          {/* Dietary Preferences */}
           <select
             required
             value={formData.dietary}
@@ -165,7 +164,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             <option value="Other">Other</option>
           </select>
 
-          {/* Accommodation */}
           <div>
             <p className="mb-1">Accommodation Preference:</p>
             {['Private Room', 'Shared Room', 'No Preference'].map((opt) => (
@@ -183,7 +181,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             ))}
           </div>
 
-          {/* Location */}
           <input
             type="text"
             placeholder="Where are you traveling from?"
@@ -193,7 +190,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             className={inputClass}
           />
 
-          {/* Early Bird */}
           <div>
             <p className="mb-1">Interested in early bird or referral rewards?</p>
             {['Yes', 'No'].map((opt) => (
@@ -211,7 +207,6 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
             ))}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-4 mt-4">
             <button
               type="submit"
@@ -220,22 +215,21 @@ const selectClass = "w-full p-2 bg-white text-black border-b border-white/40 foc
               <ArrowRight size={20} />
             </button>
 
-              <motion.a
-                whileHover={{ backgroundColor: '#ff7f41' }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="relative px-6 py-2 border border-gray-500 text-white font-medium nav-text uppercase cursor overflow-hidden group"
-              >
-                <span className="relative z-10">Join Now</span>
-                <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
-              </motion.a>
-           
+            <motion.button
+              type="submit"
+              whileHover={{ backgroundColor: '#ff7f41' }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="relative px-6 py-2 border border-gray-500 text-white font-medium nav-text uppercase cursor overflow-hidden group"
+            >
+              <span className="relative z-10">Join Now</span>
+              <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
+            </motion.button>
           </div>
         </form>
-
-        {status && <p className="text-sm mt-4">{status}</p>}
       </div>
     </section>
   );
 };
 
 export default JoinWaitlist;
+

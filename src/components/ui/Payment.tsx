@@ -161,7 +161,7 @@ const Payment = () => {
         </p>
 
         <div className="mb-8 text-gray-700">
-          <p><strong>Date:</strong> October 7–9, 2025</p>
+          <p><strong>Date:</strong> October 7th & 8th, 2025</p>
           <p><strong>Location:</strong> Lagos, Nigeria</p>
           <p><strong>Time:</strong> 10:00 AM – 6:00 PM Daily</p>
           <p className="mt-4 text-sm text-gray-500">

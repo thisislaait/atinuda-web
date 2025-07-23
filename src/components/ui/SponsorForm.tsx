@@ -2,6 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { db } from '@/firebase/config'; // adjust the import path
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import toast from 'react-hot-toast';
 
 const BecomeSponsorForm = () => {
   const [formData, setFormData] = useState({
@@ -16,11 +19,34 @@ const BecomeSponsorForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // You can hook this to an email API or backend
-  };
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   console.log('Form submitted:', formData);
+  //   // You can hook this to an email API or backend
+  // };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    await addDoc(collection(db, "sponsorRequests"), {
+      ...formData,
+      createdAt: Timestamp.now(),
+    });
+
+    toast.success('Enquiry submitted successfully!');
+    setFormData({
+      name: '',
+      company: '',
+      email: '',
+      phone: '',
+      message: '',
+    });
+  } catch (error) {
+    console.error("Error submitting sponsor request:", error);
+    alert("Submission failed. Please try again.");
+  }
+};
 
   return (
     <section className="min-h-screen flex flex-col md:flex-row">

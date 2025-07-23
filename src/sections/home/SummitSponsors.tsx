@@ -92,15 +92,20 @@ const SummitSponsors = () => {
         {/* Left Side - Smooth Scroll Within Section */}
         <div className="md:w-3/5 pr-8 left-content h-[400px] overflow-hidden">
           <div ref={contentRef} className="pr-4 h-full overflow-hidden">
-            <p className="text-2xl header-text text-black leading-relaxed">
-              Atinuda is where the architects of luxury, culture, and innovation come together.  
-              It’s a gathering for meaningful partnerships, bold ideas, and industry-shaping collaborations.  
-              <br />
-              <br />
-              Our ecosystem thrives on visionaries—brands and leaders who drive change.  
-              <br />
-              <br />
-            </p>
+            <div className="text-2xl header-text text-black leading-relaxed">
+                <p>
+                  Atinuda is where the architects of luxury, culture, and innovation come together.  
+                  It’s a gathering for meaningful partnerships, bold ideas, and industry-shaping collaborations.
+                </p>
+
+                <br />
+
+                <div className="text-base md:text-2xl">
+                  Our ecosystem thrives on visionaries—brands and leaders who drive change.
+                </div>
+
+                <br />
+              </div>
 
             <div className="hidden md:block">
               <p className="text-sm text-black">

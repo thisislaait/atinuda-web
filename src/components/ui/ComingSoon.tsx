@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // Countdown target date
-const targetDate = new Date('2025-08-15T00:00:00');
+const targetDate = new Date('2025-10-07T00:00:00');
 
 const ComingSoon = () => {
   const [timeLeft, setTimeLeft] = useState({
@@ -53,7 +53,7 @@ const ComingSoon = () => {
       <div className="relative z-20 max-w-6xl w-full flex flex-col md:flex-row items-center justify-between gap-12">
         {/* Countdown Timer */}
         <div className="text-white text-center md:text-left w-full md:w-1/2">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">See you at Atinuda 5</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">See you at Atinuda</h2>
           <div className="flex justify-center md:justify-start space-x-6 text-xl font-mono">
             <div>
               <p className="text-5xl font-bold">{timeLeft.days}</p>

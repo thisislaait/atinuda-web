@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/Nav/HeaderNav";
 import SummitFooter from "../components/layout/SummitFooter";
+import { Toaster } from "react-hot-toast";
 
 // 👇 import your context provider
 import { AuthProvider } from "@/context/AuthContext";
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AuthModal />
           {children}
           <SummitFooter />
+          <Toaster position="top-right" />
         </AuthProvider>
       </body>
     </html>
