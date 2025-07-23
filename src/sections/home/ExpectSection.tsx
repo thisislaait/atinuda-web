@@ -47,7 +47,7 @@ const experiences: Experience[] = [
     title: 'Atelier Masterclass',
     tag: 'VIP Access',
     description: 'A hands-on deep dive with the masters. Focused Practical lessons, real experiences, and tools you can actually use.',
-    image: '/assets/images/Masterclass.jpg',
+    image: '/assets/images/masterclass.jpg',
   },
   {
     id: 6,

@@ -27,14 +27,14 @@ const SummitAbout = () => {
             Secure your early access tickets now and be part of the conversations that matter. Limited in-person tickets are available at the following early bird rates:
           </p>
           <ul className="text-sm md:text-base leading-relaxed list-disc list-inside mb-4">
-            <li>Member tickets from ₦250,000 + VAT & fees</li>
-            <li>Non-member tickets from ₦450,000 + VAT & fees</li>
+            <li>Member tickets from ₦175,000 + VAT & fees</li>
+            <li>Non-member tickets from ₦250,000 + VAT & fees</li>
           </ul>
           <p className="text-sm md:text-base leading-relaxed mb-4">
             ATINUDA members, please email <a href="mailto:rsvp@atinuda.africa" className="text-[#ff7f41] underline">rsvp@atinuda.africa</a> to receive your exclusive access code.
           </p>
           <p className="text-sm md:text-base leading-relaxed mb-4">
-            Early bird pricing is valid until <span className="font-medium">11:59 PM, July 1st, 2025</span>. Prices will increase after this date.
+            Early bird pricing is valid until <span className="font-medium">11:59 PM, August 1st, 2025</span>. Prices will increase after this date.
           </p>
 
           <div className="flex justify-center md:justify-start">
