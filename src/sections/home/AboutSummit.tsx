@@ -5,8 +5,6 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 
-const MotionLink = motion(Link);
-
 const SummitAbout = () => {
   return (
     <section id="summit-about" className="relative w-full flex flex-col md:flex-row items-center min-h-screen py-6 px-6 md:px-16">
