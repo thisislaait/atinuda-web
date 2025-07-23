@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { db } from '@/firebase/config'; // adjust the import path
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc} from "firebase/firestore";
 
 const JoinWaitlist = () => {
   type FormDataType = {

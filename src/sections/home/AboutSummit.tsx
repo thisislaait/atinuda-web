@@ -21,7 +21,7 @@ const SummitAbout = () => {
         <div className="absolute hidden md:block top-0 bottom-0 left-0 w-[1px] bg-[#ff7f41]" />
         <div className="pl-0 md:pl-6 text-black text-center md:text-left">
           <p className="text-2xl md:text-3xl header-text leading-relaxed mb-4">
-            Join us from <span className="font-medium">October 7th - 9th, 2025</span> for a transformative experience at ATINUDA 2025. We’re bringing together industry leaders, creative visionaries, and business decision-makers to explore the next frontier of luxury, events, and global influence.
+            Join us from <span className="font-medium">October 7th & 8th, 2025</span> for a transformative experience at ATINUDA 2025. We’re bringing together industry leaders, creative visionaries, and business decision-makers to explore the next frontier of luxury, events, and global influence.
           </p>
           <p className="text-sm md:text-base leading-relaxed mb-4">
             Secure your early access tickets now and be part of the conversations that matter. Limited in-person tickets are available at the following early bird rates:
