@@ -1,9 +1,3 @@
-// import ComingSoon from "../summit/components/ComingSoon";
-
-// export default function MembershipPage() {
-//   return <ComingSoon />;
-// }
-
 'use client';
 
 import Image from 'next/image';
@@ -16,7 +10,7 @@ export default function MembersPage() {
       {/* Hero Banner */}
       <section className="relative w-full h-screen">
         <Image
-          src="/assets/images/atinuda-members-club.jpg"
+          src="/assets/images/elementfour.png"
           alt="Atinuda Members Club"
           fill
           className="object-cover"
@@ -52,7 +46,7 @@ export default function MembersPage() {
       <section className="bg-[#fff8f3] py-20 px-6">
         <div className="grid md:grid-cols-2 gap-16 max-w-6xl mx-auto items-center">
           <Image
-            src="/assets/images/atinuda-mauritius.jpg"
+            src="/assets/images/Maritius.png"
             alt="Retreat in Mauritius"
             width={600}
             height={400}
@@ -79,25 +73,34 @@ export default function MembersPage() {
         </p>
 
         <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 px-6 max-w-6xl mx-auto">
-          <Image src="/assets/images/newyork.jpg" alt="NYC" width={300} height={200} className="rounded-xl" />
-          <Image src="/assets/images/paris.jpg" alt="Paris" width={300} height={200} className="rounded-xl" />
-          <Image src="/assets/images/mauritius.jpg" alt="Mauritius" width={300} height={200} className="rounded-xl" />
-          <Image src="/assets/images/lagos.jpg" alt="Lagos" width={300} height={200} className="rounded-xl" />
+          <Image src="/assets/images/Morrocco.webp" alt="Morrocco" width={300} height={200} className="rounded-xl" />
+          <Image src="/assets/images/kigali.jpg" alt="Kigali" width={300} height={200} className="rounded-xl" />
+          <Image src="/assets/images/mauritius2.png" alt="Mauritius" width={300} height={200} className="rounded-xl" />
+          <Image src="/assets/images/theatre.png" alt="Lagos" width={300} height={200} className="rounded-xl" />
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-20 bg-[#1f2340] text-white text-center px-6">
-        <h2 className="text-4xl hero-text mb-4">Join the Circle of Influence</h2>
-        <p className="max-w-xl mx-auto text-lg text-gray-300 mb-6">
-          Unlock priority invites, bespoke experiences, and curated connections.
-        </p>
-        <Link
-          href="/membership"
-          className="inline-block px-6 py-3 bg-[#ff7f41] text-white uppercase tracking-wide rounded hover:bg-[#e66a30] transition"
-        >
-          Become a Member
-        </Link>
+      {/* Call to Action with elementsix background */}
+      <section className="relative py-20 text-white text-center px-6">
+        <Image
+          src="/assets/images/elementsix.png"
+          alt="Background"
+          fill
+          className="object-cover z-0"
+        />
+        <div className="absolute inset-0 bg-black/70 z-10" />
+        <div className="relative z-20">
+          <h2 className="text-4xl hero-text mb-4">Join the Circle of Influence</h2>
+          <p className="max-w-xl mx-auto text-lg text-gray-300 mb-6">
+            Unlock priority invites, bespoke experiences, and curated connections.
+          </p>
+          <Link
+            href="/membership"
+            className="inline-block px-6 py-3 bg-[#ff7f41] text-white uppercase tracking-wide rounded hover:bg-[#e66a30] transition"
+          >
+            Become a Member
+          </Link>
+        </div>
       </section>
     </main>
   );

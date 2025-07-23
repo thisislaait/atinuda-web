@@ -47,14 +47,14 @@ const experiences: Experience[] = [
     title: 'Atelier Masterclass',
     tag: 'VIP Access',
     description: 'A hands-on deep dive with the masters. Focused Practical lessons, real experiences, and tools you can actually use.',
-    image: '/assets/images/Dinner.png',
+    image: '/assets/images/Masterclass.jpg',
   },
   {
     id: 6,
     title: 'Regional Meetups',
     tag: 'Insider Circle',
     description: ' Meet other members in your city. Share ideas, talk business, and build real connections without the pressure.',
-    image: '/assets/images/CocktailMixer.png',
+    image: '/assets/images/Meetup2.jpg',
   },
 ];
 

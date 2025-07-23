@@ -102,22 +102,22 @@ const SummitSponsors = () => {
               <br />
             </p>
 
-            <p className="text-sm text-black">
-              We work with partners who redefine excellence, creating experiences that resonate across industries.
-                
-              <br />
-              <br />
-              Every partnership is a statement. Every connection is an opportunity.  
-            </p>
+            <div className="hidden md:block">
+              <p className="text-sm text-black">
+                We work with partners who redefine excellence, creating experiences that resonate across industries.
+                <br />
+                <br />
+                Every partnership is a statement. Every connection is an opportunity.  
+              </p>
 
-
-            <div className="mt-6 space-y-3">
-              {stats.map((stat, index) => (
-                <div key={index} className="flex justify-center gap-2.5 text-lg font-semibold text-black">
-                  <span>{stat.category}</span>
-                  <span>{stat.percentage}%</span>
-                </div>
-              ))}
+              <div className="mt-6 space-y-3">
+                {stats.map((stat, index) => (
+                  <div key={index} className="flex justify-center gap-2.5 text-lg font-semibold text-black">
+                    <span>{stat.category}</span>
+                    <span>{stat.percentage}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
