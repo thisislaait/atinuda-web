@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize:images": "tinypng --key=VCqXG4k6DdGh9m6N22kzm85V7rQD5r3N ./public/assets/images"
+
   },
   "dependencies": {
     "@paystack/inline-js": "^2.22.4",
