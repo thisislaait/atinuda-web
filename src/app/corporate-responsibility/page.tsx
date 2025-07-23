@@ -1,4 +1,4 @@
-import ComingSoon from "../summit/components/ComingSoon";
+import ComingSoon from "../../components/ui/ComingSoon";
 
 export default function CorporateResponsibilityPage() {
   return <ComingSoon />;

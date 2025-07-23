@@ -2,14 +2,14 @@
 
 import React from 'react';
 
-import ExpectSection from './summit/components/ExpectSection';
-import SummitSpeakers from './summit/components/SummitSpeakers';
-import SummitSponsors from './summit/components/SummitSponsors';
-import BecomeSponsor from './summit/components/BecomeSponsor';
+import ExpectSection from '../sections/home/ExpectSection';
+import SummitSpeakers from '../sections/home/SummitSpeakers';
+import SummitSponsors from '../sections/home/SummitSponsors';
+import BecomeSponsor from '../sections/home/BecomeSponsor';
 // import SummitNews from './summit/components/SummitNews';
-import BottomNav from './summit/components/Nav/BottomNav';
-import SummitHero from './summit/components/SummitHero';
-import AboutSummit from './summit/components/AboutSummit';
+import BottomNav from '../components/layout/Nav/BottomNav';
+import SummitHero from '../sections/home/SummitHero';
+import AboutSummit from '../sections/home/AboutSummit';
 
 const SummitPage = () => {
   return (

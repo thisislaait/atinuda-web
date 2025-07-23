@@ -1,6 +1,6 @@
 'use client';
 
-import Payment from '@/app/summit/components/Payment';
+import Payment from '@/components/ui/Payment';
 
 const TicketPaymentPage = () => {
   return (

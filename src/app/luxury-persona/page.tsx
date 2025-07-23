@@ -1,4 +1,4 @@
-import QuizHome from "@/app/summit/components/QuizHome";
+import QuizHome from "@/components/ui/QuizHome";
 
 
 export default function LuxuryPersonaPage() {

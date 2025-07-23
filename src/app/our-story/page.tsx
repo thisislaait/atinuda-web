@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import ExperienceSection from '../summit/components/ExperienceSection';
+import ExperienceSection from '../../sections/home/ExperienceSection';
 
 const AboutPage = () => {
   return (

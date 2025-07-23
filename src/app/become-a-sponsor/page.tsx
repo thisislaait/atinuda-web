@@ -1,4 +1,4 @@
-import BecomeSponsorForm from "../summit/components/SponsorForm";
+import BecomeSponsorForm from "../../components/ui/SponsorForm";
 import Image from "next/image";
 
 

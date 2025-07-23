@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import SpeakerModal from './SpeakerModal';
+import SpeakerModal from '../../components/ui/SpeakerModal';
 
 const speakers = [
   {
@@ -116,7 +116,7 @@ const SummitSpeakers = () => {
       {/* Background Image */}
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/assets/images/RepeatBg.jpg"
+          src="/assets/images/elementone.png"
           alt="Speakers Background"
           fill
           style={{ objectFit: 'cover' }}

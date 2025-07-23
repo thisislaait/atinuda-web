@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/app/summit/components/Nav/HeaderNav";
-import SummitFooter from "./summit/components/SummitFooter";
+import Navbar from "@/components/layout/Nav/HeaderNav";
+import SummitFooter from "../components/layout/SummitFooter";
 
 // 👇 import your context provider
 import { AuthProvider } from "@/context/AuthContext";
-import AuthModal from "@/components/AuthModal";
+import AuthModal from "@/components/auth/AuthModal";
 
 export const metadata: Metadata = {
   title: "Atinuda Summit",
