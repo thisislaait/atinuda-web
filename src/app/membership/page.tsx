@@ -95,7 +95,7 @@ export default function MembersPage() {
             Unlock priority invites, bespoke experiences, and curated connections.
           </p>
           <Link
-            href="/membership"
+            href="/signup"
             className="inline-block px-6 py-3 bg-[#ff7f41] text-white uppercase tracking-wide rounded hover:bg-[#e66a30] transition"
           >
             Become a Member
