@@ -36,7 +36,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-4">
-      <div className="max-w-xl w-full bg-white shadow-md rounded-lg p-8">
+      <div className="max-w-xl w-full text-black bg-white shadow-md rounded-lg p-8">
         <h2 className="text-2xl font-bold mb-6 text-center">Create Your Atinuda Account</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-4">
