@@ -5,7 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-const HeaderNav = () => {
+type HeaderNavProps = {
+  initialLightBg?: boolean; // ← Optional prop to indicate light background (e.g. white section)
+};
+
+const HeaderNav = ({ initialLightBg = false }: HeaderNavProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -17,7 +21,6 @@ const HeaderNav = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    // ✅ Preload menu background image
     const img = new window.Image();
     img.src = "/assets/images/menubanner.jpg";
 
@@ -28,6 +31,14 @@ const HeaderNav = () => {
     setMenuOpen(false);
     window.location.href = path;
   };
+
+  const logoToUse = scrolled
+    ? "/assets/images/blacklogo.png"
+    : initialLightBg
+    ? "/assets/images/blacklogo.png"
+    : "/assets/images/whitelogo.png";
+
+  const textColor = scrolled || initialLightBg ? "black" : "white";
 
   return (
     <>
@@ -40,11 +51,7 @@ const HeaderNav = () => {
         {/* Logo */}
         <Link href="/">
           <Image
-            src={
-              scrolled
-                ? "/assets/images/blacklogo.png"
-                : "/assets/images/whitelogo.png"
-            }
+            src={logoToUse}
             alt="Logo"
             width={120}
             height={40}
@@ -59,31 +66,21 @@ const HeaderNav = () => {
           aria-label="Open menu"
           className="relative text-lg font-medium tracking-wider flex items-center"
         >
-          {/* Hamburger Icon */}
+          {/* Hamburger */}
           <div className="md:hidden flex flex-col space-y-1">
-            <span
-              className={`block w-6 h-[2px] transition-all duration-300 ${
-                scrolled ? "text-black" : "text-white"
-              } bg-current`}
-            ></span>
-            <span
-              className={`block w-6 h-[2px] transition-all duration-300 ${
-                scrolled ? "text-black" : "text-white"
-              } bg-current`}
-            ></span>
+            <span className={`block w-6 h-[2px] bg-current ${textColor === "black" ? "text-black" : "text-white"}`}></span>
+            <span className={`block w-6 h-[2px] bg-current ${textColor === "black" ? "text-black" : "text-white"}`}></span>
           </div>
 
-          {/* "Menu" text */}
+          {/* Menu Text */}
           <motion.span
             className="hidden md:block nav-text uppercase cursor-pointer tracking-wider transition-all duration-300 ml-2"
             initial={{ backgroundSize: "0% 1px" }}
             whileHover={{ backgroundSize: "100% 1px" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             style={{
-              color: scrolled ? "black" : "white",
-              backgroundImage: scrolled
-                ? "linear-gradient(to right, black, black)"
-                : "linear-gradient(to right, white, white)",
+              color: textColor,
+              backgroundImage: `linear-gradient(to right, ${textColor}, ${textColor})`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "0 100%",
               backgroundSize: "0% 2px",
@@ -105,7 +102,6 @@ const HeaderNav = () => {
           className="fixed top-0 left-0 w-full h-full bg-cover bg-center flex flex-col justify-center items-end pr-20 z-50"
           style={{ backgroundImage: "url('/assets/images/menubanner.jpg')" }}
         >
-          {/* Close Button */}
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
@@ -115,7 +111,6 @@ const HeaderNav = () => {
             Close
           </button>
 
-          {/* Navigation Menu */}
           <nav className="flex flex-col space-y-6 text-white text-4xl header-text h-full justify-center">
             {[
               "Our Story",

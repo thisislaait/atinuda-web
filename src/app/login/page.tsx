@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/firebase/config';
 import { useRouter } from 'next/navigation';
+import HeaderNav from '@/components/layout/Nav/HeaderNav';
 
 export default function Login() {
   const router = useRouter();
@@ -26,8 +27,11 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f7f7] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white shadow-md rounded-lg p-8 text-black">
+  <>
+    <HeaderNav initialLightBg={true} />
+    <div className="min-h-screen relative flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-[url('/assets/images/elementthree.png')] bg-cover bg-center opacity-25 z-0" />
+      <div className="max-w-md w-full relative bg-white shadow-md rounded-lg p-8 text-black">
         <h2 className="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input name="email" type="email" onChange={handleChange} placeholder="Email" className="input" required />
@@ -42,5 +46,6 @@ export default function Login() {
         </p>
       </div>
     </div>
+  </>
   );
 }
