@@ -153,6 +153,8 @@ function Content() {
                   <Image
                     src={qrCode}
                     alt="QR Code"
+                    width={144}
+                    height={144}
                     className="w-36 h-36 object-contain border border-gray-300 rounded shadow-md"
                   />
                   <p className="text-sm text-black mt-2 font-medium">Scan at entrance</p>
