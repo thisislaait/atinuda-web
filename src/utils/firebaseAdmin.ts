@@ -15,17 +15,17 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { ServiceAccount } from 'firebase-admin';
 
+// Decode the base64 private key first
+const privateKey = Buffer.from(
+  process.env.FIREBASE_PRIVATE_KEY_B64 || '',
+  'base64'
+).toString('utf8');
+
+// Define the service account object
 const serviceAccount: ServiceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
-  // private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  
+  privateKey,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  // clientId: process.env.FIREBASE_CLIENT_ID,
-  // authUri: "https://accounts.google.com/o/oauth2/auth",
-  // tokenUri: "https://oauth2.googleapis.com/token",
-  // auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  // client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
 };
 
 if (!getApps().length) {
@@ -37,6 +37,7 @@ if (!getApps().length) {
 const adminDb = getFirestore();
 
 export { adminDb, FieldValue };
+
 
 // import { initializeApp, cert, getApps } from 'firebase-admin/app';
 // import { getFirestore, FieldValue } from 'firebase-admin/firestore';
