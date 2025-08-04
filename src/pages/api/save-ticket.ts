@@ -1,4 +1,5 @@
 // pages/api/save-ticket.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 import { generateQRCode } from '@/utils/qr';
@@ -7,19 +8,28 @@ import { sendConfirmationEmail } from '@/utils/email';
 import { getLocationText } from '@/utils/constants';
 import { generateTicketNumber } from '@/utils/ticketNumber';
 
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  // Gracefully handle invalid JSON
+  let body: { fullName?: string; email?: string; ticketType?: string };
+  try {
+    body = req.body;
+    if (typeof body !== 'object') throw new Error('Invalid body format');
+  } catch (err) {
+    return res.status(400).json({ message: 'Invalid request body format.' });
   }
 
   const { fullName, email, ticketType } = req.body;
   const location = getLocationText(ticketType);
 
-  console.log('[Incoming Request]', req.body);
+  console.log('[Incoming Request]', { fullName, email, ticketType });
 
   if (!fullName || !email || !ticketType) {
     return res.status(400).json({
@@ -28,11 +38,10 @@ export default async function handler(
   }
 
   const ticketNumber = generateTicketNumber(ticketType);
-
   const qrText = `https://atinuda.africa/ticket/${ticketNumber}`;
 
   try {
-    // ✅ Check if a ticket already exists for this email
+    // Check for existing ticket
     const existingTicketSnap = await adminDb
       .collection('payments')
       .where('email', '==', email)
@@ -48,8 +57,8 @@ export default async function handler(
       });
     }
 
-    // ✅ Generate QR code and PDF
-    const qrCode = await generateQRCode(qrText); // Make sure this is a full data URL
+    // Generate QR + PDF
+    const qrCode = await generateQRCode(qrText);
     const pdfBuffer = await generateTicketPDF(
       fullName,
       ticketNumber,
@@ -65,14 +74,14 @@ export default async function handler(
         pdfBuffer,
         ticketType,
         ticketNumber,
-        location
+        location,
       });
       emailSent = true;
     } catch (emailError) {
-      console.error('Error sending confirmation email:', emailError);
+      console.error('❌ Error sending confirmation email:', emailError);
     }
 
-    // ✅ Save ticket to Firestore
+    // Save to Firestore
     const docRef = await adminDb.collection('payments').add({
       fullName,
       email,
@@ -81,15 +90,14 @@ export default async function handler(
       location,
       emailSent,
       checkIn: {
-      day1: false,
-      day2: false
-    },
+        day1: false,
+        day2: false,
+      },
       createdAt: FieldValue.serverTimestamp(),
     });
 
-    console.log('Saved ticket with ID:', docRef.id);
+    console.log('✅ Saved ticket with ID:', docRef.id);
 
-    // ✅ Return success response including QR code
     return res.status(200).json({
       message: 'Ticket saved and email sent successfully.',
       qrCode,
@@ -98,7 +106,7 @@ export default async function handler(
     });
   } catch (error) {
     const err = error as Error;
-    console.error('Error processing ticket:', err);
+    console.error('❌ Error processing ticket:', err);
 
     return res.status(500).json({
       message:

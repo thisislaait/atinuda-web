@@ -39,45 +39,51 @@ function Content() {
   };
 
   useEffect(() => {
-    if (
-      !submitted &&
-      fullName &&
-      email &&
-      ticketType &&
-      !hasAttemptedSubmission.current
-    ) {
-      hasAttemptedSubmission.current = true;
+  if (
+    !submitted &&
+    fullName &&
+    email &&
+    typeof ticketType === 'string' &&
+    !hasAttemptedSubmission.current
+  ) {
+    hasAttemptedSubmission.current = true;
 
-      const saveTicket = async () => {
+    const saveTicket = async () => {
+      try {
+        const res = await fetch('/api/save-ticket', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fullName, email, ticketType }),
+        });
+
+        let data;
         try {
-          const res = await fetch('/api/save-ticket', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ fullName, email, ticketType }),
-          });
-
-          const data = await res.json();
-
-          if (res.ok) {
-            toast.success(data.message || 'Ticket saved successfully!');
-            setQrCode(data.qrCode || null);
-            setTicketNumber(data.ticketNumber || null);
-            setLocation(data.location || 'TBA'); // ✅ Update location from backend
-            setSubmitted(true);
-          } else {
-            toast.error(data.message || 'Failed to save ticket.');
-          }
-        } catch (error) {
-          console.error('Error saving ticket:', error);
-          toast.error('A network error occurred. Please try again later.');
+          data = await res.json();
+        } catch {
+          throw new Error('Server returned invalid JSON');
         }
-      };
 
-      saveTicket();
-    }
-  }, [submitted, fullName, email, ticketType]);
+        if (res.ok) {
+          toast.success(data.message || 'Ticket saved successfully!');
+          setQrCode(data.qrCode || null);
+          setTicketNumber(data.ticketNumber || null);
+          setLocation(data.location || 'TBA');
+          setSubmitted(true);
+        } else {
+          toast.error(data.message || 'Failed to save ticket.');
+        }
+      } catch (error) {
+        console.error('Error saving ticket:', error);
+        toast.error('A network error occurred. Please try again later.');
+      }
+    };
+
+    saveTicket();
+  }
+}, [submitted, fullName, email, ticketType]);
+
 
   const handleDownload = async () => {
   if (!ticketNumber) return;
