@@ -43,3 +43,4 @@ next-env.d.ts
 # Firebase Private Key
 /serviceAccountKey.json
 
+src/serviceAccountKey.json
