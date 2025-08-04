@@ -107,7 +107,7 @@ const Payment = () => {
         const ticketType = selectedTicket?.type || 'Unknown';
 
 
-        const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}}`;
+        const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}`;
         router.push(`/success-test${queryString}`);
       },
 
