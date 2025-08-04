@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { generateQRCode } from '@/utils/qr';
+import { Suspense } from 'react';
 
-export default function SuccessPage() {
+function Content() {
   const searchParams = useSearchParams();
 
   const [submitted, setSubmitted] = useState(false);
@@ -190,5 +191,13 @@ export default function SuccessPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Content />
+    </Suspense>
   );
 }

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode } from 'react';
+import Image from 'next/image';
 
 export type AccordionItem = {
   id: string;
@@ -90,7 +91,7 @@ const AccordionWithImage: React.FC<AccordionWithImageProps> = ({ items }) => {
 
       {/* Image Preview Panel */}
       <div className="w-full md:w-1/2 h-[300px] md:h-auto flex items-center justify-center bg-gray-100 rounded-xl overflow-hidden">
-        <img
+        <Image
           src={lastImage}
           alt={
             typeof items[openIndex || 0]?.title || 'Accordion visual'}
