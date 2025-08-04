@@ -23,7 +23,7 @@ export default async function handler(
     body = req.body;
     if (typeof body !== 'object') throw new Error('Invalid body format');
   } catch (err) {
-    return res.status(400).json({ message: 'Invalid request body format.' });
+    return res.status(400).json({ message: 'Invalid request body format.', err });
   }
 
   const { fullName, email, ticketType } = req.body;
