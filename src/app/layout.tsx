@@ -10,7 +10,9 @@ import AuthModal from "@/components/auth/AuthModal";
 
 export const metadata: Metadata = {
   title: "Atinuda Summit",
-  description: "Leading African Wedding Summit",
+  description: "Leading African Event & Creative Summit",
+  
+
 };
 
 export default function RootLayout({
