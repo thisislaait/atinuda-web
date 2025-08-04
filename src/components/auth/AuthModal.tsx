@@ -148,7 +148,7 @@ const AuthModal = () => {
           </button>
         </form>
 
-        <p className="text-sm text-center mt-4">
+        <p className="text-sm text-black text-center mt-4">
           {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
           <button
             className="text-[#ff7f41] underline"

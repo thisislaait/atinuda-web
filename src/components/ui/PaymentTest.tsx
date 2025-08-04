@@ -12,38 +12,39 @@ import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from 'next/navigation';
 import AccordionWithImage, {AccordionItem} from './accordion';
 
+
 const ticketOptions = [
   {
     type: 'Conference Access',
-    priceNGN: 295000,
-    priceUSD: 200,
+    priceNGN: 250,
+    priceUSD: 2,
     desc: 'Full access to all main conference sessions. Ideal for industry leaders and professionals seeking insights and networking.',
     image: '/assets/images/Conference.png',
   },
   {
     type: 'Workshop Access',
-    priceNGN: 250000,
+    priceNGN: 200,
     priceUSD: 170,
     desc: 'Hands-on expert-led workshops tailored for creatives and professionals. Intimate, intensive, and focused.',
     image: '/assets/images/masterclass.jpg',
   },
   {
     type: 'Premium Experience',
-    priceNGN: 500000,
+    priceNGN: 500,
     priceUSD: 340,
     desc: 'Includes full Conference + Workshop access with an exclusive bundled rate. Enjoy curated content and actionable insights.',
     image: '/assets/images/executive2.png',
   },
   {
     type: 'Executive Access',
-    priceNGN: 650000,
+    priceNGN: 650,
     priceUSD: 440,
     desc: 'Everything in Premium, plus access to the private Executive Dinner with keynote guests and partners. Limited availability.',
     image: '/assets/images/CocktailMixer.png',
   },
   {
     type: 'Dinner Gala Only',
-    priceNGN: 250000,
+    priceNGN: 250,
     priceUSD: 170,
     desc: 'Invitation to the evening Gala & Executive Dinner. Enjoy a curated experience with leaders, partners, and special guests.',
     image: '/assets/images/Dinner.png',
@@ -98,11 +99,23 @@ const Payment = () => {
       callback: (response) => {
         console.log('Payment success:', response);
         closePaymentModal();
-        router.push('/success');
+        
+        // Use real data
+        const fullName = user?.firstName || 'Atinuda Guest';
+        const email = user?.email || 'guest@example.com';
+        // const company = user?.company || 'vendor';
+        const ticketType = selectedTicket?.type || 'Unknown';
+
+
+        const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}}`;
+        router.push(`/success-test${queryString}`);
       },
+
+      
       onClose: () => console.log('Payment closed'),
     });
   };
+
 
   const accordionItems: AccordionItem[] = ticketOptions.map((ticket, index) => ({
     id: `ticket-${index}`,
@@ -162,7 +175,7 @@ const Payment = () => {
 
         <div className="mb-8 text-gray-700">
           <p><strong>Date:</strong> October 6th - 8th, 2025</p>
-          <p><strong>Location:</strong> Lagos Continental, Victoria Island, Nigeria</p>
+          <p><strong>Location:</strong> Lagos, Nigeria</p>
           <p><strong>Time:</strong> 10:00 AM – 6:00 PM Daily</p>
           <p className="mt-4 text-sm text-gray-500">
             Early bird pricing ends August 1st. No refunds after purchase.
