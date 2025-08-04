@@ -111,7 +111,7 @@ export default async function handler(
     return res.status(500).json({
       message:
         'An unexpected error occurred while processing your ticket. Please try again later.',
-      error: err.message || 'Unknown error',
+      error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
     });
   }
 }
