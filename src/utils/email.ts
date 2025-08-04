@@ -1,13 +1,11 @@
 // utils/email.ts
 import nodemailer from 'nodemailer';
-import Image from 'next/image';
-import { getLocationText } from './constants';
+
 
 export const sendConfirmationEmail = async ({
   to,
   fullName,
   pdfBuffer,
-  ticketType,
   ticketNumber,
   location,
 }: {

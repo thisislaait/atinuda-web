@@ -96,12 +96,14 @@ export default async function handler(
       ticketNumber,
       location,
     });
-  } catch (error: any) {
-    console.error('Error processing ticket:', error);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Error processing ticket:', err);
+
     return res.status(500).json({
       message:
         'An unexpected error occurred while processing your ticket. Please try again later.',
-      error: error?.message || 'Unknown error',
+      error: err.message || 'Unknown error',
     });
   }
 }

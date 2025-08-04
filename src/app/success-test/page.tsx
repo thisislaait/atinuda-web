@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { generateQRCode } from '@/utils/qr';
 
 export default function SuccessPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [submitted, setSubmitted] = useState(false);
@@ -150,7 +149,7 @@ export default function SuccessPage() {
             <div className="flex items-center justify-center md:w-1/3 bg-white p-6">
               {qrCode ? (
                 <div className="flex flex-col items-center justify-center">
-                  <img
+                  <Image
                     src={qrCode}
                     alt="QR Code"
                     className="w-36 h-36 object-contain border border-gray-300 rounded shadow-md"

@@ -6,7 +6,7 @@ export const generateQRCode = async (text: string) => {
   
   try {
     return await QRCode.toDataURL(text); // returns a base64 image
-  } catch (err) {
+  } catch {
     throw new Error('QR code generation failed');
   }
 };

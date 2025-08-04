@@ -1,7 +1,6 @@
 // utils/pdf.ts
 
 import PDFDocument from 'pdfkit';
-import { PassThrough } from 'stream';
 import path from 'path';
 
 export const generateTicketPDF = (
@@ -46,7 +45,7 @@ export const generateTicketPDF = (
     try {
       doc.image(logoPath, 20, 20, { width: 80 });
     } catch (err) {
-      console.warn('Logo image not found or failed to load.');
+      console.warn('Logo image not found or failed to load.', err);
     }
 
     // Title

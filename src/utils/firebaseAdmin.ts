@@ -29,7 +29,7 @@ const serviceAccount: ServiceAccount = {
 
 if (!getApps().length) {
   initializeApp({
-    credential: cert(serviceAccount as any),
+    credential: cert(serviceAccount),
   });
 }
 
