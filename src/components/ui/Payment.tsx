@@ -1,5 +1,3 @@
-// Refactored Payment.tsx with AccordionWithImage integration and improved structure
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -11,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from 'next/navigation';
 import AccordionWithImage, {AccordionItem} from './accordion';
+
 
 const ticketOptions = [
   {
@@ -98,11 +97,23 @@ const Payment = () => {
       callback: (response) => {
         console.log('Payment success:', response);
         closePaymentModal();
-        router.push('/success');
+        
+        // Use real data
+        const fullName = user?.firstName || 'Atinuda Guest';
+        const email = user?.email || 'guest@example.com';
+        // const company = user?.company || 'vendor';
+        const ticketType = selectedTicket?.type || 'Unknown';
+
+
+        const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}`;
+        router.push(`/success${queryString}`);
       },
+
+      
       onClose: () => console.log('Payment closed'),
     });
   };
+
 
   const accordionItems: AccordionItem[] = ticketOptions.map((ticket, index) => ({
     id: `ticket-${index}`,
@@ -162,7 +173,7 @@ const Payment = () => {
 
         <div className="mb-8 text-gray-700">
           <p><strong>Date:</strong> October 6th - 8th, 2025</p>
-          <p><strong>Location:</strong> Lagos Continental, Victoria Island, Nigeria</p>
+          <p><strong>Location:</strong> Lagos, Nigeria</p>
           <p><strong>Time:</strong> 10:00 AM – 6:00 PM Daily</p>
           <p className="mt-4 text-sm text-gray-500">
             Early bird pricing ends August 1st. No refunds after purchase.
@@ -220,7 +231,7 @@ const Payment = () => {
             </p>
             <button
               onClick={initiatePayment}
-              className="relative z-50 px-8 py-3 border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
+              className="relative z-50 px-8 py-3 border cursor-pointer border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
             >
               Proceed to Payment
             </button>

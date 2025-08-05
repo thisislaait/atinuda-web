@@ -140,11 +140,11 @@ function Content() {
       </div>
 
       <div className="max-w-4xl w-full flex flex-col items-center">
-        <h1 className="text-3xl md:text-4xl font-serif text-white mb-4">
+        <h1 className="text-3xl md:text-4xl pt-20 font-serif hero-text text-white mb-4">
           Thank You for Your Purchase
         </h1>
         <p className="text-white mb-6">
-          A confirmation email will be sent a few days before the event. Please be sure to always check your mail!
+          A confirmation email will be sent shortly. Please be sure to always check your mail!
         </p>
 
         {fullName && email && ticketType && (
@@ -189,7 +189,7 @@ function Content() {
               <p className="italic mb-4">{getCustomMessage(ticketType)}</p>
 
               <button
-                className="mt-2 px-4 py-2 bg-white text-[#090706] font-semibold rounded hover:bg-gray-100 transition"
+                className="mt-2 px-4 py-2 bg-white text-[#090706] font-semibold cursor-pointer rounded hover:bg-gray-100 transition"
                 onClick={handleDownload}
               >
                 Download Ticket

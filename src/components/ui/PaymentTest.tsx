@@ -1,5 +1,3 @@
-// Refactored Payment.tsx with AccordionWithImage integration and improved structure
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -16,14 +14,14 @@ import AccordionWithImage, {AccordionItem} from './accordion';
 const ticketOptions = [
   {
     type: 'Conference Access',
-    priceNGN: 250,
-    priceUSD: 2,
+    priceNGN: 295,
+    priceUSD: 200,
     desc: 'Full access to all main conference sessions. Ideal for industry leaders and professionals seeking insights and networking.',
     image: '/assets/images/Conference.png',
   },
   {
     type: 'Workshop Access',
-    priceNGN: 200,
+    priceNGN: 250,
     priceUSD: 170,
     desc: 'Hands-on expert-led workshops tailored for creatives and professionals. Intimate, intensive, and focused.',
     image: '/assets/images/masterclass.jpg',
@@ -233,7 +231,7 @@ const Payment = () => {
             </p>
             <button
               onClick={initiatePayment}
-              className="relative z-50 px-8 py-3 border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
+              className="relative z-50 px-8 py-3 cursor-pointer border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
             >
               Proceed to Payment
             </button>
