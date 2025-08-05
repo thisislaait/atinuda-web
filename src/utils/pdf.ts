@@ -70,17 +70,17 @@ export const generateTicketPDF = (
     const eventLines: string[] = [];
 
     if (lowerCaseTicket.includes('conf')) {
-      eventLines.push('Oct 7–8, 10am–5pm daily');
+      eventLines.push('Oct 7–8, 8:30am–5pm daily');
     }
     if (lowerCaseTicket.includes('wrk')) {
-      eventLines.push('Oct 7–8, 10am–5pm daily');
+      eventLines.push('Oct 7–8, 12pm–5pm daily');
     }
     if (lowerCaseTicket.includes('prem')) {
-      eventLines.push('Oct 7–8, 10am–5pm daily');
+      eventLines.push('Oct 7–8, 8:30am–5pm daily');
       eventLines.push('Oct 7–8, 12pm–5pm daily');
     }
     if (lowerCaseTicket.includes('exec')) {
-      eventLines.push('Oct 7–8, 10am–5pm daily');
+      eventLines.push('Oct 7–8, 8:30am–5pm daily');
       eventLines.push('Oct 7–8, 12pm–5pm daily');
       eventLines.push('Oct 8, 8pm');
     }
