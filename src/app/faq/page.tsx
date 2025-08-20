@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { FiSearch, FiChevronDown, FiChevronUp, FiArrowLeft } from 'react-icons/fi';
+import { FiSearch, FiChevronDown, FiChevronUp} from 'react-icons/fi';
 
 /**
  * FAQ DATA
@@ -189,7 +189,7 @@ export default function FaqPage() {
             Get Tickets
           </Link>
         </div>
-       
+  
 
         <div className="relative max-w-2xl">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-black" />
