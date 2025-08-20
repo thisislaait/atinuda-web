@@ -36,7 +36,7 @@ export default function SignUp() {
 
   return (
     <>
-      <div className="min-h-screen bg-[url('/assets/images/elementsix.png')] bg-cover bg-center flex items-center justify-center px-4">
+      <section id='nohero' className="min-h-screen bg-[url('/assets/images/elementsix.png')] bg-cover bg-center flex items-center justify-center px-4">
         <div className="max-w-xl w-full text-black bg-white shadow-md rounded-lg p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Create Your Atinuda Account</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,7 +56,7 @@ export default function SignUp() {
             Already have an account? <a href="/login" className="text-blue-600 underline">Login</a>
           </p>
         </div>
-      </div>
+      </section>
     </>
   );
 }

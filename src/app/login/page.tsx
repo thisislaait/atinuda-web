@@ -27,7 +27,7 @@ export default function Login() {
 
   return (
   <>
-    <div className="min-h-screen relative flex items-center justify-center px-4">
+    <section id='nohero' className="min-h-screen relative flex items-center justify-center px-4">
       <div className="absolute inset-0 bg-[url('/assets/images/elementthree.png')] bg-cover bg-center opacity-25 z-0" />
       <div className="max-w-md w-full relative bg-white shadow-md rounded-lg p-8 text-black">
         <h2 className="text-2xl font-bold mb-6 text-center">Welcome Back</h2>
@@ -43,7 +43,7 @@ export default function Login() {
           Don’t have an account? <a href="/signup" className="text-blue-600 underline">Create one</a>
         </p>
       </div>
-    </div>
+    </section>
   </>
   );
 }

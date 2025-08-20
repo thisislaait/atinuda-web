@@ -91,7 +91,7 @@ function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black mt-20">
+    <div className="min-h-screen bg-white text-black mt-32">
       {/* Header with back arrow */}
       {/* <header className="sticky top-0 z-10 bg-white/90 backdrop-blur "> */}
       <section id='nohero'>
