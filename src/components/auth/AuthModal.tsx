@@ -104,8 +104,7 @@ const AuthModal = () => {
 
   // APPOEMN
   const [isAppoemnMember, setIsAppoemnMember] = useState(false);
-  const [memberId, setMemberId] = useState('');      // NEW: membership ID
-  const [appoemnRole, setAppoemnRole] = useState(''); // Auto-filled after validation
+  const [memberId, setMemberId] = useState(''); // membership ID
 
   const [form, setForm] = useState({
     firstName: '',
@@ -150,7 +149,7 @@ const AuthModal = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ memberId, firstName, lastName }),
     });
-    return res.json(); // { ok: boolean, role?: 'exco'|'member', message?: string }
+    return res.json() as Promise<{ ok: boolean; role?: 'exco' | 'member'; message?: string }>;
   };
 
   const handleAuth = async () => {
@@ -176,8 +175,7 @@ const AuthModal = () => {
           setLoading(false);
           return toast.error(check?.message || 'Membership validation failed');
         }
-        detectedRole = check.role; // 'exco' | 'member'
-        setAppoemnRole(detectedRole);
+        detectedRole = check.role || '';
       }
 
       const res = await createUserWithEmailAndPassword(auth, email, password);
@@ -262,7 +260,7 @@ const AuthModal = () => {
               />
 
               {/* APPOEMN toggle */}
-              <label className="flex items-center gap-2 mb-2">
+              <label className="flex items-center gap-2 mb-2 text-black">
                 <input
                   type="checkbox"
                   checked={isAppoemnMember}
@@ -333,5 +331,4 @@ const AuthModal = () => {
 };
 
 export default AuthModal;
-
 

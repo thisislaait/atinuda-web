@@ -54,7 +54,7 @@ const Payment = () => {
   const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');
 
   const [discountCode, setDiscountCode] = useState('');
-  const [isCodeValid, setIsCodeValid] = useState(false);
+  const [, setIsCodeValid] = useState(false);
   const [codeError, setCodeError] = useState('');
   const [discountedPrice, setDiscountedPrice] = useState(0);
 
@@ -263,7 +263,7 @@ const Payment = () => {
               <div className="mb-4 p-4 border border-dashed border-[#ff7f41] bg-orange-50 rounded text-left max-w-md mx-auto">
                 <h3 className="text-sm font-semibold mb-2 text-[#ff7f41]">Appoemn Discount Code</h3>
                 <p className="text-sm text-gray-700 mb-2">
-                  We've sent a discount code to your email. Enter it below to activate your special rate.
+                  We have sent a discount code to your email. Enter it below to activate your special rate.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input

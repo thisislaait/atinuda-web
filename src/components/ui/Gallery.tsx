@@ -5,26 +5,17 @@ import { useState } from 'react';
 import GalleryModal from './GalleryModal';
 
 const images = [
-  {
-    id: 1,
-    src: '/images/gallery1.jpg',
-    caption: 'Keynote Speech, Day 1',
-  },
-  {
-    id: 2,
-    src: '/images/gallery2.jpg',
-    caption: 'Dinner Setup',
-  },
-  {
-    id: 3,
-    src: '/images/gallery3.jpg',
-    caption: 'Workshop in Session',
-  },
+  { id: 1, src: '/images/gallery1.jpg', caption: 'Keynote Speech, Day 1' },
+  { id: 2, src: '/images/gallery2.jpg', caption: 'Dinner Setup' },
+  { id: 3, src: '/images/gallery3.jpg', caption: 'Workshop in Session' },
   // Add more...
 ];
 
+// Derive the image type from the array
+type ImageItem = typeof images[number];
+
 const Gallery = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedImage, setSelectedImage] = useState<ImageItem | null>(null);
 
   return (
     <>
@@ -52,3 +43,4 @@ const Gallery = () => {
 };
 
 export default Gallery;
+

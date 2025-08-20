@@ -1,8 +1,7 @@
 // components/SidebarNav.tsx
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 
 const navItems = [
     { name: 'Dashboard', href: '#dashboard' },
@@ -14,7 +13,7 @@ const navItems = [
 ];
 
 const SidebarNav = () => {
-    const router = useRouter();
+    // const router = useRouter();
 
     return (
         <nav className="fixed top-0 left-0 h-screen w-56 bg-white shadow-md p-4 z-50">

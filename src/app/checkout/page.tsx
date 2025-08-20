@@ -1,23 +1,23 @@
 'use client';
 
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
-import { useMemo, useState } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 
-const CheckoutPage = () => {
-  const params = useSearchParams()!;
+function CheckoutContent() {
+  const params = useSearchParams();
   const router = useRouter();
   const { user, openAuthModal, logout } = useAuth();
   const [loading, setLoading] = useState(false);
 
   // Ticket params
-  const ticketType = params.get('ticketType') || 'Ticket';
-  const price = parseFloat(params.get('price') || '0');
-  const quantity = parseInt(params.get('quantity') || '1');
-  const currency = (params.get('currency') as 'NGN' | 'USD') || 'NGN';
+  const ticketType = params?.get('ticketType') || 'Ticket';
+  const price = parseFloat(params?.get('price') || '0');
+  const quantity = parseInt(params?.get('quantity') || '1');
+  const currency = (params?.get('currency') as 'NGN' | 'USD') || 'NGN';
 
   const totalAmount = useMemo(() => price * quantity, [price, quantity]);
 
@@ -35,17 +35,11 @@ const CheckoutPage = () => {
   };
 
   const discountPercent = useMemo(() => {
-    // Only apply a discount if the user has been validated and hasn't used it already
     if (!appoemnValidated || discountUsed) return 0;
-
-    // Prefer explicit discount code prefixes if present
     if (discountCode?.startsWith('APPO50')) return 50;
     if (discountCode?.startsWith('APPO20')) return 20;
-
-    // Fallback to role
     if (appoemnRole === 'exco') return 50;
     if (appoemnRole === 'member') return 20;
-
     return 0;
   }, [appoemnValidated, appoemnRole, discountCode, discountUsed]);
 
@@ -54,7 +48,7 @@ const CheckoutPage = () => {
     [totalAmount, discountPercent]
   );
 
-  // Amount we actually charge
+  // Amount to charge
   const payAmount = discountPercent > 0 ? discountedTotal : totalAmount;
 
   // ---------- FLUTTERWAVE CONFIG ----------
@@ -108,7 +102,7 @@ const CheckoutPage = () => {
           >
             <FiArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-2xl font-bold">Checkout</h1>
+        <h1 className="text-2xl font-bold">Checkout</h1>
         </div>
       </header>
 
@@ -257,7 +251,12 @@ const CheckoutPage = () => {
       </main>
     </div>
   );
-};
+}
 
-export default CheckoutPage;
-
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-gray-600">Loading checkout…</div>}>
+      <CheckoutContent />
+    </Suspense>
+  );
+}
