@@ -7,7 +7,7 @@ const AboutPage = () => {
   return (
     <div className="relative text-black">
       {/* Hero Section */}
-      <div className="relative w-full h-[90vh]">
+      <section id='hero' className="relative w-full h-[90vh]">
         <Image
           src="/assets/images/AtinudaAbout.png"
           alt="About"
@@ -21,7 +21,7 @@ const AboutPage = () => {
             We’re an independent, lifestyle event providing high-end experiences for everyone.
           </h1>
         </div>
-      </div>
+      </section>
 
       {/* Overview Section */}
       <section className="max-w-5xl mx-auto px-3 py-16 space-y-10">

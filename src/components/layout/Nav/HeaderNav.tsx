@@ -1,57 +1,71 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
-type HeaderNavProps = {
-  initialLightBg?: boolean; // ← Optional prop to indicate light background (e.g. white section)
-};
-
-const HeaderNav = ({ initialLightBg = false }: HeaderNavProps) => {
+const HeaderNav = () => {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [hasNoHero, setHasNoHero] = useState(false);
+  const [isSolid, setIsSolid] = useState(false); // controls bg + text color (black when true)
 
+  // Re-evaluate on route change
   useEffect(() => {
-    const handleScroll = () => {
-      const heroHeight = document.getElementById("hero")?.offsetHeight || 600;
-      setScrolled(window.scrollY > heroHeight / 2);
+    const recompute = () => {
+      const noHero = !!document.getElementById("nohero");
+      setHasNoHero(noHero);
+      // If there's no hero, header is solid immediately; if there is, solid only after scroll
+      setIsSolid(noHero || window.scrollY > 0);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    recompute();
+    const t = setTimeout(recompute, 80); // in case DOM updates a tick later
+    return () => clearTimeout(t);
+  }, [pathname]);
 
-    const img = new window.Image();
-    img.src = "/assets/images/menubanner.jpg";
+  // Scroll behavior for pages WITH hero
+  useEffect(() => {
+    if (hasNoHero) return; // solid always, no scroll handling needed
+    const onScroll = () => setIsSolid(window.scrollY > 0);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [hasNoHero, pathname]);
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   const handleNavClick = (path: string) => {
     setMenuOpen(false);
     window.location.href = path;
   };
 
-  const logoToUse = scrolled
-    ? "/assets/images/blacklogo.png"
-    : initialLightBg
+  const logoSrc = isSolid
     ? "/assets/images/blacklogo.png"
     : "/assets/images/whitelogo.png";
 
-  const textColor = scrolled || initialLightBg ? "black" : "white";
+  // Solid white + blur when isSolid; otherwise transparent
+  const headerBg = isSolid
+    ? "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm"
+    : "bg-transparent";
 
   return (
     <>
       <header
         id="header"
-        className={`fixed top-0 left-0 w-full flex justify-between items-center px-8 z-50 transition-all duration-300 ${
-          scrolled ? "bg-white shadow-md py-4" : "bg-transparent py-8 md:py-6"
+        className={`fixed top-0 left-0 w-full flex justify-between items-center px-8 z-50 transition-all duration-300 ${headerBg} ${
+          hasNoHero ? "py-4" : "py-8 md:py-6"
         }`}
       >
         {/* Logo */}
         <Link href="/">
           <Image
-            src={logoToUse}
+            src={logoSrc}
             alt="Logo"
             width={120}
             height={40}
@@ -66,25 +80,26 @@ const HeaderNav = ({ initialLightBg = false }: HeaderNavProps) => {
           aria-label="Open menu"
           className="relative text-lg font-medium tracking-wider flex items-center"
         >
-          {/* Hamburger */}
+          {/* Hamburger (mobile) */}
           <div className="md:hidden flex flex-col space-y-1">
-            <span className={`block w-6 h-[2px] bg-current ${textColor === "black" ? "text-black" : "text-white"}`}></span>
-            <span className={`block w-6 h-[2px] bg-current ${textColor === "black" ? "text-black" : "text-white"}`}></span>
+            <span className={`block w-6 h-[2px] ${isSolid ? "bg-black" : "bg-white"}`} />
+            <span className={`block w-6 h-[2px] ${isSolid ? "bg-black" : "bg-white"}`} />
           </div>
 
-          {/* Menu Text */}
+          {/* “Menu” (desktop) */}
           <motion.span
             className="hidden md:block nav-text uppercase cursor-pointer tracking-wider transition-all duration-300 ml-2"
             initial={{ backgroundSize: "0% 1px" }}
             whileHover={{ backgroundSize: "100% 1px" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             style={{
-              color: textColor,
-              backgroundImage: `linear-gradient(to right, ${textColor}, ${textColor})`,
+              color: isSolid ? "black" : "white",
+              backgroundImage: `linear-gradient(to right, ${isSolid ? "black" : "white"}, ${isSolid ? "black" : "white"})`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "0 100%",
               backgroundSize: "0% 2px",
               letterSpacing: "0.15em",
+              textShadow: !isSolid ? "0 0 8px rgba(0,0,0,0.35)" : "none",
             }}
           >
             Menu
@@ -133,10 +148,7 @@ const HeaderNav = ({ initialLightBg = false }: HeaderNavProps) => {
                     backgroundSize: "0% 1px",
                   }}
                 >
-                  <span
-                    className="block cursor-pointer"
-                    onClick={() => handleNavClick(path)}
-                  >
+                  <span className="block cursor-pointer" onClick={() => handleNavClick(path)}>
                     {item}
                   </span>
                 </motion.span>
@@ -150,5 +162,3 @@ const HeaderNav = ({ initialLightBg = false }: HeaderNavProps) => {
 };
 
 export default HeaderNav;
-
-

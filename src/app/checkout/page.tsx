@@ -93,7 +93,8 @@ function CheckoutContent() {
   return (
     <div className="min-h-screen bg-white text-black mt-20">
       {/* Header with back arrow */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur ">
+      {/* <header className="sticky top-0 z-10 bg-white/90 backdrop-blur "> */}
+      <section id='nohero'>
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -104,7 +105,7 @@ function CheckoutContent() {
           </button>
         <h1 className="text-2xl font-bold">Checkout</h1>
         </div>
-      </header>
+      </section>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Auth bar */}
