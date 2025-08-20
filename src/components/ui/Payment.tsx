@@ -2,11 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from 'next/navigation';
 import AccordionWithImage, {AccordionItem} from './accordion';
 
@@ -228,98 +226,7 @@ const Payment = () => {
           }}
         />
 
-
-        {/* Payment Section */}
-        {selectedTicket && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-10">
-            {user && (
-              <div className="flex flex-col items-center mb-4 text-black">
-                <p className="text-sm">
-                  Hello <strong>{user.firstName || user.email?.split('@')[0]}</strong>
-                </p>
-                <button onClick={logout} className="mt-1 text-xs text-red-500 hover:underline">
-                  Log Out
-                </button>
-              </div>
-            )}
-
-            <p className="text-sm mb-4 text-black">
-              Total for <strong>{quantity}</strong> {selectedTicket.type} ticket(s): <strong>
-                {currency === 'NGN' ? `₦${(discountedPrice * quantity).toLocaleString()}` : `$${(discountedPrice * quantity).toLocaleString()}`}
-              </strong>
-            </p>
-
-            <p className="text-lg text-gray-700 mb-4">
-              Ticket Price: <span className="font-semibold">₦{discountedPrice}</span>
-            </p>
-
-            {discountedPrice !== ticketPrice && (
-              <p className="text-sm text-green-600 mb-2">
-                Discount applied! You saved ₦{ticketPrice - discountedPrice}
-              </p>
-            )}
-
-            {/* Discount code form for Appoemn users */}
-            {user?.email?.includes('atinuda') && (
-              <div className="mb-4 p-4 border border-dashed border-[#ff7f41] bg-orange-50 rounded text-left max-w-md mx-auto">
-                <h3 className="text-sm font-semibold mb-2 text-[#ff7f41]">Appoemn Discount Code</h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  We have sent a discount code to your email. Enter it below to activate your special rate.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="text"
-                    value={discountCode}
-                    onChange={(e) => setDiscountCode(e.target.value)}
-                    placeholder="Enter discount code"
-                    className="border px-3 py-2 text-black w-full rounded text-sm"
-                  />
-                  <button
-                    onClick={() => {
-                      const cleanedCode = discountCode.trim().toUpperCase();
-                      const isValidFormat = /^APPO(20|50)-\d{6}$/.test(cleanedCode);
-
-                      if (!isValidFormat) {
-                        setIsCodeValid(false);
-                        setCodeError("Invalid code format. Please check your email.");
-                        return;
-                      }
-
-                      let newPrice = ticketPrice;
-
-                      if (cleanedCode.startsWith("APPO50")) {
-                        newPrice = ticketPrice * 0.5;
-                      } else if (cleanedCode.startsWith("APPO20")) {
-                        newPrice = ticketPrice * 0.8;
-                      }
-
-                      setDiscountedPrice(newPrice);
-                      setIsCodeValid(true);
-                      setCodeError("");
-                    }}
-                    className="bg-[#ff7f41] text-white text-sm px-4 py-2 rounded hover:bg-[#e66a30] transition"
-                  >
-                    Apply
-                  </button>
-                </div>
-                {codeError && <p className="text-red-500 text-sm mt-1">{codeError}</p>}
-                {/* {isCodeValid && (
-                  <p className="text-green-600 text-sm mt-2">Code applied successfully!</p>
-                )} */}
-              </div>
-            )}
-
-            <button
-              onClick={initiatePayment}
-              className="relative z-50 px-8 py-3 cursor-pointer border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
-            >
-              Proceed to Payment
-            </button>
-          </motion.div>
-        )}
       </div>
-
-      <AuthModal />
     </section>
   );
 };
