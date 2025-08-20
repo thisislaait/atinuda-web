@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { generateQRCode } from '@/utils/qr';
-import { Suspense } from 'react';
 
 function Content() {
-  const searchParams = useSearchParams();
+  const params = useSearchParams();
 
   const [submitted, setSubmitted] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -17,9 +16,22 @@ function Content() {
   const hasAttemptedSubmission = useRef(false);
   const ticketRef = useRef<HTMLDivElement | null>(null);
 
-  const fullName = searchParams?.get('fullName') || '';
-  const email = searchParams?.get('email') || '';
-  const ticketType = searchParams?.get('ticketType') || 'General Admission';
+  // Read all params safely
+  const data = useMemo(() => {
+    const get = (k: string) => params?.get(k) || '';
+    return {
+      fullName: get('fullName'),
+      email: get('email'),
+      ticketType: get('ticketType') || 'General Admission',
+      quantity: Number(get('quantity') || '1'),
+      currency: get('currency') || 'NGN',
+      amount: Number(get('amount') || '0'),
+      discount: Number(get('discount') || '0'),
+      txRef: get('txRef'),
+      unitPrice: Number(get('unitPrice') || '0'),
+      subtotal: Number(get('subtotal') || '0'),
+    };
+  }, [params]);
 
   const getCustomMessage = (type: string | null) => {
     switch (type) {
@@ -38,90 +50,90 @@ function Content() {
     }
   };
 
+  // Save ticket once
   useEffect(() => {
-  if (
-    !submitted &&
-    fullName &&
-    email &&
-    typeof ticketType === 'string' &&
-    !hasAttemptedSubmission.current
-  ) {
-    hasAttemptedSubmission.current = true;
+    if (
+      !submitted &&
+      data.fullName &&
+      data.email &&
+      typeof data.ticketType === 'string' &&
+      !hasAttemptedSubmission.current
+    ) {
+      hasAttemptedSubmission.current = true;
 
-    const saveTicket = async () => {
-      try {
-        const res = await fetch('/api/save-ticket', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ fullName, email, ticketType }),
-        });
-
-        let data;
+      const saveTicket = async () => {
         try {
-          data = await res.json();
-        } catch {
-          throw new Error('Server returned invalid JSON');
+          const res = await fetch('/api/save-ticket', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullName: data.fullName,
+              email: data.email,
+              ticketType: data.ticketType,
+              meta: {
+                quantity: data.quantity,
+                currency: data.currency,
+                amountPaid: data.amount,
+                discountPercent: data.discount,
+                txRef: data.txRef,
+                unitPrice: data.unitPrice,
+                subtotal: data.subtotal,
+              },
+            }),
+          });
+
+          const json = await res.json().catch(() => ({}));
+          if (res.ok) {
+            toast.success(json.message || 'Ticket saved successfully!');
+            setQrCode(json.qrCode || null);
+            setTicketNumber(json.ticketNumber || null);
+            setLocation(json.location || 'TBA');
+            setSubmitted(true);
+          } else {
+            toast.error(json.message || 'Failed to save ticket.');
+          }
+        } catch (error) {
+          console.error('Error saving ticket:', error);
+          toast.error('A network error occurred. Please try again later.');
         }
+      };
 
-        if (res.ok) {
-          toast.success(data.message || 'Ticket saved successfully!');
-          setQrCode(data.qrCode || null);
-          setTicketNumber(data.ticketNumber || null);
-          setLocation(data.location || 'TBA');
-          setSubmitted(true);
-        } else {
-          toast.error(data.message || 'Failed to save ticket.');
-        }
-      } catch (error) {
-        console.error('Error saving ticket:', error);
-        toast.error('A network error occurred. Please try again later.');
-      }
-    };
-
-    saveTicket();
-  }
-}, [submitted, fullName, email, ticketType]);
-
+      saveTicket();
+    }
+  }, [submitted, data]);
 
   const handleDownload = async () => {
-  if (!ticketNumber) return;
+    if (!ticketNumber) return;
 
-  try {
-    const qrCodeBase64 = await generateQRCode(ticketNumber);
+    try {
+      const qrCodeBase64 = await generateQRCode(ticketNumber);
+      const res = await fetch('/api/download-ticket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: data.fullName,
+          ticketNumber,
+          location,
+          qrCodeBase64,
+        }),
+      });
 
-    const res = await fetch('/api/download-ticket', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fullName,
-        ticketNumber,
-        location,
-        qrCodeBase64,
-      }),
-    });
+      if (!res.ok) throw new Error('Failed to fetch PDF');
 
-    if (!res.ok) throw new Error('Failed to fetch PDF');
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Ticket-${ticketNumber}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error('PDF Download Error:', err);
-    toast.error('Failed to download PDF.');
-  }
-};
-
-
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Ticket-${ticketNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF Download Error:', err);
+      toast.error('Failed to download PDF.');
+    }
+  };
 
   return (
     <div
@@ -132,9 +144,8 @@ function Content() {
         <Image
           src="/assets/images/bannerdesign.png"
           alt="Hero Background"
-          layout="fill"
-          objectFit="cover"
-          className="w-full h-full bg-[#1f2340]"
+          fill
+          className="w-full h-full object-cover bg-[#1f2340]"
         />
         <div className="absolute inset-0 bg-[#1f2340] opacity-60" />
       </div>
@@ -147,7 +158,7 @@ function Content() {
           A confirmation email will be sent shortly. Please be sure to always check your mail!
         </p>
 
-        {fullName && email && ticketType && (
+        {data.fullName && data.email && data.ticketType && (
           <div
             ref={ticketRef}
             className="relative bg-white/10 rounded-lg border border-gray-300 flex flex-col md:flex-row overflow-hidden w-full max-w-3xl shadow-lg mb-6"
@@ -170,26 +181,56 @@ function Content() {
               )}
             </div>
 
-            {/* Divider: Dashed */}
+            {/* Divider */}
             <div className="hidden md:block w-[1px] border-l-2 border-dashed border-gray-400" />
 
             {/* Right: Info */}
             <div className="flex-1 p-6 text-white">
               <h2 className="text-xl font-bold mb-2">🎫 Event Pass</h2>
-              <p className="mb-1"><strong>Name:</strong> {fullName}</p>
-              <p className="mb-1"><strong>Email:</strong> {email}</p>
-              <p className="mb-1"><strong>Ticket Type:</strong> {ticketType}</p>
+              <p className="mb-1"><strong>Name:</strong> {data.fullName}</p>
+              <p className="mb-1"><strong>Email:</strong> {data.email}</p>
+              <p className="mb-1"><strong>Ticket Type:</strong> {data.ticketType}</p>
+
+              {/* Order summary
+              <div className="mt-3 text-sm text-white/90">
+                <div className="flex justify-between"><span>Quantity</span><span className="font-medium">{data.quantity}</span></div>
+                {data.unitPrice > 0 && (
+                  <div className="flex justify-between"><span>Unit Price</span><span className="font-medium">
+                    {data.currency === 'NGN' ? `₦${data.unitPrice.toLocaleString()}` : `$${data.unitPrice.toLocaleString()}`}
+                  </span></div>
+                )}
+                {data.subtotal > 0 && data.discount > 0 && (
+                  <>
+                    <div className="flex justify-between"><span>Subtotal</span><span className="line-through opacity-80">
+                      {data.currency === 'NGN' ? `₦${data.subtotal.toLocaleString()}` : `$${data.subtotal.toLocaleString()}`}
+                    </span></div>
+                    <div className="flex justify-between text-green-300"><span>Discount</span><span>-{data.discount}%</span></div>
+                  </>
+                )}
+                <div className="flex justify-between mt-1">
+                  <span className="font-semibold">Amount Paid</span>
+                  <span className="font-bold">
+                    {data.currency === 'NGN' ? `₦${data.amount.toLocaleString()}` : `$${data.amount.toLocaleString()}`}
+                  </span>
+                </div>
+                {data.txRef && (
+                  <div className="flex justify-between text-white/70 mt-1">
+                    <span>Reference</span><span className="font-mono">{data.txRef}</span>
+                  </div>
+                )}
+              </div> */}
+
               {ticketNumber && (
-                <p className="mb-2 font-mono text-lg text-[#FF7F41]">
+                <p className="mt-3 font-mono text-lg text-[#FF7F41]">
                   <strong>Ticket No:</strong> {ticketNumber}
                   <br />
                   <strong>Location:</strong> {location}
                 </p>
               )}
-              <p className="italic mb-4">{getCustomMessage(ticketType)}</p>
+              <p className="italic mt-3">{getCustomMessage(data.ticketType)}</p>
 
               <button
-                className="mt-2 px-4 py-2 bg-white text-[#090706] font-semibold cursor-pointer rounded hover:bg-gray-100 transition"
+                className="mt-4 px-4 py-2 bg-white text-[#090706] font-semibold cursor-pointer rounded hover:bg-gray-100 transition"
                 onClick={handleDownload}
               >
                 Download Ticket

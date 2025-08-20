@@ -1,129 +1,36 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
+import { useState, useMemo} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import AccordionWithImage, {AccordionItem} from './accordion';
-
+import AccordionWithImage, { AccordionItem } from './accordion';
 
 const ticketOptions = [
-  {
-    type: 'Conference Access',
-    priceNGN: 295000,
-    priceUSD: 200,
-    desc: 'Full access to all main conference sessions. Ideal for industry leaders and professionals seeking insights and networking.',
-    image: '/assets/images/Conference.png',
-  },
-  {
-    type: 'Workshop Access',
-    priceNGN: 250000,
-    priceUSD: 170,
-    desc: 'Hands-on expert-led workshops tailored for creatives and professionals. Intimate, intensive, and focused.',
-    image: '/assets/images/masterclass.jpg',
-  },
-  {
-    type: 'Premium Experience',
-    priceNGN: 500000,
-    priceUSD: 340,
-    desc: 'Includes full Conference + Workshop access with an exclusive bundled rate. Enjoy curated content and actionable insights.',
-    image: '/assets/images/executive2.png',
-  },
-  {
-    type: 'Executive Access',
-    priceNGN: 650000,
-    priceUSD: 440,
-    desc: 'Everything in Premium, plus access to the private Executive Dinner with keynote guests and partners. Limited availability.',
-    image: '/assets/images/CocktailMixer.png',
-  },
-  {
-    type: 'Dinner Gala Only',
-    priceNGN: 250000,
-    priceUSD: 170,
-    desc: 'Invitation to the evening Gala & Executive Dinner. Enjoy a curated experience with leaders, partners, and special guests.',
-    image: '/assets/images/Dinner.png',
-  },
+  { type: 'Conference Access',  priceNGN: 295000, priceUSD: 200, desc: 'Full access to all main conference sessions. Ideal for industry leaders and professionals seeking insights and networking.', image: '/assets/images/Conference.png' },
+  { type: 'Workshop Access',    priceNGN: 250000, priceUSD: 170, desc: 'Hands-on expert-led workshops tailored for creatives and professionals. Intimate, intensive, and focused.', image: '/assets/images/masterclass.jpg' },
+  { type: 'Premium Experience', priceNGN: 500000, priceUSD: 340, desc: 'Includes full Conference + Workshop access with an exclusive bundled rate. Enjoy curated content and actionable insights.', image: '/assets/images/executive2.png' },
+  { type: 'Executive Access',   priceNGN: 650000, priceUSD: 440, desc: 'Everything in Premium, plus access to the private Executive Dinner with keynote guests and partners. Limited availability.', image: '/assets/images/CocktailMixer.png' },
+  { type: 'Dinner Gala Only',   priceNGN: 250000, priceUSD: 170, desc: 'Invitation to the evening Gala & Executive Dinner. Enjoy a curated experience with leaders, partners, and special guests.', image: '/assets/images/Dinner.png' },
 ];
 
 const Payment = () => {
+  const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');
 
-  const [discountCode, setDiscountCode] = useState('');
-  const [, setIsCodeValid] = useState(false);
-  const [codeError, setCodeError] = useState('');
-  const [discountedPrice, setDiscountedPrice] = useState(0);
-
-  const router = useRouter();
-  const { user, openAuthModal, logout } = useAuth();
-
-  const selectedTicket = useMemo(() =>
-    typeof selectedIndex === 'number' ? ticketOptions[selectedIndex] : null,
+  const selectedTicket = useMemo(
+    () => (typeof selectedIndex === 'number' ? ticketOptions[selectedIndex] : null),
     [selectedIndex]
   );
 
-  const ticketPrice = selectedTicket
+  // For display only (final price/discounts happen on /checkout)
+  const unitPrice = selectedTicket
     ? currency === 'NGN'
       ? selectedTicket.priceNGN
       : selectedTicket.priceUSD
     : 0;
-
-  const totalAmount = selectedTicket
-    ? discountedPrice * quantity
-    : 0;
-
-  useEffect(() => {
-    setDiscountedPrice(ticketPrice);
-  }, [ticketPrice]);
-
-  const config = {
-    public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || '',
-    tx_ref: Date.now().toString(),
-    amount: totalAmount,
-    currency,
-    payment_options: 'card,mobilemoney,ussd',
-    customer: {
-      email: user?.email || 'guest@example.com',
-      phone_number: '08012345678',
-      name: user?.firstName || 'Atinuda Guest',
-    },
-    customizations: {
-      title: 'Atinuda Ticket',
-      description: `${selectedTicket?.type} Ticket x ${quantity}`,
-      logo: '/assets/images/blacklogo.png',
-    },
-  };
-
-  const handleFlutterPayment = useFlutterwave(config);
-
-  const initiatePayment = () => {
-    if (!process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY) {
-      console.error('Flutterwave public key is not configured.');
-      alert('The payment gateway is not available at the moment. Please try again later.');
-      return;
-    }
-
-    if (!user) return openAuthModal();
-
-    handleFlutterPayment({
-      callback: (response) => {
-        console.log('Payment success:', response);
-        closePaymentModal();
-
-        const fullName = user?.firstName || 'Atinuda Guest';
-        const email = user?.email || 'guest@example.com';
-        const ticketType = selectedTicket?.type || 'Unknown';
-
-        const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}`;
-        router.push(`/success-test${queryString}`);
-      },
-
-      onClose: () => console.log('Payment closed'),
-    });
-  };
 
   const accordionItems: AccordionItem[] = ticketOptions.map((ticket, index) => ({
     id: `ticket-${index}`,
@@ -131,7 +38,9 @@ const Payment = () => {
       <div className="flex flex-col text-left">
         <span className="text-lg font-semibold text-black">{ticket.type}</span>
         <span className="text-[#ff7f41] text-sm">
-          {currency === 'NGN' ? `₦${ticket.priceNGN.toLocaleString()}` : `$${ticket.priceUSD.toLocaleString()}`}
+          {currency === 'NGN'
+            ? `₦${ticket.priceNGN.toLocaleString()}`
+            : `$${ticket.priceUSD.toLocaleString()}`}
         </span>
       </div>
     ),
@@ -139,10 +48,24 @@ const Payment = () => {
     content: (
       <div>
         <p>{ticket.desc}</p>
-        <div className="flex items-center gap-3 mt-3"></div>
+        <div className="flex items-center gap-3 mt-3" />
       </div>
     ),
   }));
+
+  const goToCheckout = () => {
+    if (!selectedTicket || quantity < 1) return;
+    // NOTE: you’re passing price via query because your /checkout currently reads it.
+    // Safer: also re-compute price on /checkout from ticketType + currency.
+    const q = new URLSearchParams({
+      ticketType: selectedTicket.type,
+      price: String(unitPrice),
+      quantity: String(quantity),
+      currency,
+    }).toString();
+
+    router.push(`/checkout?${q}`);
+  };
 
   return (
     <section className="w-full bg-white">
@@ -198,7 +121,7 @@ const Payment = () => {
         </button>
       </div>
 
-      {/* Accordion With Image */}
+      {/* Ticket list */}
       <div className="max-w-6xl mx-auto px-6 py-16">
         <AccordionWithImage
           items={accordionItems}
@@ -217,15 +140,8 @@ const Payment = () => {
               setQuantity((q) => Math.max(0, q - 1));
             }
           }}
-          onCheckout={() => {
-            if (selectedTicket && quantity > 0) {
-              router.push(
-                `/checkout?ticketType=${encodeURIComponent(selectedTicket.type)}&price=${discountedPrice}&quantity=${quantity}&currency=${currency}`
-              );
-            }
-          }}
+          onCheckout={goToCheckout}
         />
-
       </div>
     </section>
   );

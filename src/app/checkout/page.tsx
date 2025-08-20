@@ -77,14 +77,38 @@ function CheckoutContent() {
 
     setLoading(true);
     handleFlutterPayment({
-      callback: () => {
+      callback: async () => {
         closePaymentModal();
-        const query = `?fullName=${encodeURIComponent(
-          user?.firstName || 'Atinuda Guest'
-        )}&email=${encodeURIComponent(
-          user?.email || 'guest@example.com'
-        )}&ticketType=${encodeURIComponent(ticketType)}`;
-        router.push(`/success-test${query}`);
+
+        // If a discount applied, mark it consumed (server should be idempotent)
+        try {
+          if (discountPercent > 0 && user?.uid) {
+            await fetch('/api/discount/consume', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uid: user.uid }),
+            });
+          }
+        } catch (e) {
+          // Non-blocking: still continue to success page
+          console.warn('Failed to consume discount', e);
+        }
+
+        // Send ALL key details to success page
+        const query = new URLSearchParams({
+          fullName: user?.firstName || 'Atinuda Guest',
+          email: user?.email || 'guest@example.com',
+          ticketType,
+          quantity: String(quantity),
+          currency,
+          amount: String(payAmount), 
+          discount: String(discountPercent), 
+          txRef: config.tx_ref,  
+          unitPrice: String(price), 
+          subtotal: String(totalAmount), 
+        }).toString();
+
+        router.push(`/success?${query}`);
       },
       onClose: () => setLoading(false),
     });
@@ -92,8 +116,7 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen bg-white text-black mt-32">
-      {/* Header with back arrow */}
-      {/* <header className="sticky top-0 z-10 bg-white/90 backdrop-blur "> */}
+      {/* Back header (kept your structure) */}
       <section id='nohero'>
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
@@ -103,7 +126,7 @@ function CheckoutContent() {
           >
             <FiArrowLeft className="w-5 h-5" />
           </button>
-        <h1 className="text-2xl font-bold">Checkout</h1>
+          <h1 className="text-2xl font-bold">Checkout</h1>
         </div>
       </section>
 
@@ -111,7 +134,6 @@ function CheckoutContent() {
         {/* Auth bar */}
         <div className="w-full bg-gray-50 border border-gray-400 rounded-xl shadow-sm p-4">
           <div className="flex items-center justify-between gap-4">
-            {/* Left side */}
             <div className="flex items-center gap-3">
               <FaUserCircle className="text-3xl text-gray-600" />
               {!user ? (
@@ -136,7 +158,6 @@ function CheckoutContent() {
               )}
             </div>
 
-            {/* Right side (only if signed in) */}
             {user && (
               <div className="shrink-0">
                 <button
@@ -150,7 +171,7 @@ function CheckoutContent() {
           </div>
         </div>
 
-        {/* Unified checkout card (with auto discount) */}
+        {/* Unified checkout card */}
         <div className="border border-gray-400 rounded-2xl shadow-sm overflow-hidden">
           <div className="bg-gray-50 px-5 py-4 border-b flex items-center justify-between">
             <h3 className="font-semibold text-lg">Order Summary</h3>
