@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { auth, db } from '@/firebase/config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import HeaderNav from '@/components/layout/Nav/HeaderNav';
 
 export default function SignUp() {
   const router = useRouter();
@@ -37,7 +36,6 @@ export default function SignUp() {
 
   return (
     <>
-      <HeaderNav initialLightBg={true} />
       <div className="min-h-screen bg-[url('/assets/images/elementsix.png')] bg-cover bg-center flex items-center justify-center px-4">
         <div className="max-w-xl w-full text-black bg-white shadow-md rounded-lg p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Create Your Atinuda Account</h2>
