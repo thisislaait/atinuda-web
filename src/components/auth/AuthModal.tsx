@@ -1,4 +1,88 @@
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// 'use client';
+
+// import { useAuth } from '@/hooks/useAuth';
+// import { motion } from 'framer-motion';
+// import { useState } from 'react';
+// import { auth, db } from '@/firebase/config';
+// import {
+//   createUserWithEmailAndPassword,
+//   signInWithEmailAndPassword,
+//   updateProfile,
+// } from 'firebase/auth';
+// import { doc, setDoc } from 'firebase/firestore';
+// import toast, { Toaster } from 'react-hot-toast';
+
+// const AuthModal = () => {
+//   const { isAuthModalOpen, closeAuthModal } = useAuth();
+//   const [isLogin, setIsLogin] = useState(true);
+//   const [loading, setLoading] = useState(false);
+//   const [form, setForm] = useState({
+//     firstName: '',
+//     lastName: '',
+//     company: '',
+//     email: '',
+//     password: '',
+//   });
+
+//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setForm({ ...form, [e.target.name]: e.target.value });
+//   };
+
+//   const validateForm = () => {
+//     const { firstName, lastName, email, password, company } = form;
+//     if (!email || !password) return 'Email and password are required';
+//     if (!isLogin && (!firstName || !lastName || !company)) return 'Please fill all fields';
+//     return '';
+//   };
+
+//   const handleAuth = async () => {
+//     const error = validateForm();
+//     if (error) return toast.error(error);
+
+//     setLoading(true);
+//     try {
+//       const { email, password, firstName, lastName, company } = form;
+
+//       if (isLogin) {
+//         await signInWithEmailAndPassword(auth, email, password);
+//         toast.success('Login successful');
+//       } else {
+//         const res = await createUserWithEmailAndPassword(auth, email, password);
+
+//         // 🧠 Set Firebase displayName
+//         await updateProfile(res.user, {
+//           displayName: `${firstName} ${lastName}`,
+//         });
+
+//         // 📄 Store extra fields in Firestore
+//         await setDoc(doc(db, 'users', res.user.uid), {
+//           firstName,
+//           lastName,
+//           company,
+//           email,
+//           createdAt: new Date().toISOString(),
+//         });
+
+//         toast.success('Account created!');
+//       }
+
+//       closeAuthModal();
+//     } catch (err: any) {
+//       toast.error(err.message || 'Authentication failed');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   if (!isAuthModalOpen) return null;
+
+
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -17,6 +101,12 @@ const AuthModal = () => {
   const { isAuthModalOpen, closeAuthModal } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // APPOEMN
+  const [isAppoemnMember, setIsAppoemnMember] = useState(false);
+  const [memberId, setMemberId] = useState('');      // NEW: membership ID
+  const [appoemnRole, setAppoemnRole] = useState(''); // Auto-filled after validation
+
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -25,7 +115,7 @@ const AuthModal = () => {
     password: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -33,7 +123,34 @@ const AuthModal = () => {
     const { firstName, lastName, email, password, company } = form;
     if (!email || !password) return 'Email and password are required';
     if (!isLogin && (!firstName || !lastName || !company)) return 'Please fill all fields';
+    if (!isLogin && isAppoemnMember && !memberId) return 'Please enter your APPOEMN Membership ID';
     return '';
+  };
+
+  const generateDiscountCode = (role: 'exco' | 'member') => {
+    const suffix = Math.floor(100000 + Math.random() * 900000); // 6 digits
+    return role === 'exco' ? `APPO50-${suffix}` : `APPO20-${suffix}`;
+  };
+
+  const sendDiscountCode = async (email: string, fullName: string, discountCode: string) => {
+    try {
+      await fetch('/api/send-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email, fullName, discountCode }),
+      });
+    } catch (error) {
+      console.error('Failed to send discount email:', error);
+    }
+  };
+
+  const validateMembership = async (memberId: string, firstName: string, lastName: string) => {
+    const res = await fetch('/api/appoemn/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, firstName, lastName }),
+    });
+    return res.json(); // { ok: boolean, role?: 'exco'|'member', message?: string }
   };
 
   const handleAuth = async () => {
@@ -47,26 +164,51 @@ const AuthModal = () => {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
         toast.success('Login successful');
-      } else {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-
-        // 🧠 Set Firebase displayName
-        await updateProfile(res.user, {
-          displayName: `${firstName} ${lastName}`,
-        });
-
-        // 📄 Store extra fields in Firestore
-        await setDoc(doc(db, 'users', res.user.uid), {
-          firstName,
-          lastName,
-          company,
-          email,
-          createdAt: new Date().toISOString(),
-        });
-
-        toast.success('Account created!');
+        closeAuthModal();
+        return;
       }
 
+      // Signup flow
+      let detectedRole: 'exco' | 'member' | '' = '';
+      if (isAppoemnMember) {
+        const check = await validateMembership(memberId, firstName, lastName);
+        if (!check?.ok) {
+          setLoading(false);
+          return toast.error(check?.message || 'Membership validation failed');
+        }
+        detectedRole = check.role; // 'exco' | 'member'
+        setAppoemnRole(detectedRole);
+      }
+
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+
+      await updateProfile(res.user, {
+        displayName: `${firstName} ${lastName}`,
+      });
+
+      // Generate discount based on detected role
+      const discountCode =
+        isAppoemnMember && detectedRole ? generateDiscountCode(detectedRole) : null;
+
+      await setDoc(doc(db, 'users', res.user.uid), {
+        firstName,
+        lastName,
+        company,
+        email,
+        createdAt: new Date().toISOString(),
+        isAppoemnMember,
+        appoemnMemberId: isAppoemnMember ? memberId.trim() : null,
+        appoemnRole: detectedRole || null,
+        appoemnValidated: !!detectedRole,
+        discountCode,
+        discountUsed: false,
+      });
+
+      if (discountCode) {
+        await sendDiscountCode(email, `${firstName} ${lastName}`, discountCode);
+      }
+
+      toast.success('Account created!');
       closeAuthModal();
     } catch (err: any) {
       toast.error(err.message || 'Authentication failed');
@@ -118,6 +260,27 @@ const AuthModal = () => {
                 className="w-full border border-gray-300 focus:border-[#1B365D] focus:ring-0 rounded px-3 py-2 text-sm transition text-gray-600 focus:outline-none"
                 required
               />
+
+              {/* APPOEMN toggle */}
+              <label className="flex items-center gap-2 mb-2">
+                <input
+                  type="checkbox"
+                  checked={isAppoemnMember}
+                  onChange={(e) => setIsAppoemnMember(e.target.checked)}
+                />
+                Are you an APPOEMN member?
+              </label>
+
+              {/* Membership ID (only if checked) */}
+              {isAppoemnMember && (
+                <input
+                  value={memberId}
+                  onChange={(e) => setMemberId(e.target.value)}
+                  placeholder="APPOEMN Membership ID (e.g. APP/F/101)"
+                  className="w-full border border-gray-300 focus:border-[#1B365D] focus:ring-0 rounded px-3 py-2 text-sm transition text-gray-600 focus:outline-none"
+                  required
+                />
+              )}
             </>
           )}
 
@@ -137,6 +300,7 @@ const AuthModal = () => {
             onChange={handleChange}
             placeholder="Password"
             className="w-full border border-gray-300 focus:border-[#1B365D] focus:ring-0 rounded px-3 py-2 text-sm transition text-gray-600 focus:outline-none"
+            required
           />
 
           <button
@@ -169,3 +333,5 @@ const AuthModal = () => {
 };
 
 export default AuthModal;
+
+

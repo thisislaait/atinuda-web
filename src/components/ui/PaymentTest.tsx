@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -8,8 +8,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import AuthModal from '@/components/auth/AuthModal';
 import { useRouter } from 'next/navigation';
-import AccordionWithImage, {AccordionItem} from './accordion';
-
+import AccordionWithImage, { AccordionItem } from './accordion';
 
 const ticketOptions = [
   {
@@ -54,6 +53,11 @@ const Payment = () => {
   const [quantity, setQuantity] = useState(1);
   const [currency, setCurrency] = useState<'NGN' | 'USD'>('NGN');
 
+  const [discountCode, setDiscountCode] = useState('');
+  const [isCodeValid, setIsCodeValid] = useState(false);
+  const [codeError, setCodeError] = useState('');
+  const [discountedPrice, setDiscountedPrice] = useState(0);
+
   const router = useRouter();
   const { user, openAuthModal, logout } = useAuth();
 
@@ -62,7 +66,19 @@ const Payment = () => {
     [selectedIndex]
   );
 
-  const totalAmount = selectedTicket ? (currency === 'NGN' ? selectedTicket.priceNGN : selectedTicket.priceUSD) * quantity : 0;
+  const ticketPrice = selectedTicket
+    ? currency === 'NGN'
+      ? selectedTicket.priceNGN
+      : selectedTicket.priceUSD
+    : 0;
+
+  const totalAmount = selectedTicket
+    ? discountedPrice * quantity
+    : 0;
+
+  useEffect(() => {
+    setDiscountedPrice(ticketPrice);
+  }, [ticketPrice]);
 
   const config = {
     public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || '',
@@ -97,23 +113,18 @@ const Payment = () => {
       callback: (response) => {
         console.log('Payment success:', response);
         closePaymentModal();
-        
-        // Use real data
+
         const fullName = user?.firstName || 'Atinuda Guest';
         const email = user?.email || 'guest@example.com';
-        // const company = user?.company || 'vendor';
         const ticketType = selectedTicket?.type || 'Unknown';
-
 
         const queryString = `?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&ticketType=${encodeURIComponent(ticketType)}`;
         router.push(`/success-test${queryString}`);
       },
 
-      
       onClose: () => console.log('Payment closed'),
     });
   };
-
 
   const accordionItems: AccordionItem[] = ticketOptions.map((ticket, index) => ({
     id: `ticket-${index}`,
@@ -129,26 +140,7 @@ const Payment = () => {
     content: (
       <div>
         <p>{ticket.desc}</p>
-        <div className="flex items-center gap-3 mt-3">
-          <button
-            onClick={() => {
-              if (selectedIndex === index) setQuantity((q) => Math.max(1, q - 1));
-            }}
-            className="border px-2"
-          >
-            -
-          </button>
-          <span>{selectedIndex === index ? quantity : 1}</span>
-          <button
-            onClick={() => {
-              setSelectedIndex(index);
-              setQuantity((q) => q + 1);
-            }}
-            className="border px-2"
-          >
-            +
-          </button>
-        </div>
+        <div className="flex items-center gap-3 mt-3"></div>
       </div>
     ),
   }));
@@ -209,7 +201,32 @@ const Payment = () => {
 
       {/* Accordion With Image */}
       <div className="max-w-6xl mx-auto px-6 py-16">
-        <AccordionWithImage items={accordionItems} />
+        <AccordionWithImage
+          items={accordionItems}
+          selectedIndex={selectedIndex}
+          quantity={quantity}
+          onIncrement={(index) => {
+            if (selectedIndex === index) {
+              setQuantity((q) => q + 1);
+            } else {
+              setSelectedIndex(index);
+              setQuantity(1);
+            }
+          }}
+          onDecrement={(index) => {
+            if (selectedIndex === index) {
+              setQuantity((q) => Math.max(0, q - 1));
+            }
+          }}
+          onCheckout={() => {
+            if (selectedTicket && quantity > 0) {
+              router.push(
+                `/checkout?ticketType=${encodeURIComponent(selectedTicket.type)}&price=${discountedPrice}&quantity=${quantity}&currency=${currency}`
+              );
+            }
+          }}
+        />
+
 
         {/* Payment Section */}
         {selectedTicket && (
@@ -224,11 +241,73 @@ const Payment = () => {
                 </button>
               </div>
             )}
+
             <p className="text-sm mb-4 text-black">
               Total for <strong>{quantity}</strong> {selectedTicket.type} ticket(s): <strong>
-                {currency === 'NGN' ? `₦${totalAmount.toLocaleString()}` : `$${totalAmount.toLocaleString()}`}
+                {currency === 'NGN' ? `₦${(discountedPrice * quantity).toLocaleString()}` : `$${(discountedPrice * quantity).toLocaleString()}`}
               </strong>
             </p>
+
+            <p className="text-lg text-gray-700 mb-4">
+              Ticket Price: <span className="font-semibold">₦{discountedPrice}</span>
+            </p>
+
+            {discountedPrice !== ticketPrice && (
+              <p className="text-sm text-green-600 mb-2">
+                Discount applied! You saved ₦{ticketPrice - discountedPrice}
+              </p>
+            )}
+
+            {/* Discount code form for Appoemn users */}
+            {user?.email?.includes('atinuda') && (
+              <div className="mb-4 p-4 border border-dashed border-[#ff7f41] bg-orange-50 rounded text-left max-w-md mx-auto">
+                <h3 className="text-sm font-semibold mb-2 text-[#ff7f41]">Appoemn Discount Code</h3>
+                <p className="text-sm text-gray-700 mb-2">
+                  We've sent a discount code to your email. Enter it below to activate your special rate.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={discountCode}
+                    onChange={(e) => setDiscountCode(e.target.value)}
+                    placeholder="Enter discount code"
+                    className="border px-3 py-2 text-black w-full rounded text-sm"
+                  />
+                  <button
+                    onClick={() => {
+                      const cleanedCode = discountCode.trim().toUpperCase();
+                      const isValidFormat = /^APPO(20|50)-\d{6}$/.test(cleanedCode);
+
+                      if (!isValidFormat) {
+                        setIsCodeValid(false);
+                        setCodeError("Invalid code format. Please check your email.");
+                        return;
+                      }
+
+                      let newPrice = ticketPrice;
+
+                      if (cleanedCode.startsWith("APPO50")) {
+                        newPrice = ticketPrice * 0.5;
+                      } else if (cleanedCode.startsWith("APPO20")) {
+                        newPrice = ticketPrice * 0.8;
+                      }
+
+                      setDiscountedPrice(newPrice);
+                      setIsCodeValid(true);
+                      setCodeError("");
+                    }}
+                    className="bg-[#ff7f41] text-white text-sm px-4 py-2 rounded hover:bg-[#e66a30] transition"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {codeError && <p className="text-red-500 text-sm mt-1">{codeError}</p>}
+                {/* {isCodeValid && (
+                  <p className="text-green-600 text-sm mt-2">Code applied successfully!</p>
+                )} */}
+              </div>
+            )}
+
             <button
               onClick={initiatePayment}
               className="relative z-50 px-8 py-3 cursor-pointer border border-gray-600 text-black font-medium uppercase overflow-hidden group mt-4"
@@ -245,3 +324,4 @@ const Payment = () => {
 };
 
 export default Payment;
+

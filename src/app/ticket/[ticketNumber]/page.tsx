@@ -1,64 +1,70 @@
-'use client';
+'use client'
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
+import PortalLayout from '@/components/ui/PortalLayout';
+import Dashboard from '@/app/dashboard/page';
+import ScheduleDay from '@/components/ui/ScheduleDay';
+import WorkshopEvent from '@/components/ui/WorkshopEvent';
+import DinnerProgram from '@/components/ui/DinnerProgram';
+import SpeakersList from '@/components/ui/SpeakersList';
 
 const TicketPage = () => {
   const params = useParams();
-  const ticketNumber = Array.isArray(params?.ticketNumber)
-    ? params.ticketNumber[0]
-    : params?.ticketNumber || '';
+  const ticketNumber = params?.ticketNumber as string;
 
-  const [eventInfo, setEventInfo] = useState<string[]>([]);
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Date constants
+  const today = new Date();
+  const isDay1 = today.toDateString() === new Date('2025-08-05').toDateString();
+  const isDay2 = today.toDateString() === new Date('2025-08-06').toDateString();
 
   useEffect(() => {
     if (ticketNumber) {
-      const lower = ticketNumber.toLowerCase();
-      const events: string[] = [];
+      const fetchData = async () => {
+        try {
+          const res = await fetch(`/api/tickets/${ticketNumber}`);
+          const data = await res.json();
+          setUserData(data);
+        } catch (err) {
+          console.error('Failed to fetch ticket:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-      if (lower.includes('conf')) events.push('📍 Conference: Oct 7–8, 10am–5pm');
-      if (lower.includes('wrk')) events.push('🛠 Workshop: Oct 7, 12pm–4pm');
-      if (lower.includes('exec')) events.push('💼 Executive: Full access, includes dinner');
-      if (lower.includes('prem')) events.push('🌟 Premium: VIP seating + dinner');
-      if (lower.includes('dine')) events.push('🍽️ Dinner Only: Oct 8, 8pm');
-
-      setEventInfo(events);
+      fetchData();
     }
   }, [ticketNumber]);
 
+  if (loading) return <div className="p-10 text-center">Loading your ticket...</div>;
+  if (!userData) return <div className="p-10 text-center">No ticket found.</div>;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-[#f0f6ff] flex items-center justify-center p-6">
-      <div className="bg-white shadow-xl rounded-2xl max-w-md w-full text-center p-8">
-        <Image
-          src="/assets/images/atinudalogo.png"
-          alt="Atinuda Logo"
-          width={64}
-          height={64}
-          className="mx-auto mb-4"
-        />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">🎫 Your Ticket</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          Ticket Number: <span className="font-medium">{ticketNumber}</span>
-        </p>
+    <PortalLayout>
+      <Dashboard />
 
-        {eventInfo.length > 0 ? (
-          <div className="text-left space-y-2 mb-4">
-            <h2 className="font-semibold text-gray-700">Event Schedule:</h2>
-            {eventInfo.map((info, idx) => (
-              <p key={idx} className="text-gray-600">{info}</p>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 italic">Loading event details...</p>
-        )}
+      {isDay1 && (
+        <>
+          <ScheduleDay day="Day 1" />
+          <WorkshopEvent day="Day 1" />
+          <SpeakersList day="Day 1" />
+        </>
+      )}
 
-        <p className="text-xs text-gray-400 mt-6">
-          Please show this screen at the venue for check-in.
-        </p>
-      </div>
-    </div>
+      {isDay2 && (
+        <>
+          <ScheduleDay day="Day 2" />
+          <WorkshopEvent day="Day 2" />
+          <DinnerProgram />
+          <SpeakersList day="Day 2" />
+        </>
+      )}
+    </PortalLayout>
   );
 };
 
 export default TicketPage;
+

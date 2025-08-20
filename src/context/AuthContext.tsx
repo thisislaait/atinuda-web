@@ -1,99 +1,225 @@
+// 'use client';
+
+// import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+// import { onAuthStateChanged, signOut } from 'firebase/auth';
+// import { auth, db } from '@/firebase/config';
+// import { doc, getDoc } from 'firebase/firestore';
+
+// interface ExtendedUser {
+//   uid: string;
+//   email: string | null;
+//   firstName?: string;
+//   lastName?: string;
+//   company?: string;
+// }
+
+// interface AuthContextType {
+//   user: ExtendedUser | null;
+//   isAuthModalOpen: boolean;
+//   openAuthModal: () => void;
+//   closeAuthModal: () => void;
+//   logout: () => Promise<void>;
+// }
+
+// export const AuthContext = createContext<AuthContextType>({
+//   user: null,
+//   isAuthModalOpen: false,
+//   openAuthModal: () => {},
+//   closeAuthModal: () => {},
+//   logout: async () => {},
+// });
+
+// export const AuthProvider = ({ children }: { children: ReactNode }) => {
+//   const [user, setUser] = useState<ExtendedUser | null>(null);
+//   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+//   useEffect(() => {
+//     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+//       if (firebaseUser) {
+//         let extendedUser: ExtendedUser = {
+//           uid: firebaseUser.uid,
+//           email: firebaseUser.email,
+//         };
+
+//         try {
+//           const userRef = doc(db, 'users', firebaseUser.uid);
+//           const userSnap = await getDoc(userRef);
+
+//           if (userSnap.exists()) {
+//             const userData = userSnap.data();
+//             extendedUser = {
+//               ...extendedUser,
+//               firstName: userData.firstName,
+//               lastName: userData.lastName,
+//               company: userData.company,
+//             };
+//           }
+//         } catch (error) {
+//           console.error('Error fetching Firestore user:', error);
+//         }
+
+//         setUser(extendedUser);
+//       } else {
+//         setUser(null);
+//       }
+//     });
+
+//     return () => unsubscribe();
+//   }, []);
+
+//   const logout = async () => {
+//     try {
+//       await signOut(auth);
+//       setUser(null);
+//     } catch (error) {
+//       console.error('Logout error:', error);
+//     }
+//   };
+
+//   return (
+//     <AuthContext.Provider
+//       value={{
+//         user,
+//         isAuthModalOpen,
+//         openAuthModal: () => setIsAuthModalOpen(true),
+//         closeAuthModal: () => setIsAuthModalOpen(false),
+//         logout,
+//       }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// // Optional convenience hook
+// export const useAuth = () => {
+//   const context = useContext(AuthContext);
+//   if (!context) throw new Error('useAuth must be used within AuthProvider');
+//   return context;
+// };
+
+
 'use client';
 
-import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 import { auth, db } from '@/firebase/config';
-import { doc, getDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signOut, User as FbUser } from 'firebase/auth';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 
-interface ExtendedUser {
+export type AppUser = {
   uid: string;
   email: string | null;
-  firstName?: string;
-  lastName?: string;
-  company?: string;
-}
+  firstName?: string | null;
+  lastName?: string | null;
+  company?: string | null;
 
-interface AuthContextType {
-  user: ExtendedUser | null;
+  // APPOEMN / discount fields stored in Firestore
+  isAppoemnMember?: boolean;
+  appoemnValidated?: boolean;
+  appoemnRole?: 'exco' | 'member';
+  appoemnMemberId?: string | null;
+  discountCode?: string | null;     // e.g., "APPO50-123456" or "APPO20-123456"
+  discountUsed?: boolean;           // true = discount already consumed
+
+  // Allow any extra fields you store in /users
+  [key: string]: any;
+};
+
+type AuthContextType = {
+  user: AppUser | null;
+  loading: boolean;
   isAuthModalOpen: boolean;
   openAuthModal: () => void;
   closeAuthModal: () => void;
   logout: () => Promise<void>;
-}
+};
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  loading: true,
   isAuthModalOpen: false,
   openAuthModal: () => {},
   closeAuthModal: () => {},
   logout: async () => {},
 });
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<ExtendedUser | null>(null);
+function mergeFbAndDoc(fbUser: FbUser, data: any): AppUser {
+  return {
+    uid: fbUser.uid,
+    email: fbUser.email,
+    firstName: data?.firstName ?? fbUser.displayName?.split(' ')?.[0] ?? null,
+    lastName: data?.lastName ?? null,
+    company: data?.company ?? null,
+
+    isAppoemnMember: data?.isAppoemnMember ?? false,
+    appoemnValidated: data?.appoemnValidated ?? false,
+    appoemnRole: data?.appoemnRole ?? undefined,
+    appoemnMemberId: data?.appoemnMemberId ?? null,
+    discountCode: data?.discountCode ?? null,
+    discountUsed: data?.discountUsed ?? false,
+
+    ...data, // keep any other fields you store
+  };
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
+  const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        let extendedUser: ExtendedUser = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-        };
-
-        try {
-          const userRef = doc(db, 'users', firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
-
-          if (userSnap.exists()) {
-            const userData = userSnap.data();
-            extendedUser = {
-              ...extendedUser,
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              company: userData.company,
-            };
-          }
-        } catch (error) {
-          console.error('Error fetching Firestore user:', error);
-        }
-
-        setUser(extendedUser);
-      } else {
+    // Listen for Firebase Auth changes
+    const unsubAuth = onAuthStateChanged(auth, async (fb) => {
+      if (!fb) {
         setUser(null);
+        setLoading(false);
+        return;
       }
+
+      setLoading(true);
+      const userRef = doc(db, 'users', fb.uid);
+
+      // 1) Initial load
+      try {
+        const snap = await getDoc(userRef);
+        const data = snap.exists() ? snap.data() : {};
+        setUser(mergeFbAndDoc(fb, data));
+      } finally {
+        setLoading(false);
+      }
+
+      // 2) Live updates (discountUsed flip, role updates, etc.)
+      const unsubDoc = onSnapshot(userRef, (docSnap) => {
+        const data = docSnap.data() || {};
+        setUser((prev) => (prev ? mergeFbAndDoc(fb, { ...prev, ...data }) : mergeFbAndDoc(fb, data)));
+      });
+
+      // Cleanup Firestore listener when auth user changes/unmounts
+      return () => unsubDoc();
     });
 
-    return () => unsubscribe();
+    return () => unsubAuth();
   }, []);
 
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
+  const logout = useCallback(async () => {
+    await signOut(auth);
+    setUser(null);
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthModalOpen,
-        openAuthModal: () => setIsAuthModalOpen(true),
-        closeAuthModal: () => setIsAuthModalOpen(false),
-        logout,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthModalOpen,
+      openAuthModal,
+      closeAuthModal,
+      logout,
+    }),
+    [user, loading, isAuthModalOpen, openAuthModal, closeAuthModal, logout]
   );
-};
 
-// Optional convenience hook
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
-  return context;
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

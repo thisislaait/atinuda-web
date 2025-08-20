@@ -38,7 +38,7 @@ export default async function handler(
   }
 
   const ticketNumber = generateTicketNumber(ticketType);
-  const qrText = `https://www.atinuda.africa/ticket/${ticketNumber}`;
+  const qrText = `https://www.atinuda.africa/ticket/${ticketNumber}?name=${encodeURIComponent(fullName)}`;
 
   try {
     // Check for existing ticket
