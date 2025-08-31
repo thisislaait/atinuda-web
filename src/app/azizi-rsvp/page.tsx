@@ -73,7 +73,7 @@ export default function AziziRSVPPage() {
       setMessage("Thank you — your RSVP has been recorded.");
       setForm({ name: "", company: "", ticketNumber: "", email: "", mobile: "" });
       setRsvp("no");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setMessage("Could not reach the server. Please try again.");
     } finally {
