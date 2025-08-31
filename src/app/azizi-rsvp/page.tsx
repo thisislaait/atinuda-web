@@ -133,7 +133,7 @@ export default function AziziRSVPPage() {
           <section className="relative overflow-hidden rounded-2xl shadow-2xl">
             {/* Background artwork */}
             <div className="absolute inset-0 -z-10">
-              <Image src="/rsvp-page.png" alt="" fill className="object-cover" priority />
+              <Image src="/assets/images/elementthree.png" alt="" fill className="object-cover" priority />
             </div>
             {/* Dark gradient overlay for legibility */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-[#ffffff]/40 to-[#ffffff]/80" />
