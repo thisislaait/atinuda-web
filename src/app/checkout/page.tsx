@@ -83,10 +83,16 @@ function CheckoutContent() {
         // If a discount applied, mark it consumed (server should be idempotent)
         try {
           if (discountPercent > 0 && user?.uid) {
-            await fetch('/api/discount/consume', {
+            await fetch('/api/appoemn/consume', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ uid: user.uid }),
+              body: JSON.stringify({ 
+                uid: user.uid,
+                ticketType,
+                originalAmount: totalAmount,
+                amountCharged: payAmount,
+                consumedAt: Date.now(), 
+              }),
             });
           }
         } catch (e) {
