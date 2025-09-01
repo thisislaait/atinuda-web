@@ -1,9 +1,7 @@
-
-/* FILE: src/components/rsvp-form.tsx */
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useEffect, useRef, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/app/azizi-rsvp/action";
 
 function SubmitButton({ label }: { label: string }) {
@@ -19,12 +17,15 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export default function RsvpForm({ action }: { action: (state: ActionState, formData: FormData) => Promise<ActionState> }) {
+export default function RsvpForm({
+  action,
+}: {
+  action: (state: ActionState, formData: FormData) => Promise<ActionState>;
+}) {
   const initialState: ActionState = { ok: false, message: "" };
-  const [state, formAction] = useFormState(action, initialState);
+  const [state, formAction] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Clear the form when submission succeeds
   useEffect(() => {
     if (state.ok) formRef.current?.reset();
   }, [state.ok]);
@@ -64,9 +65,18 @@ export default function RsvpForm({ action }: { action: (state: ActionState, form
       <fieldset className="mt-2">
         <legend className="mb-2 text-xs">Are you attending?</legend>
         <div className="flex flex-wrap gap-3">
-          {["yes", "no", "maybe"].map((val) => (
-            <label key={val} className="flex cursor-pointer items-center gap-2 rounded-xl border border-black/20 bg-black/5 px-3 py-2">
-              <input type="radio" name="rsvp" value={val} defaultChecked={val === "no"} className="h-4 w-4 accent-[#ff7f41]" />
+          {(["yes", "no", "maybe"] as const).map((val) => (
+            <label
+              key={val}
+              className="flex cursor-pointer items-center gap-2 rounded-xl border border-black/20 bg-black/5 px-3 py-2"
+            >
+              <input
+                type="radio"
+                name="rsvp"
+                value={val}
+                defaultChecked={val === "no"}
+                className="h-4 w-4 accent-[#ff7f41]"
+              />
               <span className="text-sm font-semibold uppercase tracking-wide">{val}</span>
             </label>
           ))}
@@ -76,7 +86,13 @@ export default function RsvpForm({ action }: { action: (state: ActionState, form
       <SubmitButton label="Submit RSVP" />
 
       {state.message && (
-        <div className={`rounded-xl border px-3 py-2 text-sm ${state.ok ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-800"}`}>
+        <div
+          className={`rounded-xl border px-3 py-2 text-sm ${
+            state.ok
+              ? "border-green-200 bg-green-50 text-green-800"
+              : "border-red-200 bg-red-50 text-red-800"
+          }`}
+        >
           {state.message}
         </div>
       )}
@@ -85,4 +101,3 @@ export default function RsvpForm({ action }: { action: (state: ActionState, form
     </form>
   );
 }
-

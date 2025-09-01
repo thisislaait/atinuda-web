@@ -1,4 +1,3 @@
-/* FILE: src/app/azizi-rsvp/page.tsx */
 import Image from "next/image";
 import RsvpForm from "@/components/ui/RsvpForm";
 import { submitRsvp } from "./action";
@@ -20,7 +19,7 @@ export default function Page() {
         <Image src="/assets/images/elementtwo.png" alt="Ticket Banner" fill className="object-cover" priority />
         <div className="absolute inset-0 z-10 bg-black/40" />
         <div className="absolute inset-0 z-20 flex items-center justify-center">
-          <h1 className="text-center text-4xl hero-text font-bold text-white md:text-6xl">RSVP To Azizi</h1>
+          <h1 className="text-center text-4xl font-bold text-white md:text-6xl">RSVP To Azizi</h1>
         </div>
       </div>
 

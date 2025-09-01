@@ -1,13 +1,17 @@
-import { adminDb } from "@/utils/firebaseAdmin"; // <-- use Admin SDK
+import { adminDb } from "@/utils/firebaseAdmin";
 import Link from "next/link";
+import type { QueryDocumentSnapshot, DocumentData } from "firebase-admin/firestore";
 
-// keep dynamic/revalidate as is
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type Row = {
   id: string;
   rsvp: string;
   ticketNumber: string;
   mobile: string;
+  name: string;
+  company: string;
   respondedAt: string;
 };
 
@@ -17,20 +21,20 @@ export default async function AdminRsvpPage() {
     .orderBy("respondedAt", "desc")
     .get();
 
-  const rows: Row[] = snap.docs.map(
-    (d: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>) => {
-      const data = d.data();
-      return {
-        id: d.id,
-        rsvp: String(data.rsvp ?? ""),
-        ticketNumber: String(data.ticketNumber ?? ""),
-        mobile: String(data.mobile ?? ""),
-        respondedAt: data.respondedAt?.toDate?.()
-          ? data.respondedAt.toDate().toLocaleString()
-          : "",
-      };
-    }
-  );
+  const rows: Row[] = snap.docs.map((d: QueryDocumentSnapshot<DocumentData>) => {
+    const data = d.data();
+    return {
+      id: d.id,
+      rsvp: String(data.rsvp ?? ""),
+      ticketNumber: String(data.ticketNumber ?? ""),
+      mobile: String(data.mobile ?? ""),
+      name: String(data.name ?? ""),
+      company: String(data.company ?? ""),
+      respondedAt: data.respondedAt?.toDate?.()
+        ? data.respondedAt.toDate().toLocaleString()
+        : "",
+    };
+  });
 
   return (
     <main className="mx-auto max-w-5xl p-6">
@@ -50,6 +54,8 @@ export default async function AdminRsvpPage() {
             <tr>
               <th className="px-3 py-2">When</th>
               <th className="px-3 py-2">RSVP</th>
+              <th className="px-3 py-2">Name</th>
+              <th className="px-3 py-2">Company</th>
               <th className="px-3 py-2">Ticket #</th>
               <th className="px-3 py-2">Mobile</th>
               <th className="px-3 py-2">Doc ID</th>
@@ -58,16 +64,20 @@ export default async function AdminRsvpPage() {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td className="px-3 py-4" colSpan={5}>No RSVPs yet.</td>
+                <td className="px-3 py-4" colSpan={7}>
+                  No RSVPs yet.
+                </td>
               </tr>
             ) : (
-              rows.map((r) => (
+              rows.map((r: Row) => (
                 <tr key={r.id} className="odd:bg-white even:bg-black/[0.02]">
-                  <td className="px-3 py-2 whitespace-nowrap">{r.respondedAt}</td>
+                  <td className="whitespace-nowrap px-3 py-2">{r.respondedAt}</td>
                   <td className="px-3 py-2">{r.rsvp}</td>
+                  <td className="px-3 py-2">{r.name}</td>
+                  <td className="px-3 py-2">{r.company}</td>
                   <td className="px-3 py-2 font-mono">{r.ticketNumber}</td>
                   <td className="px-3 py-2 font-mono">{r.mobile}</td>
-                  <td className="px-3 py-2 text-xs text-black/60 font-mono">{r.id}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-black/60">{r.id}</td>
                 </tr>
               ))
             )}

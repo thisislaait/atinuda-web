@@ -1,7 +1,8 @@
 "use server";
 
 import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
-import { z } from "zod";
+import { z, ZodError } from "zod";
+import type { DocumentData } from "firebase-admin/firestore";
 
 export type ActionState = { ok: boolean; message: string };
 
@@ -11,33 +12,65 @@ const schema = z.object({
   rsvp: z.enum(["yes", "no", "maybe"]).default("no"),
 });
 
+// Helper: safely pick the first non-empty string from known keys
+function pickString(
+  obj: DocumentData | undefined,
+  keys: readonly string[]
+): string | null {
+  if (!obj) return null;
+  for (const k of keys) {
+    const v = obj[k];
+    if (typeof v === "string" && v.trim().length > 0) return v.trim();
+  }
+  return null;
+}
+
 export async function submitRsvp(
-  prevState: ActionState,
+  _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
   try {
-    const raw = {
+    const data = schema.parse({
       ticketNumber: (formData.get("ticketNumber") as string | null)?.trim() || "",
       mobile: (formData.get("mobile") as string | null)?.trim() || "",
       rsvp: ((formData.get("rsvp") as string | null) || "no") as "yes" | "no" | "maybe",
-    };
+    });
 
-    const data = schema.parse(raw);
+    // Enrich from payments by ticketNumber
+    let payment: DocumentData | undefined;
+
+    // Fast path: doc ID == ticketNumber
+    const byId = await adminDb.collection("payments").doc(data.ticketNumber).get();
+    if (byId.exists) {
+      payment = byId.data();
+    } else {
+      const q = await adminDb
+        .collection("payments")
+        .where("ticketNumber", "==", data.ticketNumber)
+        .limit(1)
+        .get();
+      if (!q.empty) {
+        payment = q.docs[0].data();
+      }
+    }
+
+    const name = pickString(payment, ["name", "fullName", "customerName"]);
+    const company = pickString(payment, ["company", "organisation", "organization"]);
 
     await adminDb.collection("Azizi").add({
-      ...data,
-      eventName: "Azizi by Atinuda",
-      eventDate: "2025-10-06",
-      eventVenue: "the library, Victoria Island",
+      rsvp: data.rsvp,
+      ticketNumber: data.ticketNumber,
+      mobile: data.mobile,
+      name,
+      company,
       respondedAt: FieldValue.serverTimestamp(),
     });
 
     return { ok: true, message: "Thank you — your RSVP has been recorded." };
-  } catch (err: unknown) {
-    console.error(err);
+  } catch (err) {
     const message =
-      typeof err === "object" && err !== null && "issues" in err
-        ? (err as any).issues?.[0]?.message ?? "Validation error"
+      err instanceof ZodError
+        ? err.issues[0]?.message ?? "Validation error"
         : err instanceof Error
         ? err.message
         : "Something went wrong.";
