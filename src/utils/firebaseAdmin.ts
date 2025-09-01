@@ -1,15 +1,3 @@
-// // lib/firebaseAdmin.ts or js
-// import admin from 'firebase-admin';
-// import serviceAccount from '../serviceAccountKey.json'; // make sure the path is correct
-
-// if (!admin.apps.length) {
-//   admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-//   });
-// }
-
-// export const db = admin.firestore();
-
 
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
