@@ -7,7 +7,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 function isFirestoreTimestamp(v: unknown): v is { toDate: () => Date } {
-  return isRecord(v) && typeof (v as any).toDate === 'function';
+  return isRecord(v) && typeof (v as { toDate?: unknown }).toDate === 'function';
 }
 
 function safeErrorMessage(e: unknown): string {
