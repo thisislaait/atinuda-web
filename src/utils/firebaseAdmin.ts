@@ -1,4 +1,4 @@
-
+// utils/firebaseAdmin.ts
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { ServiceAccount } from 'firebase-admin';

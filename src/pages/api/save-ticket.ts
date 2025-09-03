@@ -1,5 +1,4 @@
 // pages/api/save-ticket.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 import { generateQRCode } from '@/utils/qr';
@@ -37,27 +36,49 @@ export default async function handler(
     });
   }
 
+  // ✅ NEW: normalize email once
+  const emailLower = String(email).trim().toLowerCase();
+
   const ticketNumber = generateTicketNumber(ticketType);
   const qrText = `https://www.atinuda.africa/ticket/${ticketNumber}?name=${encodeURIComponent(fullName)}`;
 
   try {
-    // Check for existing ticket
-    const existingTicketSnap = await adminDb
+    // ✅ NEW: try to find by normalized field first
+    let existingTicketSnap = await adminDb
       .collection('payments')
-      .where('email', '==', email)
+      .where('emailLower', '==', emailLower)
       .limit(1)
       .get();
 
+    // ✅ NEW: fallback for older docs that don't have emailLower yet
+    if (existingTicketSnap.empty) {
+      const legacySnap = await adminDb
+        .collection('payments')
+        .where('email', '==', email) // original case
+        .limit(1)
+        .get();
+
+      if (!legacySnap.empty) {
+        existingTicketSnap = legacySnap;
+
+        // ✅ Optional backfill (non-blocking): add emailLower to old doc
+        const docRef = legacySnap.docs[0].ref;
+        docRef.set({ emailLower }, { merge: true }).catch(() => {});
+      }
+    }
+
     if (!existingTicketSnap.empty) {
+      // ⚠️ Keep existing behavior (400) so nothing breaks downstream
       const existingTicket = existingTicketSnap.docs[0].data();
       return res.status(400).json({
         message: `A ticket has already been generated for "${email}".`,
         ticketNumber: existingTicket.ticketNumber,
         emailSent: existingTicket.emailSent,
+        location: existingTicket.location, // small bonus: return location too
       });
     }
 
-    // Generate QR + PDF
+    // Generate QR + PDF (unchanged)
     const qrCode = await generateQRCode(qrText);
     const pdfBuffer = await generateTicketPDF(
       fullName,
@@ -81,10 +102,11 @@ export default async function handler(
       console.error('❌ Error sending confirmation email:', emailError);
     }
 
-    // Save to Firestore
+    // ✅ NEW: persist normalized email alongside original
     const docRef = await adminDb.collection('payments').add({
       fullName,
-      email,
+      email,         // keep as-is for display
+      emailLower,    // new field for fast, case-insensitive lookups
       ticketType,
       ticketNumber,
       location,
