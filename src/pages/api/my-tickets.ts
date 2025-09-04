@@ -155,11 +155,11 @@ type TicketCheckIn = {
 
 type TicketOut = {
   id: string;
-  fullName?: string;
-  email?: string;
-  ticketType?: string;
-  ticketNumber?: string;
-  location?: string;
+  fullName: string;
+  email: string;
+  ticketType: string;
+  ticketNumber: string;
+  location: string;
   createdAt?: string; // ISO
   checkIn: TicketCheckIn;
 };
@@ -194,23 +194,44 @@ function toISO(value: PaymentDoc['createdAt']): string | undefined {
   return undefined;
 }
 
-function mapDoc(d: FirebaseFirestore.QueryDocumentSnapshot): TicketOut {
-  const data = d.data() as PaymentDoc;
-  const rawCI = (typeof data.checkIn === 'object' && data.checkIn) ? data.checkIn : {};
+type PartialCheckInRaw = Partial<Record<keyof TicketCheckIn, unknown>>;
+function isPartialCheckInRaw(v: unknown): v is PartialCheckInRaw {
+  return typeof v === 'object' && v !== null;
+}
+
+function safeString(v: unknown, fallback = ''): string {
+  return typeof v === 'string' ? v : fallback;
+}
+
+function mapDoc(
+  d: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+): TicketOut {
+  const raw = d.data();
+
+  const fullName = safeString(raw.fullName);
+  const email = safeString(raw.email);
+  const ticketType = safeString(raw.ticketType);
+  const ticketNumber = safeString(raw.ticketNumber);
+  const location = safeString(raw.location);
+
+  const createdAtISO = toISO(raw.createdAt as PaymentDoc['createdAt']);
+
+  const rawCI = isPartialCheckInRaw(raw.checkIn) ? raw.checkIn : {};
   const checkIn: TicketCheckIn = {
-    azizi6th: Boolean((rawCI as any).azizi6th ?? false),
-    day1: Boolean((rawCI as any).day1 ?? false),
-    day2: Boolean((rawCI as any).day2 ?? false),
-    gala8pm: Boolean((rawCI as any).gala8pm ?? false),
+    azizi6th: Boolean(rawCI.azizi6th ?? false),
+    day1: Boolean(rawCI.day1 ?? false),
+    day2: Boolean(rawCI.day2 ?? false),
+    gala8pm: Boolean(rawCI.gala8pm ?? false),
   };
+
   return {
     id: d.id,
-    fullName: data.fullName ?? '',
-    email: data.email ?? '',
-    ticketType: data.ticketType ?? '',
-    ticketNumber: data.ticketNumber ?? '',
-    location: data.location ?? '',
-    createdAt: toISO(data.createdAt),
+    fullName,
+    email,
+    ticketType,
+    ticketNumber,
+    location,
+    createdAt: createdAtISO,
     checkIn,
   };
 }
@@ -224,7 +245,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const authHeader = req.headers.authorization ?? '';
     const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-    if (!idToken) return res.status(401).json({ error: 'Missing token' });
+    if (!idToken) {
+      return res.status(401).json({ error: 'Missing token' });
+    }
 
     const decoded = await getAuth().verifyIdToken(idToken);
     const emailRaw = decoded.email ?? '';
@@ -233,12 +256,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const limit = 20;
 
-    // 1) Try uid (no orderBy to avoid needing a composite index)
-    let snap = uid
-      ? await adminDb.collection('payments').where('uid', '==', uid).limit(limit).get()
-      : null;
+    // 1) Try by uid
+    let snap:
+      | FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>
+      | null = null;
 
-    // 2) If empty, try emailLower (covers new & backfilled docs)
+    if (uid) {
+      snap = await adminDb
+        .collection('payments')
+        .where('uid', '==', uid)
+        .limit(limit)
+        .get();
+    }
+
+    // 2) Try by emailLower (new docs/backfilled)
     if (!snap || snap.empty) {
       if (emailLower) {
         snap = await adminDb
@@ -249,12 +280,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // 3) If still empty, fall back to legacy `email` field (your old tickets)
+    // 3) Fall back to legacy exact `email` match (old tickets)
     if (!snap || snap.empty) {
       if (emailRaw) {
         snap = await adminDb
           .collection('payments')
-          .where('email', '==', emailRaw) // case-sensitive exact match
+          .where('email', '==', emailRaw)
           .limit(limit)
           .get();
       }
@@ -264,12 +295,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ tickets: [] });
     }
 
-    // Map and sort newest first in memory (since we avoided orderBy)
-    const tickets = snap.docs.map(mapDoc).sort((a, b) => {
-      const tA = a.createdAt ? Date.parse(a.createdAt) : 0;
-      const tB = b.createdAt ? Date.parse(b.createdAt) : 0;
-      return tB - tA;
-    });
+    // Sort newest first in memory (no composite index required)
+    const tickets = snap.docs
+      .map(mapDoc)
+      .sort((a, b) => {
+        const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
+        const tb = b.createdAt ? Date.parse(b.createdAt) : 0;
+        return tb - ta;
+      });
 
     res.setHeader('Cache-Control', 's-maxage=15, stale-while-revalidate=45');
     return res.status(200).json({ tickets });
