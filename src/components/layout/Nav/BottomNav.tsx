@@ -50,7 +50,7 @@ const BottomNav = () => {
           <span className="block sm:inline">Become A</span>{" "}
           <span className="block sm:inline">Sponsor</span>
         </NavItem>
-        <NavItem href="/membership">
+        <NavItem href="/azizi-rsvp">
           <span className="block sm:inline">Invite</span>{" "}
           <span className="block sm:inline">Only</span>
         </NavItem>
