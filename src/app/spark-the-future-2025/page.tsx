@@ -42,7 +42,7 @@ export default function PitchPage() {
         date: "Oct 2–3 or 4–5, 2025",
         title: "Pitch clinic at Nord HQ",
         body:
-          "Two-day coaching + deck polish + Q&A drills + test drives. Integrate Nord’s story into your value prop.",
+          "One-day coaching + deck polish + Q&A drills + test drives. Integrate Nord’s story into your value prop.",
       },
       {
         date: "Oct 8, 2025",
@@ -137,7 +137,7 @@ export default function PitchPage() {
               <span>Lagos • Oct 8, 2025</span>
               <span className="text-white/70">Atinuda Conference</span>
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight">Spark the Future — Pitch Competition</h1>
+            <h1 className="text-4xl md:text-5xl font-bold hero-text leading-tight">Spark the Future — Pitch Competition</h1>
             <p className="mt-4 text-lg md:text-xl text-white/90">
               For event innovators fusing sustainability and technology. Pitch live on stage, win a brand-new Nord
               vehicle, and unlock investors, mentorship, and media.
