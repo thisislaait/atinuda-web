@@ -1,0 +1,95 @@
+// pages/api/spark-apply.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, message: "Method not allowed" });
+  }
+
+  try {
+    const {
+      ticket_number,
+      solution,
+      solution_link,
+      year_incorporated,
+      founder_structure,
+      annual_revenue_usd,
+      country,
+      available_pitch_clinic,
+      received_funding,
+      stage,
+    } = req.body;
+
+    // 🔐 Step 1: Verify ticket number exists in payments
+    const paymentsSnap = await adminDb
+      .collection("payments")
+      .where("ticketNumber", "==", ticket_number)
+      .limit(1)
+      .get();
+
+    if (paymentsSnap.empty) {
+      return res.status(400).json({
+        ok: false,
+        message: "Invalid ticket number. Please use a registered ticket.",
+      });
+    }
+
+    const p = paymentsSnap.docs[0].data();
+
+    // 🔐 Step 2: Pull name, company, email from payments (source of truth)
+    const applicantName = p.fullName ?? null;
+    const email = p.email ?? null;
+    const company = p.company ?? null; // might be null until we fix payments schema
+
+    // 🔐 Step 3: Validate required fields
+    if (
+      !ticket_number ||
+      !solution ||
+      !solution_link ||
+      !year_incorporated ||
+      !founder_structure ||
+      !country ||
+      !available_pitch_clinic ||
+      !received_funding ||
+      !stage
+    ) {
+      return res
+        .status(400)
+        .json({ ok: false, message: "Missing required fields." });
+    }
+
+    // 🔐 Step 4: Save to spark_applications
+    await adminDb.collection("spark_applications").doc(ticket_number).set(
+      {
+        ticket_number,
+        applicant_name: applicantName,
+        company,
+        email,
+        solution,
+        solution_link,
+        year_incorporated: Number(year_incorporated),
+        founder_structure,
+        annual_revenue_usd: Number(annual_revenue_usd) || 0,
+        country,
+        available_pitch_clinic,
+        received_funding,
+        stage,
+        created_at: FieldValue.serverTimestamp(),
+        updated_at: FieldValue.serverTimestamp(),
+        source: "web_form",
+        status: "submitted",
+      },
+      { merge: true }
+    );
+
+    return res
+      .status(200)
+      .json({ ok: true, message: "Application submitted successfully!" });
+  } catch (err: any) {
+    console.error("spark-apply POST error:", err);
+    return res
+      .status(500)
+      .json({ ok: false, message: err.message || "Server error" });
+  }
+}

@@ -191,35 +191,7 @@ function Content() {
               <p className="mb-1"><strong>Email:</strong> {data.email}</p>
               <p className="mb-1"><strong>Ticket Type:</strong> {data.ticketType}</p>
 
-              {/* Order summary
-              <div className="mt-3 text-sm text-white/90">
-                <div className="flex justify-between"><span>Quantity</span><span className="font-medium">{data.quantity}</span></div>
-                {data.unitPrice > 0 && (
-                  <div className="flex justify-between"><span>Unit Price</span><span className="font-medium">
-                    {data.currency === 'NGN' ? `₦${data.unitPrice.toLocaleString()}` : `$${data.unitPrice.toLocaleString()}`}
-                  </span></div>
-                )}
-                {data.subtotal > 0 && data.discount > 0 && (
-                  <>
-                    <div className="flex justify-between"><span>Subtotal</span><span className="line-through opacity-80">
-                      {data.currency === 'NGN' ? `₦${data.subtotal.toLocaleString()}` : `$${data.subtotal.toLocaleString()}`}
-                    </span></div>
-                    <div className="flex justify-between text-green-300"><span>Discount</span><span>-{data.discount}%</span></div>
-                  </>
-                )}
-                <div className="flex justify-between mt-1">
-                  <span className="font-semibold">Amount Paid</span>
-                  <span className="font-bold">
-                    {data.currency === 'NGN' ? `₦${data.amount.toLocaleString()}` : `$${data.amount.toLocaleString()}`}
-                  </span>
-                </div>
-                {data.txRef && (
-                  <div className="flex justify-between text-white/70 mt-1">
-                    <span>Reference</span><span className="font-mono">{data.txRef}</span>
-                  </div>
-                )}
-              </div> */}
-
+            
               {ticketNumber && (
                 <p className="mt-3 font-mono text-lg text-[#FF7F41]">
                   <strong>Ticket No:</strong> {ticketNumber}

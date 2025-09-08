@@ -14,6 +14,7 @@ const serviceAccount: ServiceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
   privateKey,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+ 
 };
 
 if (!getApps().length) {
@@ -25,7 +26,6 @@ if (!getApps().length) {
 const adminDb = getFirestore();
 
 export { adminDb, FieldValue };
-
 
 // import { initializeApp, cert, getApps } from 'firebase-admin/app';
 // import { getFirestore, FieldValue } from 'firebase-admin/firestore';
