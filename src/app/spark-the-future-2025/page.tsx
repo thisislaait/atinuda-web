@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useMemo, useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
 export default function PitchPage() {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Lock page scroll while modal is open
   useEffect(() => {
@@ -71,7 +70,7 @@ export default function PitchPage() {
             setTicketValid(false);
             toast.error("❌ Invalid ticket number");
           }
-        } catch (err) {
+        } catch {
           setTicketValid(false);
           toast.error("⚠️ Could not verify ticket. Try again.");
         } finally {
@@ -107,9 +106,9 @@ export default function PitchPage() {
           // Dismiss loader → success toast
           toast.dismiss(toastId);
           toast.success("✅ Application submitted! We’ll be in touch via email.");
-        } catch (err: any) {
+        } catch {
           toast.dismiss(toastId);
-          toast.error(err.message || "Something went wrong. Please try again.");
+          // toast.error(err.message || "Something went wrong. Please try again.");
         } finally {
           setSubmitting(false);
         }

@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     return res.status(200).json({ ok: true, message: "Valid ticket" });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("verify-ticket error:", err);
     return res.status(500).json({ ok: false, message: "Server error" });
   }

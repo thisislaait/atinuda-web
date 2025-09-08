@@ -2,7 +2,30 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+interface SparkApplyBody {
+  ticket_number: string;
+  solution: string;
+  solution_link: string;
+  year_incorporated: number;
+  founder_structure: string;
+  annual_revenue_usd: number;
+  country: string;
+  available_pitch_clinic: string; // could be "yes"/"no"
+  received_funding: string;       // could be "yes"/"no"
+  stage: "ideation" | "conceptualisation" | "mvp" | "growth";
+}
+
+interface PaymentDoc {
+  fullName?: string;
+  company?: string;
+  email?: string;
+  ticketNumber?: string;
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false, message: "Method not allowed" });
   }
@@ -19,9 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       available_pitch_clinic,
       received_funding,
       stage,
-    } = req.body;
+    } = req.body as SparkApplyBody;
 
-    // 🔐 Step 1: Verify ticket number exists in payments
+    // ✅ Ensure ticket exists in payments
     const paymentsSnap = await adminDb
       .collection("payments")
       .where("ticketNumber", "==", ticket_number)
@@ -35,14 +58,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    const p = paymentsSnap.docs[0].data();
+    const p = paymentsSnap.docs[0].data() as PaymentDoc;
 
-    // 🔐 Step 2: Pull name, company, email from payments (source of truth)
     const applicantName = p.fullName ?? null;
     const email = p.email ?? null;
-    const company = p.company ?? null; // might be null until we fix payments schema
+    const company = p.company ?? null;
 
-    // 🔐 Step 3: Validate required fields
+    // ✅ Required field validation
     if (
       !ticket_number ||
       !solution ||
@@ -59,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .json({ ok: false, message: "Missing required fields." });
     }
 
-    // 🔐 Step 4: Save to spark_applications
+    // ✅ Save application
     await adminDb.collection("spark_applications").doc(ticket_number).set(
       {
         ticket_number,
@@ -86,10 +108,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res
       .status(200)
       .json({ ok: true, message: "Application submitted successfully!" });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : "Unexpected server error";
     console.error("spark-apply POST error:", err);
-    return res
-      .status(500)
-      .json({ ok: false, message: err.message || "Server error" });
+    return res.status(500).json({ ok: false, message });
   }
 }
