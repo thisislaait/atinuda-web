@@ -137,7 +137,7 @@ export default function PitchPage() {
               <span>Lagos • Oct 8, 2025</span>
               <span className="text-white/70">Atinuda Conference</span>
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold hero-text leading-tight">Spark the Future — Pitch Competition</h1>
+            <h1 className="text-5xl md:text-6xl font-bold hero-text leading-tight">Spark the Future — Pitch Competition</h1>
             <p className="mt-4 text-lg md:text-xl text-white/90">
               For event innovators fusing sustainability and technology. Pitch live on stage, win a brand-new Nord
               vehicle, and unlock investors, mentorship, and media.
