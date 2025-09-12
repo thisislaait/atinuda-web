@@ -104,3 +104,48 @@ export const syncUserToAttendee = onDocumentUpdated("users/{userId}", async (eve
 
   console.log(`🔄 Synced user ${emailLower} → attendees_public`);
 });
+
+
+// functions/src/index.ts
+// import * as admin from 'firebase-admin';
+// import { onRequest } from 'firebase-functions/v2/https';
+// import { SCHEDULE } from './schedule';
+
+// try { admin.app(); } catch { admin.initializeApp(); }
+// const db = admin.firestore();
+
+// export const seedSessions = onRequest({ region: 'us-central1', cors: true }, async (_req, res) => {
+//   try {
+//     const batch = db.batch();
+//     let upserts = 0;
+
+//     for (const day of SCHEDULE) {
+//       for (const s of day.sessions) {
+//         const ref = db.collection('sessions').doc(s.id);
+//         const snap = await ref.get();
+
+//         const { registered, ...rest } = s; // ignore 'registered' from file
+//         const base = {
+//           ...rest,
+//           speaker: s.speaker ?? null,
+//           speakerId: s.speakerId ?? null,
+//           capacity: s.capacity ?? null,
+//         };
+
+//         if (!snap.exists) {
+//           batch.set(ref, { ...base, registeredCount: 0 }, { merge: true });
+//         } else {
+//           const existing = snap.data() || {};
+//           batch.set(ref, { ...base, registeredCount: existing.registeredCount ?? 0 }, { merge: true });
+//         }
+//         upserts++;
+//       }
+//     }
+
+//     await batch.commit();
+//     res.status(200).json({ ok: true, upserts });
+//   } catch (e: any) {
+//     console.error(e);
+//     res.status(500).json({ ok: false, error: e?.message || 'seed failed' });
+//   }
+// });
