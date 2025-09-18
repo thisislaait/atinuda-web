@@ -10,6 +10,7 @@ const ticketOptions = [
   { type: 'Conference Access',  priceNGN: 295, priceUSD: 200, desc: 'Full access to all main conference sessions. Ideal for industry leaders and professionals seeking insights and networking.', image: '/assets/images/Conference.png' },
   { type: 'Workshop Access',    priceNGN: 250, priceUSD: 170, desc: 'Hands-on expert-led workshops tailored for creatives and professionals. Intimate, intensive, and focused.', image: '/assets/images/masterclass.jpg' },
   { type: 'Premium Experience', priceNGN: 500, priceUSD: 340, desc: 'Includes full Conference + Workshop access with an exclusive bundled rate. Enjoy curated content and actionable insights.', image: '/assets/images/executive2.png' },
+  { type: 'Signature Pass', priceNGN: 545, priceUSD: 370, desc: 'Full conference access + exclusive Gala Dinner. Including entertainment, curated fine dining, and networking with headline speakers & partners).', image: '/assets/images/signaturee.png' },
   { type: 'Executive Access',   priceNGN: 650, priceUSD: 440, desc: 'Everything in Premium, plus access to the private Executive Dinner with keynote guests and partners. Limited availability.', image: '/assets/images/CocktailMixer.png' },
   { type: 'Dinner Gala Only',   priceNGN: 250, priceUSD: 170, desc: 'Invitation to the evening Gala & Executive Dinner. Enjoy a curated experience with leaders, partners, and special guests.', image: '/assets/images/Dinner.png' },
 ];

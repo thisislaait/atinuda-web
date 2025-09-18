@@ -8,53 +8,84 @@ import { sendConfirmationEmail } from '@/utils/email';
 import { getLocationText } from '@/utils/constants';
 import { generateTicketNumber } from '@/utils/ticketNumber';
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
+type Role = 'attendee' | 'speaker' | 'organizer' | (string & {});
+
+type SaveTicketBody = {
+  fullName: string;
+  email: string;
+  ticketType: string;
+};
+
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === 'string' && v.trim().length > 0;
+}
+
+function pickPrimaryRole(roles: Role[] | undefined): Role {
+  if (!roles || roles.length === 0) return 'attendee';
+  if (roles.includes('organizer')) return 'organizer';
+  if (roles.includes('speaker')) return 'speaker';
+  return roles[0];
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  // Gracefully handle invalid JSON
-  let body: { fullName?: string; email?: string; ticketType?: string };
-  try {
-    body = req.body;
-    if (typeof body !== 'object') throw new Error('Invalid body format');
-  } catch (err) {
-    return res.status(400).json({ message: 'Invalid request body format.', err });
+  // Safely parse body
+  const raw = req.body as Partial<SaveTicketBody> | unknown;
+
+  if (
+    typeof raw !== 'object' ||
+    raw == null ||
+    !isNonEmptyString((raw as Partial<SaveTicketBody>).fullName) ||
+    !isNonEmptyString((raw as Partial<SaveTicketBody>).email) ||
+    !isNonEmptyString((raw as Partial<SaveTicketBody>).ticketType)
+  ) {
+    return res
+      .status(400)
+      .json({ message: 'Missing required fields: fullName, email, ticketType.' });
   }
 
-  const { fullName, email, ticketType } = req.body;
+  const { fullName, email, ticketType } = raw as SaveTicketBody;
+
+  // Now ticketType is definitely a string
   const location = getLocationText(ticketType);
 
-  if (!fullName || !email || !ticketType) {
-    return res.status(400).json({
-      message: 'Missing required fields: fullName, email, or ticketType.',
-    });
-  }
-
   // Normalize email for consistent lookups
-  const emailLower = String(email).trim().toLowerCase();
+  const emailLower = email.trim().toLowerCase();
 
-  // Try to resolve the UID (optional, best-effort):
-  // 1) If caller sent an ID token, trust it
-  // 2) Else try admin lookup by email (only if that email is registered in Firebase Auth)
+  // Try to resolve the UID (optional, best-effort)
   let uid: string | undefined;
   try {
     const authHeader = req.headers.authorization ?? '';
     const idToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
-    if (idToken) {
+    if (isNonEmptyString(idToken)) {
       const decoded = await getAuth().verifyIdToken(idToken);
       uid = decoded.uid;
     } else {
-      // Best-effort mapping without requiring login on the web checkout
       const userRecord = await getAuth().getUserByEmail(emailLower).catch(() => null);
       if (userRecord) uid = userRecord.uid;
     }
   } catch {
-    // Non-blocking — we can still save without uid
+    // Non-blocking
+  }
+
+  // Best-effort role snapshot
+  let rolesAtPurchase: Role[] | null = null;
+  let primaryRoleAtPurchase: Role | null = null;
+  try {
+    if (uid) {
+      const userSnap = await adminDb.collection('users').doc(uid).get();
+      const roles = (userSnap.exists
+        ? ((userSnap.data()?.roles as Role[] | undefined) ?? ['attendee'])
+        : ['attendee']) as Role[];
+      rolesAtPurchase = roles;
+      primaryRoleAtPurchase = pickPrimaryRole(roles);
+    }
+  } catch {
+    // Non-blocking
   }
 
   const ticketNumber = generateTicketNumber(ticketType);
@@ -86,7 +117,6 @@ export default async function handler(
     }
 
     if (!existingSnap.empty) {
-      // Keep your current behavior (avoid breaking downstream)
       const existing = existingSnap.docs[0].data();
       return res.status(400).json({
         message: `A ticket has already been generated for "${email}".`,
@@ -100,6 +130,7 @@ export default async function handler(
     const qrCode = await generateQRCode(qrText);
     const pdfBuffer = await generateTicketPDF(fullName, ticketNumber, qrCode, location);
 
+    // Try send email (non-blocking failure)
     let emailSent = false;
     try {
       await sendConfirmationEmail({
@@ -109,13 +140,15 @@ export default async function handler(
         ticketType,
         ticketNumber,
         location,
+        // You can add role to your template later if wanted:
+        // role: primaryRoleAtPurchase ?? undefined,
       });
       emailSent = true;
     } catch (emailError) {
       console.error('❌ Error sending confirmation email:', emailError);
     }
 
-    // ✅ Save with the richer schema
+    // Save payment
     await adminDb.collection('payments').add({
       fullName,
       email,
@@ -125,6 +158,9 @@ export default async function handler(
       ticketNumber,
       location,
       emailSent,
+      rolesAtPurchase: rolesAtPurchase ?? null,
+      primaryRoleAtPurchase: primaryRoleAtPurchase ?? null,
+      complimentary: false,
       checkIn: {
         azizi6th: false,
         day1: false,
@@ -139,6 +175,7 @@ export default async function handler(
       qrCode,
       ticketNumber,
       location,
+      primaryRoleAtPurchase: primaryRoleAtPurchase ?? 'attendee',
     });
   } catch (error) {
     const err = error as Error;
