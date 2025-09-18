@@ -7,6 +7,7 @@ export const generateTicketNumber = (ticketType: string): string => {
   else if (type.includes('workshop')) prefix = 'WRK-ATIN';
   else if (type.includes('executive')) prefix = 'EXEC-ATIN';
   else if (type.includes('premium')) prefix = 'PREM-ATIN';
+  else if (type.includes('signature')) prefix = 'SIG-ATIN';
   else if (type.includes('dinner')) prefix = 'DINE-ATIN';
 
   return `${prefix}${randomCode}`;

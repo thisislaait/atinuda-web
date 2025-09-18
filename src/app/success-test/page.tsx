@@ -29,6 +29,8 @@ function Content() {
         return 'You’ve secured a seat at the workshops. Get ready to build and learn!';
       case 'Premium Experience':
         return 'Premium perks await you. Enjoy an elevated event experience!';
+      case 'Signature Pass':
+        return 'Join industry leaders and executives who want an elevated summit!';
       case 'Executive Access':
         return 'Welcome to the Executive circle. Expect top-tier access and privileges!';
       case 'Dinner Gala Only':
