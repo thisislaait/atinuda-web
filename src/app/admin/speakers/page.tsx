@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   addDoc,
   arrayUnion,
@@ -11,7 +11,6 @@ import {
   orderBy,
   query,
   serverTimestamp,
-  setDoc,
   startAt,
   endAt,
   writeBatch,
@@ -78,8 +77,6 @@ export default function AdminSpeakerCreatePage() {
   const [bio, setBio] = useState('');
 
   // Key that maps to your bundled image
-  // e.g. put your images under /public/speakers/<key>.png in Next.js
-  // and/or ship them in the RN bundle with the same keys.
   const [photoAssetKey, setPhotoAssetKey] = useState('');
 
   // ───────────────── NEW SESSIONS ─────────────────
@@ -102,7 +99,7 @@ export default function AdminSpeakerCreatePage() {
 
   // Prefix search (title) with debounce
   useEffect(() => {
-    const id = setTimeout(async () => {
+    const id: ReturnType<typeof setTimeout> = setTimeout(async () => {
       if (!attachQuery.trim()) {
         setAttachResults([]);
         return;
@@ -116,14 +113,22 @@ export default function AdminSpeakerCreatePage() {
         limit(12)
       );
       const snap = await getDocs(q);
+
+      type Raw = {
+        title?: string;
+        date?: string | null;
+        time?: string | null;
+        type?: SessionType | null;
+      };
+
       const rows: ExistingSession[] = snap.docs.map((d) => {
-        const data = d.data() as any;
+        const data = d.data() as Raw;
         return {
           id: d.id,
           title: data.title ?? '(untitled)',
           date: data.date ?? null,
           time: data.time ?? null,
-          type: (data.type ?? null) as SessionType | null,
+          type: data.type ?? null,
         };
       });
       setAttachResults(rows);
@@ -131,12 +136,17 @@ export default function AdminSpeakerCreatePage() {
     return () => clearTimeout(id);
   }, [attachQuery]);
 
-  const toggleAttach = (sid: string) =>
+  const toggleAttach = (sid: string) => {
     setSelectedExistingIds((prev) => {
       const copy = new Set(prev);
-      copy.has(sid) ? copy.delete(sid) : copy.add(sid);
+      if (copy.has(sid)) {
+        copy.delete(sid);
+      } else {
+        copy.add(sid);
+      }
       return copy;
     });
+  };
 
   const addSessionRow = () => setNewSessions((s) => [...s, emptySession()]);
   const removeSessionRow = (i: number) =>
@@ -144,7 +154,7 @@ export default function AdminSpeakerCreatePage() {
   const updateSession = (i: number, patch: Partial<NewSession>) =>
     setNewSessions((s) => s.map((row, idx) => (i === idx ? { ...row, ...patch } : row)));
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!canSave) return;
 
@@ -181,7 +191,7 @@ export default function AdminSpeakerCreatePage() {
           room: s.room || null,
           capacity: s.capacity ? Number(s.capacity) : null,
           type: SESSION_TYPES.includes(s.type) ? s.type : 'workshop',
-          requiresRegistration: !!s.requiresRegistration,
+          requiresRegistration: Boolean(s.requiresRegistration),
           speakers: [speakerId],
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
@@ -221,13 +231,25 @@ export default function AdminSpeakerCreatePage() {
       setAttachQuery('');
       setAttachResults([]);
       setSelectedExistingIds(new Set());
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err?.message ?? 'Failed to save');
+      const msg =
+        typeof err === 'object' && err !== null && 'message' in err
+          ? String((err as { message?: string }).message)
+          : 'Failed to save';
+      alert(msg);
     } finally {
       setSaving(false);
     }
   }
+
+  // shared input class with forced black text & readable placeholder
+  const inputCls =
+    'rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 text-black placeholder-slate-500';
+  const selectCls =
+    'rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500 text-black';
+  const textareaCls =
+    'min-h-[110px] rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500 text-black placeholder-slate-500';
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
@@ -244,7 +266,7 @@ export default function AdminSpeakerCreatePage() {
             <label className="grid gap-1">
               <span className="text-sm font-semibold text-slate-700">Name</span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -255,7 +277,7 @@ export default function AdminSpeakerCreatePage() {
             <label className="grid gap-1">
               <span className="text-sm font-semibold text-slate-700">Slug (auto)</span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="sarah-johnson"
@@ -265,7 +287,7 @@ export default function AdminSpeakerCreatePage() {
             <label className="grid gap-1">
               <span className="text-sm font-semibold text-slate-700">Title</span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Chief Innovation Officer"
@@ -275,7 +297,7 @@ export default function AdminSpeakerCreatePage() {
             <label className="grid gap-1">
               <span className="text-sm font-semibold text-slate-700">Company</span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="TechAfrica Inc."
@@ -285,7 +307,7 @@ export default function AdminSpeakerCreatePage() {
             <label className="grid gap-1 md:col-span-2">
               <span className="text-sm font-semibold text-slate-700">Card Headline (Topic)</span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="AI for Social Good"
@@ -297,14 +319,15 @@ export default function AdminSpeakerCreatePage() {
                 Photo Asset Key (no upload; matches your shipped asset name)
               </span>
               <input
-                className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                className={inputCls}
                 value={photoAssetKey}
                 onChange={(e) => setPhotoAssetKey(e.target.value)}
                 required
                 placeholder="sarah-johnson"
               />
               <p className="text-xs text-slate-500 mt-1">
-                Put your images in <code>/public/speakers/&lt;key&gt;.png</code> (web) and in the RN bundle with the same key. Example: <strong>sarah-johnson</strong>.
+                Put your images in <code>/public/speakers/&lt;key&gt;.png</code> (web) and in the RN
+                bundle with the same key. Example: <strong>sarah-johnson</strong>.
               </p>
             </label>
           </div>
@@ -312,7 +335,7 @@ export default function AdminSpeakerCreatePage() {
           <label className="mt-3 grid gap-1">
             <span className="text-sm font-semibold text-slate-700">Bio</span>
             <textarea
-              className="min-h-[110px] rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+              className={textareaCls}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Brief speaker biography..."
@@ -325,7 +348,7 @@ export default function AdminSpeakerCreatePage() {
           <h2 className="mb-3 text-lg font-bold text-slate-900">Attach Existing Sessions</h2>
 
           <input
-            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+            className={inputCls + ' w-full'}
             placeholder="Search sessions by title…"
             value={attachQuery}
             onChange={(e) => setAttachQuery(e.target.value)}
@@ -340,7 +363,7 @@ export default function AdminSpeakerCreatePage() {
                     checked={selectedExistingIds.has(s.id)}
                     onChange={() => toggleAttach(s.id)}
                   />
-                  <span className="font-medium">{s.title}</span>
+                  <span className="font-medium text-slate-900">{s.title}</span>
                   <span className="text-slate-500">
                     {s.date ? `• ${s.date}` : ''}
                     {s.time ? ` • ${s.time}` : ''}
@@ -373,7 +396,7 @@ export default function AdminSpeakerCreatePage() {
             {newSessions.map((row, idx) => (
               <div key={idx} className="rounded-xl border border-dashed border-slate-300 p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <strong className="text-sm">Session #{idx + 1}</strong>
+                  <strong className="text-sm text-slate-900">Session #{idx + 1}</strong>
                   {newSessions.length > 1 && (
                     <button
                       type="button"
@@ -388,7 +411,7 @@ export default function AdminSpeakerCreatePage() {
                 <label className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-700">Title</span>
                   <input
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                    className={inputCls}
                     value={row.title}
                     onChange={(e) => updateSession(idx, { title: e.target.value })}
                     placeholder="Hands-on Machine Learning"
@@ -399,7 +422,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Date (YYYY-MM-DD)</span>
                     <input
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.date}
                       onChange={(e) => updateSession(idx, { date: e.target.value })}
                       placeholder="2025-10-06"
@@ -409,7 +432,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Time (HH:mm)</span>
                     <input
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.time}
                       onChange={(e) => updateSession(idx, { time: e.target.value })}
                       placeholder="09:00"
@@ -419,7 +442,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Duration</span>
                     <input
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.duration}
                       onChange={(e) => updateSession(idx, { duration: e.target.value })}
                       placeholder="60 min"
@@ -431,7 +454,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Location</span>
                     <input
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.location}
                       onChange={(e) => updateSession(idx, { location: e.target.value })}
                       placeholder="Main Hall"
@@ -441,7 +464,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Room</span>
                     <input
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.room}
                       onChange={(e) => updateSession(idx, { room: e.target.value })}
                       placeholder="Room A"
@@ -453,7 +476,7 @@ export default function AdminSpeakerCreatePage() {
                     <input
                       type="number"
                       min={0}
-                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={inputCls}
                       value={row.capacity ?? ''}
                       onChange={(e) => updateSession(idx, { capacity: e.target.value })}
                       placeholder="60"
@@ -465,7 +488,7 @@ export default function AdminSpeakerCreatePage() {
                   <label className="grid gap-1">
                     <span className="text-sm font-semibold text-slate-700">Type</span>
                     <select
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={selectCls}
                       value={row.type}
                       onChange={(e) => updateSession(idx, { type: e.target.value as SessionType })}
                     >
@@ -482,7 +505,7 @@ export default function AdminSpeakerCreatePage() {
                       Requires Registration?
                     </span>
                     <select
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-slate-500"
+                      className={selectCls}
                       value={row.requiresRegistration ? 'yes' : 'no'}
                       onChange={(e) =>
                         updateSession(idx, { requiresRegistration: e.target.value === 'yes' })
