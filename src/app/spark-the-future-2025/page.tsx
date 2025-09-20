@@ -21,13 +21,13 @@ export default function PitchPage() {
   const timeline = useMemo(
     () => [
       {
-        date: "Sept 8–19, 2025",
+        date: "Sept 8–24, 2025",
         title: "Call for applications",
         body:
           "Apply online. Confirm eligibility and share your deck. Focus on sustainability + technology in the events ecosystem.",
       },
       {
-        date: "Sept 23–28, 2025",
+        date: "Sept 24–28, 2025",
         title: "Evaluation & shortlisting",
         body:
           "Independent reviewers score all submissions using our published rubric. Top 10 ventures advance.",
@@ -322,7 +322,7 @@ export default function PitchPage() {
       <section className="bg-[#1B365D] text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h2 className="text-5xl md:text-5xl hero-text font-bold">Ready to pitch on stage?</h2>
-          <p className="mt-2 text-white/85">Applications close Sept 19, 2025. Shortlist announced Sept 29.</p>
+          <p className="mt-2 text-white/85">Applications close Sept 24, 2025. Shortlist announced Sept 29.</p>
           <div className="mt-6">
             <button onClick={() => setOpen(true)} className="rounded-xl bg-[#FF7F41] px-6 py-3 font-semibold text-slate-900 hover:bg-orange-400">
               Apply now
