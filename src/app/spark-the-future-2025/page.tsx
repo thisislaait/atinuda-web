@@ -39,7 +39,7 @@ export default function PitchPage() {
           "Public reveal of 10 finalists. Participation agreements issued, including Nord partnership terms.",
       },
       {
-        date: "Oct 2–3 or 4–5, 2025",
+        date: "Oct 2–3, 2025",
         title: "Pitch clinic at Nord HQ",
         body:
           "One-day coaching + deck polish + Q&A drills + test drives. Integrate Nord’s story into your value prop.",
