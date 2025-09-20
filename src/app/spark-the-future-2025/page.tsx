@@ -2,17 +2,18 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
+
+type TicketValidity = true | false | null; // true=valid, false=invalid, null=unknown
 
 export default function PitchPage() {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Ticket verification + conditional identity fields
-  const [ticketValue, setTicketValue] = useState("");
-  const [ticketValid, setTicketValid] = useState<boolean | undefined>(undefined);
+  // Ticket verification state
+  const [ticketValue, setTicketValue] = useState<string>("");
+  const [ticketValid, setTicketValid] = useState<TicketValidity>(null);
   const [ticketChecking, setTicketChecking] = useState(false);
-  const needsIdentity = ticketValue.trim() === "" || ticketValid === false;
 
   // Lock page scroll while modal is open
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function PitchPage() {
         date: "Oct 2–3, 2025",
         title: "Pitch clinic at Nord HQ",
         body:
-          "One-day coaching + deck polish + Q&A drills + test drives. Integrate Nord’s story into your value prop.",
+          "One-day coaching + Q&A drills + test drives. Integrate Nord’s story into your value prop.",
       },
       {
         date: "Oct 8, 2025",
@@ -61,24 +62,25 @@ export default function PitchPage() {
   );
 
   async function verifyTicket(ticket: string) {
-    if (!ticket.trim()) {
-      setTicketValid(undefined);
+    // Optional: empty = reset state
+    if (!ticket?.trim()) {
+      setTicketValid(null);
       return;
     }
     setTicketChecking(true);
     try {
-      const res = await fetch(`/api/verify-ticket?ticketNumber=${encodeURIComponent(ticket.trim())}`);
+      const res = await fetch(`/api/verify-ticket?ticketNumber=${encodeURIComponent(ticket)}`);
       const data = await res.json();
-      if (data.ok) {
+      if (data?.ok) {
         setTicketValid(true);
-        toast.success("✅ Ticket verified!");
+        toast.success("Ticket verified.");
       } else {
         setTicketValid(false);
-        toast.error("❌ Invalid ticket number");
+        toast.error("We couldn’t verify this ticket number.");
       }
     } catch {
       setTicketValid(false);
-      toast.error("⚠️ Could not verify ticket. Try again.");
+      toast.error("Could not verify ticket. Try again.");
     } finally {
       setTicketChecking(false);
     }
@@ -87,9 +89,12 @@ export default function PitchPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-
     const formData = new FormData(form);
-    // keep as JSON payload for your /api/spark-apply
+
+    // Include the ticketValue from state (in case the input lacked a value attr binding)
+    formData.set("ticket_number", ticketValue);
+
+    // Turn into plain object for JSON API
     const data = Object.fromEntries(formData.entries());
 
     const toastId = toast.loading("Submitting application…");
@@ -100,18 +105,17 @@ export default function PitchPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-
       const json = await res.json();
-      if (!res.ok || !json.ok) throw new Error(json.message || "Failed");
+      if (!res.ok || !json?.ok) throw new Error(json?.message || "Failed");
 
       setOpen(false);
       form.reset();
       setTicketValue("");
-      setTicketValid(undefined);
+      setTicketValid(null);
 
       toast.dismiss(toastId);
       toast.success("✅ Application submitted! We’ll be in touch via email.");
-    } catch (err) {
+    } catch {
       toast.dismiss(toastId);
       toast.error("Something went wrong. Please try again.");
     } finally {
@@ -119,8 +123,17 @@ export default function PitchPage() {
     }
   }
 
+  // Should we show extra identity fields?
+  // - Show when there's NO ticket
+  // - OR when verify failed (invalid ticket)
+  const showFallbackIdentity =
+    ticketValue.trim().length === 0 || ticketValid === false;
+
   return (
     <main className="min-h-screen bg-[#F8F9FB] text-slate-900">
+      {/* Toaster (if you don't already mount it globally) */}
+      <Toaster position="top-center" />
+
       {/* Hero with background image */}
       <header className="relative isolate overflow-hidden bg-[#1B365D]">
         <div className="absolute inset-0 -z-10">
@@ -140,7 +153,9 @@ export default function PitchPage() {
               <span>Lagos • Oct 8, 2025</span>
               <span className="text-white/70">Atinuda Conference</span>
             </p>
-            <h1 className="text-5xl md:text-6xl font-bold hero-text leading-tight">Spark the Future — Pitch Competition</h1>
+            <h1 className="text-5xl md:text-6xl font-bold hero-text leading-tight">
+              Spark the Future — Pitch Competition
+            </h1>
             <p className="mt-4 text-lg md:text-xl text-white/90">
               For event innovators fusing sustainability and technology. Pitch live on stage, win a brand-new Nord
               vehicle, and unlock investors, mentorship, and media.
@@ -171,11 +186,13 @@ export default function PitchPage() {
               businesses. Shortlisted businesses and solutions would;
             </p>
             <ul className="mt-6 space-y-3 text-slate-700">
-              <li>• Operate within the events ecosystem .</li>
+              <li>• Operate within the events ecosystem.</li>
               <li>• Embed sustainability across environmental, social, and economic dimensions.</li>
               <li>• Leverage technology to enhance efficiency.</li>
-              <li>• Be registered in Nigeria or elsewhere in Africa and have been operational since September 2024
-                or earlier.</li>
+              <li>
+                • Be registered in Nigeria or elsewhere in Africa and have been operational since September 2024
+                or earlier.
+              </li>
             </ul>
             <div className="mt-6 flex gap-3">
               <button
@@ -192,7 +209,7 @@ export default function PitchPage() {
           <div className="relative aspect-video overflow-hidden">
             <Image
               src="/assets/images/pitchposter.png"
-              alt="Nord Motors hero background"
+              alt="Pitch poster"
               fill
               className="object-contain object-center"
               priority
@@ -294,7 +311,7 @@ export default function PitchPage() {
               },
               {
                 q: "What do I need for the application?",
-                a: "Company details, solution summary, solution link, incorporation year, founder structure, last 12-month revenue band, and your pitch deck (PDF/PPT).",
+                a: "Company details, solution summary, solution link, incorporation year, founder structure, last 12-month revenue band.",
               },
               {
                 q: "What happens after winning?",
@@ -368,16 +385,19 @@ export default function PitchPage() {
               <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
                 {/* Ticket Number (optional) */}
                 <div>
-                  <label className="text-sm font-medium">Ticket Number (optional)</label>
+                  <label className="text-sm font-medium" htmlFor="ticket_number">
+                    Ticket Number (optional)
+                  </label>
                   <p id="ticket_help" className="mt-1 text-xs text-slate-500">
-                    Tip: If you’re already registered for the Conference, enter your ticket number to auto-fill your details.
-                    Otherwise, leave it blank.
+                    Tip: If you’re already registered for the Conference, enter your ticket number to auto-fill your details. Otherwise, leave it blank.
                   </p>
                   <input
+                    id="ticket_number"
                     name="ticket_number"
                     value={ticketValue}
                     onChange={(e) => setTicketValue(e.target.value)}
                     onBlur={(e) => verifyTicket(e.target.value)}
+                    aria-describedby="ticket_help"
                     aria-invalid={ticketValid === false}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 ${
                       ticketValid === false ? "border-red-500" : "border-slate-300"
@@ -386,82 +406,78 @@ export default function PitchPage() {
                   />
                   {ticketChecking && <p className="text-xs text-slate-500">Checking ticket…</p>}
                   {ticketValid === false && (
-                    <p className="text-xs text-red-600">We couldn’t verify this ticket number. Please provide your details below.</p>
+                    <p className="text-xs text-red-600">
+                      We couldn’t verify this ticket number. Please provide your details below.
+                    </p>
                   )}
-                  {!ticketChecking && ticketValid === true && (
+                  {ticketValid === true && !ticketChecking && (
                     <p className="text-xs text-emerald-700">Ticket verified.</p>
                   )}
                 </div>
 
-                {/* If no ticket OR invalid → ask for identity/availability */}
-                {needsIdentity && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Name */}
-                    <div className="sm:col-span-1">
-                      <label className="text-sm font-medium">Name *</label>
-                      <input
-                        name="applicant_name"
-                        required
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                        placeholder="Full name"
-                      />
+                {/* If no/invalid ticket, show identity fallbacks */}
+                {showFallbackIdentity && (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Name *</label>
+                        <input
+                          name="fallback_name"
+                          required
+                          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                          placeholder="Your full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Company *</label>
+                        <input
+                          name="fallback_company"
+                          required
+                          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                          placeholder="Company or team"
+                        />
+                      </div>
                     </div>
 
-                    {/* Company */}
-                    <div className="sm:col-span-1">
-                      <label className="text-sm font-medium">Company *</label>
-                      <input
-                        name="company"
-                        required
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                        placeholder="Company / Team"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Email *</label>
+                        <input
+                          name="fallback_email"
+                          type="email"
+                          required
+                          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                          placeholder="you@example.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Mobile *</label>
+                        <input
+                          name="fallback_mobile"
+                          type="tel"
+                          required
+                          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                          placeholder="+234 801 234 5678"
+                        />
+                      </div>
                     </div>
 
-                    {/* Email */}
-                    <div className="sm:col-span-1">
-                      <label className="text-sm font-medium">Email *</label>
-                      <input
-                        name="email"
-                        type="email"
-                        required
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                        placeholder="you@company.com"
-                        autoComplete="email"
-                      />
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="sm:col-span-1">
-                      <label className="text-sm font-medium">Mobile *</label>
-                      <input
-                        name="mobile"
-                        type="tel"
-                        required
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                        placeholder="+234 801 234 5678"
-                        autoComplete="tel"
-                      />
-                    </div>
-
-                    {/* Willing to attend */}
-                    <div className="sm:col-span-2">
-                      <label className="text-sm font-medium">Are you willing to attend the conference if shortlisted? *</label>
+                    <div>
+                      <label className="text-sm font-medium">Willing to attend the conference if shortlisted? *</label>
                       <select
-                        name="willing_to_attend"
+                        name="fallback_willing_attend"
                         required
                         className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                        defaultValue=""
                       >
-                        <option value="" disabled>Select…</option>
+                        <option value="">Select…</option>
                         <option value="yes">Yes</option>
                         <option value="no">No</option>
                       </select>
                     </div>
-                  </div>
+                  </>
                 )}
 
-                {/* Main fields — always enabled (not blocked) */}
+                {/* Core application fields (always shown) */}
                 <div>
                   <label className="text-sm font-medium">Solution (brief) *</label>
                   <textarea
@@ -474,7 +490,9 @@ export default function PitchPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium">Solution link (website, demo, etc.) *</label>
+                  <label className="text-sm font-medium">
+                    Solution link (website, demo, etc.) *
+                  </label>
                   <input
                     name="solution_link"
                     type="url"
@@ -494,7 +512,9 @@ export default function PitchPage() {
                     >
                       <option value="">Select...</option>
                       {Array.from({ length: 26 }, (_, i) => 2025 - i).map((year) => (
-                        <option key={year} value={year}>{year}</option>
+                        <option key={year} value={year}>
+                          {year}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -578,13 +598,10 @@ export default function PitchPage() {
                   </select>
                 </div>
 
-                {/* Consent */}
                 <label className="flex items-start gap-3 text-sm">
                   <input type="checkbox" name="consent" required className="mt-1" />
                   <span>
-                    I agree to the competition’s terms, confidentiality notice, and
-                    data-privacy policy, and consent to receive communications about
-                    Atinuda × Nord Motors.
+                    I agree to the competition’s terms, confidentiality notice, and data-privacy policy, and consent to receive communications about Atinuda × Nord Motors.
                   </span>
                 </label>
 
