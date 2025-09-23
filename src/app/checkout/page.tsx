@@ -7,6 +7,39 @@ import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
 import { FaUserCircle } from 'react-icons/fa';
 import { FiArrowLeft } from 'react-icons/fi';
 
+// ---------- TYPES ----------
+type CurrencyCode = 'NGN' | 'USD';
+
+interface FlwCallbackBase {
+  status?: string;                      // "successful" | "success" | "completed" | ...
+  tx_ref?: string;
+  transaction_id?: number | string;     // snake_case variant
+  transactionId?: number | string;      // camelCase variant (SDKs vary)
+}
+
+interface VerifyPayload {
+  txRef: string;
+  transactionId: number | string;
+  expected: {
+    amount: number;
+    currency: CurrencyCode;
+    ticketType: string;
+    quantity: number;
+    unitPrice: number;
+    subtotal: number;
+    userId?: string;
+    discountPercent: number;
+  };
+}
+
+const getTransactionId = (r: FlwCallbackBase): number | string | undefined =>
+  r.transaction_id ?? r.transactionId;
+
+const statusOK = (s?: string) => {
+  const v = (s ?? '').toLowerCase();
+  return v === 'successful' || v === 'success' || v === 'completed';
+};
+
 function CheckoutContent() {
   const params = useSearchParams();
   const router = useRouter();
@@ -17,7 +50,7 @@ function CheckoutContent() {
   const ticketType = params?.get('ticketType') || 'Ticket';
   const price = parseFloat(params?.get('price') || '0');
   const quantity = parseInt(params?.get('quantity') || '1');
-  const currency = (params?.get('currency') as 'NGN' | 'USD') || 'NGN';
+  const currency = (params?.get('currency') as CurrencyCode) || 'NGN';
 
   const totalAmount = useMemo(() => price * quantity, [price, quantity]);
 
@@ -52,9 +85,15 @@ function CheckoutContent() {
   const payAmount = discountPercent > 0 ? discountedTotal : totalAmount;
 
   // ---------- FLUTTERWAVE CONFIG ----------
+  // Slightly more unique txRef per attempt
+  const txRef = useMemo(
+    () => `${Date.now()}-${user?.uid ?? 'guest'}`,
+    [user?.uid]
+  );
+
   const config = {
     public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || '',
-    tx_ref: Date.now().toString(),
+    tx_ref: txRef,
     amount: payAmount,
     currency,
     payment_options: 'card,mobilemoney,ussd',
@@ -75,46 +114,71 @@ function CheckoutContent() {
   const handlePayment = () => {
     if (!user) return openAuthModal();
 
+    if (!config.public_key) {
+      alert('Payment configuration error: missing Flutterwave public key.');
+      return;
+    }
+
     setLoading(true);
     handleFlutterPayment({
-      callback: async () => {
-        closePaymentModal();
-
-        // If a discount applied, mark it consumed (server should be idempotent)
+      callback: async (resp: FlwCallbackBase) => {
         try {
-          if (discountPercent > 0 && user?.uid) {
-            await fetch('/api/appoemn/consume', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                uid: user.uid,
-                ticketType,
-                originalAmount: totalAmount,
-                amountCharged: payAmount,
-                consumedAt: Date.now(), 
-              }),
-            });
+          const ok = statusOK(resp.status);
+          // Some callbacks omit tx_ref; fall back to the config value we set
+          const cbTxRef = (resp.tx_ref && typeof resp.tx_ref === 'string' ? resp.tx_ref : config.tx_ref) as string;
+          const transactionId = getTransactionId(resp);
+
+          if (!ok || !cbTxRef || !transactionId) {
+            closePaymentModal();
+            setLoading(false);
+            alert('Payment was not successful. Please try again.');
+            return;
           }
-        } catch (e) {
-          // Non-blocking: still continue to success page
-          console.warn('Failed to consume discount', e);
+
+          // 🔐 Get Firebase ID token so the server can bind this order to the current user (uid)
+          const idToken = await (user as unknown as { getIdToken?: () => Promise<string> })?.getIdToken?.();
+
+          const payload: VerifyPayload = {
+            txRef: cbTxRef,
+            transactionId,
+            expected: {
+              amount: payAmount,
+              currency,
+              ticketType,
+              quantity,
+              unitPrice: price,
+              subtotal: totalAmount,
+              userId: user?.uid,
+              discountPercent,
+            },
+          };
+
+          const verifyRes = await fetch('/api/flw/verify', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const verifyJson: { ok?: boolean; message?: string } = await verifyRes.json();
+
+          if (!verifyRes.ok || !verifyJson?.ok) {
+            closePaymentModal();
+            setLoading(false);
+            alert(verifyJson?.message || 'We could not verify your payment. You were NOT charged.');
+            return;
+          }
+
+          closePaymentModal();
+          setLoading(false);
+          router.push(`/success-test?txRef=${encodeURIComponent(cbTxRef)}`);
+        } catch {
+          closePaymentModal();
+          setLoading(false);
+          alert('Network error while verifying payment. If charged, we will reconcile automatically.');
         }
-
-        // Send ALL key details to success page
-        const query = new URLSearchParams({
-          fullName: user?.firstName || 'Atinuda Guest',
-          email: user?.email || 'guest@example.com',
-          ticketType,
-          quantity: String(quantity),
-          currency,
-          amount: String(payAmount), 
-          discount: String(discountPercent), 
-          txRef: config.tx_ref,  
-          unitPrice: String(price), 
-          subtotal: String(totalAmount), 
-        }).toString();
-
-        router.push(`/success?${query}`);
       },
       onClose: () => setLoading(false),
     });
@@ -122,8 +186,8 @@ function CheckoutContent() {
 
   return (
     <div className="min-h-screen bg-white text-black mt-32">
-      {/* Back header (kept your structure) */}
-      <section id='nohero'>
+      {/* Back header */}
+      <section id="nohero">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
@@ -221,8 +285,8 @@ function CheckoutContent() {
                   <span className="font-medium text-gray-600">Subtotal</span>
                   <span className="line-through text-gray-500">
                     {currency === 'NGN'
-                      ? `₦${totalAmount.toLocaleString()}`
-                      : `$${totalAmount.toLocaleString()}`}
+                      ? `₦${(price * quantity).toLocaleString()}`
+                      : `$${(price * quantity).toLocaleString()}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-base">
@@ -232,8 +296,8 @@ function CheckoutContent() {
                   <span className="text-green-600">
                     −
                     {currency === 'NGN'
-                      ? `₦${(totalAmount - discountedTotal).toLocaleString()}`
-                      : `$${(totalAmount - discountedTotal).toLocaleString()}`}
+                      ? `₦${((price * quantity) - discountedTotal).toLocaleString()}`
+                      : `$${((price * quantity) - discountedTotal).toLocaleString()}`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-lg">
@@ -250,8 +314,8 @@ function CheckoutContent() {
                 <span className="font-semibold">Total</span>
                 <span className="font-bold">
                   {currency === 'NGN'
-                    ? `₦${totalAmount.toLocaleString()}`
-                    : `$${totalAmount.toLocaleString()}`}
+                    ? `₦${(price * quantity).toLocaleString()}`
+                    : `$${(price * quantity).toLocaleString()}`}
                 </span>
               </div>
             )}
