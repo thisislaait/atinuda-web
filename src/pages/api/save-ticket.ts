@@ -9,7 +9,6 @@ import { getLocationText } from '@/utils/constants';
 import { generateTicketNumber } from '@/utils/ticketNumber';
 
 type Role = 'attendee' | 'speaker' | 'organizer' | (string & {});
-type CurrencyCode = 'NGN' | 'USD';
 interface SaveTicketBody { txRef: string; }
 
 function isNonEmptyString(v: unknown): v is string {
@@ -97,6 +96,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         location: t.location,
         primaryRoleAtPurchase: t.primaryRoleAtPurchase ?? 'attendee',
         fullName, email, ticketType,
+        emailSent: !!t.emailSent,
         alreadyIssued: true,
       });
     }
@@ -163,7 +163,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ticketNumber,
       location,
       primaryRoleAtPurchase: primaryRoleAtPurchase ?? 'attendee',
-      fullName, email, ticketType,
+      fullName,
+      email,
+      ticketType,
+      emailSent, // ← include this so UI can show a badge
     });
   } catch (err) {
     const code = (err as { code?: unknown })?.code;
@@ -179,8 +182,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         fullName: data?.fullName ?? 'Guest',
         email: data?.email ?? '',
         ticketType: data?.ticketType ?? 'General Admission',
+        emailSent: !!data?.emailSent,
         alreadyIssued: true,
-    });
+      });
     }
     console.error('❌ save-ticket fatal:', err);
     return res.status(500).json({ message: 'Server error issuing ticket.' });

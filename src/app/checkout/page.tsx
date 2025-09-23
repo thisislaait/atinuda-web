@@ -173,7 +173,7 @@ function CheckoutContent() {
 
           closePaymentModal();
           setLoading(false);
-          router.push(`/success-test?txRef=${encodeURIComponent(cbTxRef)}`);
+          router.push(`/success?txRef=${encodeURIComponent(cbTxRef)}`);
         } catch {
           closePaymentModal();
           setLoading(false);
