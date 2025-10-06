@@ -102,7 +102,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Create ticket
-    const ticketNumber = generateTicketNumber(ticketType);
+    // ✅ pass txRef to Option B generator
+    const ticketNumber = generateTicketNumber(ticketType, txRef);
     const qrText = `https://www.atinuda.africa/ticket/${ticketNumber}?name=${encodeURIComponent(fullName)}`;
 
     await ticketDocRef.create({
@@ -166,7 +167,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       fullName,
       email,
       ticketType,
-      emailSent, // ← include this so UI can show a badge
+      emailSent, // for UI badge
     });
   } catch (err) {
     const code = (err as { code?: unknown })?.code;

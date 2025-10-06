@@ -5,6 +5,7 @@ export const ticketLocations: Record<string, string | string[]> = {
   'Workshop Access': 'Lagos Continental Hotel',
   'Premium Experience': 'Lagos Continental Hotel',
   'Signature Pass': ['Lagos Continental Hotel', 'Royal Box Event Center, VI Lagos'],
+  'All Access': ['Lagos Continental Hotel', 'Royal Box Event Center, VI Lagos'],
   'Executive Access': ['Lagos Continental Hotel', 'Royal Box Event Center, VI Lagos'],
   'Dinner Gala Only': 'Royal Box Event Center, VI Lagos',
 };

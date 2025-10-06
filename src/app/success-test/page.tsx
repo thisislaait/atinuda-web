@@ -4,8 +4,8 @@ import { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
-import { useAuth } from '@/hooks/useAuth';
 import { getAuth, User as FirebaseUser } from 'firebase/auth';
+import { useAuth } from '@/hooks/useAuth';
 
 type OrderInfo = {
   fullName: string;
@@ -26,6 +26,20 @@ type SaveTicketResponse = {
   emailSent?: boolean;
 };
 
+// Safely get the Firebase ID token from the current user
+async function getIdTokenSafe(): Promise<string | null> {
+  const auth = getAuth();
+  const u: FirebaseUser | null = auth.currentUser;
+  if (u && typeof u.getIdToken === 'function') {
+    try {
+      return await u.getIdToken();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function getCustomMessage(type: string | null) {
   switch (type) {
     case 'Conference Access':
@@ -45,23 +59,9 @@ function getCustomMessage(type: string | null) {
   }
 }
 
-// Safely get the Firebase ID token from the current user
-async function getIdTokenSafe(): Promise<string | null> {
-  const auth = getAuth();
-  const u: FirebaseUser | null = auth.currentUser;
-  if (u && typeof u.getIdToken === 'function') {
-    try {
-      return await u.getIdToken();
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
 function Content() {
   const searchParams = useSearchParams();
-  const { openAuthModal } = useAuth(); // used only to prompt login UI if needed
+  const { openAuthModal } = useAuth(); // only to prompt login if needed
 
   const [submitted, setSubmitted] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -73,7 +73,7 @@ function Content() {
 
   const txRef = searchParams?.get('txRef') || '';
 
-  // Issue/get the ticket (idempotent) once we have txRef
+  // Issue/get the ticket (idempotent) using txRef
   useEffect(() => {
     if (!txRef || submitted || hasAttemptedSubmission.current) return;
     hasAttemptedSubmission.current = true;
@@ -82,7 +82,6 @@ function Content() {
       try {
         const idToken = await getIdTokenSafe();
         if (!idToken) {
-          // Not signed in in Firebase SDK. Prompt login.
           openAuthModal?.();
           hasAttemptedSubmission.current = false; // allow retry after login
           return;
@@ -136,7 +135,6 @@ function Content() {
         openAuthModal?.();
         return;
       }
-
       const res = await fetch('/api/download-ticket', {
         method: 'POST',
         headers: {
@@ -178,7 +176,7 @@ function Content() {
           fill
           className="w-full h-full object-cover bg-[#1f2340]"
         />
-        <div className="absolute inset-0 bg-[#1f2340] opacity-60" />
+      <div className="absolute inset-0 bg-[#1f2340] opacity-60" />
       </div>
 
       <div className="max-w-4xl w-full flex flex-col items-center">
