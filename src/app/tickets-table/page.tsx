@@ -1,11 +1,14 @@
-// app/tickets/page.tsx
+// src/app/tickets/page.tsx
 "use client";
 
 import React, { useMemo, useState } from "react";
 import ticketsData from "@/lib/tickets"; // adjust path if needed
 
-type FirestoreTs = { _seconds?: number; _nanoseconds?: number } | { seconds?: number; nanoseconds?: number };
-type RawRecord = Record<string, any>;
+type FirestoreTs =
+  | { _seconds?: number; _nanoseconds?: number }
+  | { seconds?: number; nanoseconds?: number };
+
+type RawRecord = Record<string, unknown>;
 
 type TicketRow = {
   id: string;
@@ -22,9 +25,21 @@ type TicketRow = {
 };
 
 function firestoreTsToDate(ts?: FirestoreTs | null): Date | null {
-  if (!ts) return null;
-  const seconds = (ts as any)._seconds ?? (ts as any).seconds;
-  const nanos = (ts as any)._nanoseconds ?? (ts as any).nanoseconds ?? 0;
+  if (!ts || typeof ts !== "object") return null;
+  const maybe = ts as Record<string, unknown>;
+  const seconds =
+    typeof maybe._seconds === "number"
+      ? maybe._seconds
+      : typeof maybe.seconds === "number"
+      ? maybe.seconds
+      : undefined;
+  const nanos =
+    typeof maybe._nanoseconds === "number"
+      ? maybe._nanoseconds
+      : typeof maybe.nanoseconds === "number"
+      ? maybe.nanoseconds
+      : 0;
+
   if (typeof seconds !== "number") return null;
   return new Date(seconds * 1000 + Math.floor(nanos / 1e6));
 }
@@ -34,27 +49,48 @@ function formatDate(d?: Date | null) {
   return d.toLocaleString();
 }
 
-function normalizeRecords(data: Record<string, any>): TicketRow[] {
+function asRecord(v: unknown): Record<string, unknown> {
+  return typeof v === "object" && v !== null ? (v as Record<string, unknown>) : {};
+}
+
+function getStringField(obj: Record<string, unknown>, key: string): string | undefined {
+  const v = obj[key];
+  return typeof v === "string" ? v : undefined;
+}
+
+function getBooleanField(obj: Record<string, unknown>, key: string): boolean | undefined {
+  const v = obj[key];
+  return typeof v === "boolean" ? v : undefined;
+}
+
+function normalizeRecords(data: Record<string, unknown>): TicketRow[] {
   return Object.entries(data).map(([key, val]) => {
-    const tsObj = val.updatedAt ?? val.createdAt ?? null;
-    const timestamp = firestoreTsToDate(tsObj);
+    const v = asRecord(val);
+    const tsObj = v.updatedAt ?? v.createdAt ?? null;
+    const timestamp = firestoreTsToDate(tsObj as FirestoreTs | null);
     return {
       id: key,
-      ticketNumber: val.ticketNumber ?? "-",
-      fullName: val.fullName ?? "-",
-      ticketType: val.ticketType ?? "-",
-      email: val.email ?? val.emailLower ?? "-",
-      status: val.status ?? (val.emailSent ? "email-sent" : "-"),
-      location: val.location ?? "-",
-      ticketIssued: typeof val.ticketIssued === "boolean" ? val.ticketIssued : null,
-      txRef: val.txRef ?? "-",
+      ticketNumber: getStringField(v, "ticketNumber") ?? "-",
+      fullName: getStringField(v, "fullName") ?? "-",
+      ticketType: getStringField(v, "ticketType") ?? "-",
+      email: getStringField(v, "email") ?? (getStringField(v, "emailLower") ?? "-"),
+      status: getStringField(v, "status") ?? (getBooleanField(v, "emailSent") ? "email-sent" : "-"),
+      location: getStringField(v, "location") ?? "-",
+      ticketIssued: typeof v["ticketIssued"] === "boolean" ? (v["ticketIssued"] as boolean) : null,
+      txRef: getStringField(v, "txRef") ?? "-",
       timestamp,
-      raw: val
+      raw: v,
     };
   });
 }
 
 /* CSV helpers */
+function escValue(v: unknown) {
+  if (v == null) return "";
+  const s = typeof v === "string" ? v : String(v);
+  return `"${s.replace(/"/g, '""')}"`;
+}
+
 function rowsToCsv(rows: TicketRow[]) {
   const headers = [
     "ticketNumber",
@@ -65,26 +101,20 @@ function rowsToCsv(rows: TicketRow[]) {
     "location",
     "ticketIssued",
     "txRef",
-    "timestamp"
+    "timestamp",
   ];
-  const esc = (v: any) => {
-    if (v == null) return "";
-    const s = typeof v === "string" ? v : String(v);
-    return `"${s.replace(/"/g, '""')}"`;
-  };
-
   const lines = [headers.join(",")].concat(
-    rows.map(r =>
+    rows.map((r) =>
       [
-        esc(r.ticketNumber),
-        esc(r.fullName),
-        esc(r.ticketType),
-        esc(r.email),
-        esc(r.status),
-        esc(r.location),
-        esc(r.ticketIssued),
-        esc(r.txRef),
-        esc(r.timestamp ? r.timestamp.toISOString() : "")
+        escValue(r.ticketNumber),
+        escValue(r.fullName),
+        escValue(r.ticketType),
+        escValue(r.email),
+        escValue(r.status),
+        escValue(r.location),
+        escValue(r.ticketIssued),
+        escValue(r.txRef),
+        escValue(r.timestamp ? r.timestamp.toISOString() : ""),
       ].join(",")
     )
   );
@@ -101,7 +131,19 @@ function downloadCsv(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-function Th({ onClick, label, sortBy, sortDir, column }: { onClick: () => void; label: string; sortBy: any; sortDir: "asc" | "desc"; column: string; }) {
+function Th({
+  onClick,
+  label,
+  sortBy,
+  sortDir,
+  column,
+}: {
+  onClick: () => void;
+  label: string;
+  sortBy: keyof TicketRow | null;
+  sortDir: "asc" | "desc";
+  column: keyof TicketRow;
+}) {
   const active = sortBy === column;
   return (
     <th
@@ -113,7 +155,7 @@ function Th({ onClick, label, sortBy, sortDir, column }: { onClick: () => void; 
         borderBottom: "1px solid #eee",
         cursor: "pointer",
         userSelect: "none",
-        whiteSpace: "nowrap"
+        whiteSpace: "nowrap",
       }}
       title={`Sort by ${label}`}
     >
@@ -131,7 +173,7 @@ function generatePageNumbers(current: number, total: number) {
   const maxButtons = 7;
   const half = Math.floor(maxButtons / 2);
   let start = Math.max(1, current - half);
-  let end = Math.min(total, start + maxButtons - 1);
+  const end = Math.min(total, start + maxButtons - 1);
   if (end - start + 1 < maxButtons) {
     start = Math.max(1, end - maxButtons + 1);
   }
@@ -143,7 +185,7 @@ function generatePageNumbers(current: number, total: number) {
 const tdStyle: React.CSSProperties = {
   padding: "12px 14px",
   fontSize: 14,
-  verticalAlign: "top"
+  verticalAlign: "top",
 };
 
 const paginationButtonStyle: React.CSSProperties = {
@@ -151,11 +193,11 @@ const paginationButtonStyle: React.CSSProperties = {
   borderRadius: 6,
   border: "1px solid #ddd",
   background: "#fff",
-  cursor: "pointer"
+  cursor: "pointer",
 };
 
 export default function Page(): React.ReactElement {
-  const rows = useMemo(() => normalizeRecords(ticketsData), []);
+  const rows = useMemo(() => normalizeRecords(ticketsData as Record<string, unknown>), []);
   const [query, setQuery] = useState<string>("");
   const [pageSize, setPageSize] = useState<number>(25);
   const [page, setPage] = useState<number>(1);
@@ -164,7 +206,7 @@ export default function Page(): React.ReactElement {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const arr = rows.filter(r => {
+    const arr = rows.filter((r) => {
       if (!q) return true;
       return (
         (r.ticketNumber || "").toLowerCase().includes(q) ||
@@ -176,19 +218,20 @@ export default function Page(): React.ReactElement {
     });
 
     if (sortBy) {
+      const key = sortBy;
       arr.sort((a, b) => {
-        if (sortBy === "timestamp") {
+        if (key === "timestamp") {
           const ta = a.timestamp?.getTime() ?? 0;
           const tb = b.timestamp?.getTime() ?? 0;
           return sortDir === "asc" ? ta - tb : tb - ta;
         }
 
-        const A = (a as any)[sortBy];
-        const B = (b as any)[sortBy];
+        const A = (a as TicketRow)[key] as unknown;
+        const B = (b as TicketRow)[key] as unknown;
 
         if (typeof A === "boolean" || typeof B === "boolean") {
-          const av = A ? 1 : 0;
-          const bv = B ? 1 : 0;
+          const av = (A as boolean) ? 1 : 0;
+          const bv = (B as boolean) ? 1 : 0;
           return sortDir === "asc" ? av - bv : bv - av;
         }
 
@@ -210,7 +253,7 @@ export default function Page(): React.ReactElement {
 
   function toggleSort(column: keyof TicketRow) {
     if (sortBy === column) {
-      setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortBy(column);
       setSortDir("asc");
@@ -233,13 +276,16 @@ export default function Page(): React.ReactElement {
       <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
         <input
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search name, ticket #, email, type..."
           style={{
             padding: "8px 10px",
             borderRadius: 8,
             border: "1px solid #ddd",
-            minWidth: 320
+            minWidth: 320,
           }}
         />
 
@@ -247,15 +293,27 @@ export default function Page(): React.ReactElement {
           <span style={{ color: "#444" }}>Page size</span>
           <select
             value={pageSize}
-            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
             style={{ padding: 6, borderRadius: 6 }}
           >
-            {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+            {[10, 25, 50, 100].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
           </select>
         </label>
 
         <button
-          onClick={() => { setQuery(""); setSortBy("ticketNumber"); setSortDir("asc"); setPage(1); }}
+          onClick={() => {
+            setQuery("");
+            setSortBy("ticketNumber");
+            setSortDir("asc");
+            setPage(1);
+          }}
           style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fff" }}
         >
           Reset
@@ -286,7 +344,7 @@ export default function Page(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {pageRows.map(r => (
+            {pageRows.map((r) => (
               <tr key={r.id} style={{ borderTop: "1px solid #f6f6f6" }}>
                 <td style={tdStyle}>
                   <div style={{ fontWeight: 600 }}>{r.ticketNumber}</div>
@@ -294,7 +352,11 @@ export default function Page(): React.ReactElement {
                 </td>
                 <td style={tdStyle}>{r.fullName}</td>
                 <td style={tdStyle}>{r.ticketType}</td>
-                <td style={tdStyle}><a href={`mailto:${r.email}`} style={{ color: "#0b5fff" }}>{r.email}</a></td>
+                <td style={tdStyle}>
+                  <a href={`mailto:${r.email}`} style={{ color: "#0b5fff" }}>
+                    {r.email}
+                  </a>
+                </td>
                 <td style={tdStyle}>{r.status}</td>
                 <td style={tdStyle}>{r.location ?? "-"}</td>
                 <td style={tdStyle}>{r.ticketIssued == null ? "-" : String(r.ticketIssued)}</td>
@@ -304,7 +366,9 @@ export default function Page(): React.ReactElement {
 
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={8} style={{ padding: 20, color: "#666" }}>No rows to show</td>
+                <td colSpan={8} style={{ padding: 20, color: "#666" }}>
+                  No rows to show
+                </td>
               </tr>
             )}
           </tbody>
@@ -312,10 +376,14 @@ export default function Page(): React.ReactElement {
       </div>
 
       <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <button onClick={() => setPage(1)} disabled={currentPage === 1} style={paginationButtonStyle}>{"<<"}</button>
-        <button onClick={() => setPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} style={paginationButtonStyle}>Prev</button>
+        <button onClick={() => setPage(1)} disabled={currentPage === 1} style={paginationButtonStyle}>
+          {"<<"}
+        </button>
+        <button onClick={() => setPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={paginationButtonStyle}>
+          Prev
+        </button>
 
-        {generatePageNumbers(currentPage, totalPages).map(p => (
+        {generatePageNumbers(currentPage, totalPages).map((p) => (
           <button
             key={p}
             onClick={() => setPage(p)}
@@ -324,15 +392,19 @@ export default function Page(): React.ReactElement {
               fontWeight: p === currentPage ? 700 : 400,
               background: p === currentPage ? "#0b5fff" : undefined,
               color: p === currentPage ? "#fff" : undefined,
-              borderColor: p === currentPage ? "#0b5fff" : "#ddd"
+              borderColor: p === currentPage ? "#0b5fff" : "#ddd",
             }}
           >
             {p}
           </button>
         ))}
 
-        <button onClick={() => setPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={paginationButtonStyle}>Next</button>
-        <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} style={paginationButtonStyle}>{">>"}</button>
+        <button onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={paginationButtonStyle}>
+          Next
+        </button>
+        <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} style={paginationButtonStyle}>
+          {">>"}
+        </button>
 
         <div style={{ marginLeft: "auto", color: "#444" }}>
           {Math.min((currentPage - 1) * pageSize + 1, total)} - {Math.min(currentPage * pageSize, total)} of {total}
@@ -341,7 +413,9 @@ export default function Page(): React.ReactElement {
 
       <style jsx>{`
         @media (max-width: 720px) {
-          table { min-width: 700px; }
+          table {
+            min-width: 700px;
+          }
         }
       `}</style>
     </div>

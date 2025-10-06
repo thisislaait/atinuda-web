@@ -59,11 +59,6 @@
 //   }
 // }
 
-
-// pages/api/checkin.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
-
 /**
  * POST /api/checkin
  * Body: { ticketNumber: string, event: string, status?: boolean, scannerId?: string, note?: string }
@@ -76,37 +71,76 @@ import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
  * Response: { ok: true, alreadyCheckedIn: boolean, updated: { ...fields }, scanId?: string, ticketId, collection }
  */
 
-const ALLOWED_EVENTS = ['azizi', 'day1', 'day2', 'dinner', 'breakout', 'masterclass', 'gift'];
+// src/pages/api/check-in.ts
+import type { NextApiRequest, NextApiResponse } from "next";
+import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+
+const ALLOWED_EVENTS = ["azizi", "day1", "day2", "dinner", "breakout", "masterclass", "gift"] as const;
+type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
+
+type RequestBody = {
+  ticketNumber?: unknown;
+  event?: unknown;
+  status?: unknown;
+  scannerId?: unknown;
+  note?: unknown;
+};
+
+type FindResult = {
+  doc: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>;
+  collection: string;
+};
+
+type TxResult = {
+  scanId: string;
+  didUpdate: boolean;
+  currentCheck: boolean;
+  newCheck: boolean;
+};
+
+function isString(v: unknown): v is string {
+  return typeof v === "string" && v.trim().length > 0;
+}
+
+function isBoolean(v: unknown): v is boolean {
+  return typeof v === "boolean";
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, message: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, message: "Method not allowed" });
   }
 
-  const { ticketNumber, event, status, scannerId, note } = req.body ?? {};
+  const body = (req.body ?? {}) as RequestBody;
 
-  if (!ticketNumber || typeof ticketNumber !== 'string') {
-    return res.status(400).json({ ok: false, message: 'Missing or invalid ticketNumber' });
-  }
-  if (!event || typeof event !== 'string' || !ALLOWED_EVENTS.includes(event)) {
-    return res.status(400).json({ ok: false, message: `Missing or invalid event. Must be one of: ${ALLOWED_EVENTS.join(', ')}` });
-  }
+  const ticketNumberRaw = body.ticketNumber;
+  const eventRaw = body.event;
+  const statusRaw = body.status;
+  const scannerIdRaw = body.scannerId;
+  const noteRaw = body.note;
 
-  // Default action is to set flag to true (check-in)
-  const desiredStatus = typeof status === 'boolean' ? status : true;
-  const scanner = typeof scannerId === 'string' && scannerId.trim().length > 0 ? scannerId.trim() : 'unknown-scanner';
+  if (!isString(ticketNumberRaw)) {
+    return res.status(400).json({ ok: false, message: "Missing or invalid ticketNumber" });
+  }
+  const ticketNumber = ticketNumberRaw.trim();
+
+  if (!isString(eventRaw) || !ALLOWED_EVENTS.includes(eventRaw as AllowedEvent)) {
+    return res
+      .status(400)
+      .json({ ok: false, message: `Missing or invalid event. Must be one of: ${ALLOWED_EVENTS.join(", ")}` });
+  }
+  const event = eventRaw as AllowedEvent;
+
+  const desiredStatus = isBoolean(statusRaw) ? statusRaw : true;
+  const scanner = isString(scannerIdRaw) ? scannerIdRaw.trim() : "unknown-scanner";
+  const note = isString(noteRaw) ? noteRaw.trim() : "";
 
   try {
-    // Helper to find the ticket doc in candidate collections
-    const findTicketDoc = async () => {
-      const collectionsToTry = ['payments', 'tickets'];
+    // Try to find the ticket in candidate collections
+    const findTicketDoc = async (): Promise<FindResult | null> => {
+      const collectionsToTry = ["payments", "tickets"];
       for (const col of collectionsToTry) {
-        const snap = await adminDb
-          .collection(col)
-          .where('ticketNumber', '==', ticketNumber)
-          .limit(1)
-          .get();
-
+        const snap = await adminDb.collection(col).where("ticketNumber", "==", ticketNumber).limit(1).get();
         if (!snap.empty) {
           return { doc: snap.docs[0], collection: col };
         }
@@ -116,71 +150,65 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const found = await findTicketDoc();
     if (!found) {
-      return res.status(404).json({ ok: false, message: 'Ticket not found.' });
+      return res.status(404).json({ ok: false, message: "Ticket not found." });
     }
 
     const ticketRef = found.doc.ref;
     const ticketId = ticketRef.id;
     const collectionName = found.collection;
 
-    // Define which field to update on the ticket doc
-    // - For standard events we store under "checkIn.<eventKey>"
-    // - For gift we store top-level "giftClaimed"
-    const isGift = event === 'gift';
-    const ticketFieldPath = isGift ? 'giftClaimed' : `checkIn.${event}`;
+    const isGift = event === "gift";
+    const ticketFieldPath = isGift ? "giftClaimed" : `checkIn.${event}`;
 
-    // Run transaction: read current, update if needed, create scan audit record
-    const result = await adminDb.runTransaction(async (tx) => {
+    const result = (await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(ticketRef);
-      if (!snap.exists) throw new Error('Ticket disappeared during transaction.');
+      if (!snap.exists) throw new Error("Ticket disappeared during transaction.");
 
-      const data = snap.data() || {};
-      const currentCheck = isGift ? Boolean(data.giftClaimed) : Boolean((data.checkIn && data.checkIn[event]) || false);
+      const data = (snap.data() ?? {}) as Record<string, unknown>;
+      const currentCheck = isGift
+        ? Boolean(data.giftClaimed ?? false)
+        : Boolean(((data.checkIn as Record<string, unknown> | undefined) ?? {})[event] ?? false);
 
-      // We'll always write a scan record (audit) — even if it's a repeated attempt.
-      // But we only update the ticket doc if the requested status differs from current.
-      const updates: Record<string, any> = {
+      // build updates object
+      const updates: { [k: string]: unknown } = {
         lastUpdatedBy: scanner,
         lastUpdatedAt: FieldValue.serverTimestamp(),
       };
 
       let didUpdate = false;
       if (currentCheck !== desiredStatus) {
+        // set desired status under dynamic path
         updates[ticketFieldPath] = desiredStatus;
-        // Also ensure checkIn object exists when writing an event
-        if (!isGift) {
-          // if checkIn missing ensure it's an object (transactional set using update is fine)
-          // update call with nested path will create structure as needed
-        }
         didUpdate = true;
         tx.update(ticketRef, updates);
       } else {
-        // still update lastUpdated metadata so we have a trace of attempts
+        // still write the metadata for traceability
         tx.update(ticketRef, updates);
       }
 
-      // create a scans audit doc (auto id)
-      const scanRef = adminDb.collection('scans').doc();
-      const scanPayload = {
+      // create scan audit doc
+      const scanRef = adminDb.collection("scans").doc();
+      const scanPayload: { [k: string]: unknown } = {
         scannedTicketNumber: ticketNumber,
         ticketId,
         ticketCollection: collectionName,
         scannerId: scanner,
         event,
-        action: desiredStatus ? (didUpdate ? 'checked-in' : 'already-checked-in') : (didUpdate ? 'unchecked' : 'already-unchecked'),
-        note: note || '',
+        action: desiredStatus ? (didUpdate ? "checked-in" : "already-checked-in") : didUpdate ? "unchecked" : "already-unchecked",
+        note,
         scannedAt: FieldValue.serverTimestamp(),
       };
       tx.set(scanRef, scanPayload);
 
-      // Return the snapshot of what we changed and the scanId
-      return {
+      const txResult: TxResult = {
         scanId: scanRef.id,
         didUpdate,
         currentCheck,
         newCheck: desiredStatus,
       };
-    }); // end transaction
+
+      return txResult;
+    })) as TxResult;
 
     return res.status(200).json({
       ok: true,
@@ -193,8 +221,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       scanId: result.scanId,
     });
-  } catch (err: any) {
-    console.error('Check-in API error:', err);
-    return res.status(500).json({ ok: false, message: err?.message || 'Internal Server Error' });
+  } catch (err: unknown) {
+    // safe error handling without `any`
+    console.error("Check-in API error:", err);
+    const message = err instanceof Error ? err.message : "Internal Server Error";
+    return res.status(500).json({ ok: false, message });
   }
 }

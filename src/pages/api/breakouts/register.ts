@@ -1,6 +1,4 @@
 // pages/api/register-session.ts
-'use client'
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 
@@ -11,6 +9,18 @@ type Payload = {
     workshops?: string[];
     notes?: string;
   };
+};
+
+type PaymentRecord = {
+  fullName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  company?: string | null;
+  org?: string | null;
+  business?: string | null;
+  emailLower?: string | null;
+  [k: string]: unknown;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -41,7 +51,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     // 1) Resolve payment by ticketNumber
-    // Adjust the field name if you store it differently (e.g., `ticket` / `orderId`).
     const paySnap = await adminDb
       .collection('payments')
       .where('ticketNumber', '==', ticketNumber)
@@ -56,19 +65,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const payDoc = paySnap.docs[0];
-    const pay = payDoc.data() as Record<string, any>;
+    const pay = payDoc.data() as PaymentRecord;
     const paymentId = payDoc.id;
 
-    // Normalize attendee info from payment
+    // Normalize attendee info from payment safely
     const fullName =
-      (pay.fullName as string) ||
-      `${pay.firstName ?? ''} ${pay.lastName ?? ''}`.trim() ||
+      (typeof pay.fullName === 'string' && pay.fullName) ||
+      (
+        `${(typeof pay.firstName === 'string' ? pay.firstName : '')} ${(typeof pay.lastName === 'string' ? pay.lastName : '')}`.trim()
+      ) ||
       'Attendee';
-    const email = (pay.email as string) || '';
+
+    const email = typeof pay.email === 'string' ? pay.email : '';
     const company =
-      (pay.company as string) ||
-      (pay.org as string) ||
-      (pay.business as string) ||
+      (typeof pay.company === 'string' && pay.company) ||
+      (typeof pay.org === 'string' && pay.org) ||
+      (typeof pay.business === 'string' && pay.business) ||
       '';
 
     // (Optional) Try to link a userId by emailLower in users
@@ -132,9 +144,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       company,
       message: 'Registration received ✅',
     });
-  } catch (err: any) {
-    console.error('ERROR /api/register-session', err);
-    const msg = err?.message || 'Server error';
+  } catch (err: unknown) {
+    // safe error handling without `any`
+    console.error('ERROR /api/register-session', stringifyError(err));
+    const msg = (err instanceof Error && err.message) ? err.message : 'Server error';
     return res.status(500).json({ ok: false, message: msg });
+  }
+}
+
+/** Helper to safely convert unknown errors to strings for logs */
+function stringifyError(e: unknown): string {
+  if (e instanceof Error) return e.stack ?? e.message;
+  try {
+    return JSON.stringify(e, null, 2);
+  } catch {
+    return String(e);
   }
 }

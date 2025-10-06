@@ -1,4 +1,3 @@
-// pages/register.tsx
 'use client'
 
 // pages/register.tsx
@@ -45,11 +44,18 @@ export default function RegisterPage() {
         }),
       });
 
-      // Ensure we read JSON (avoid the “Unexpected token <” issue)
-      const data = (await r.json()) as ApiResp;
-      setResp(data);
-    } catch (err: any) {
-      setResp({ ok: false, message: err?.message || 'Network error' });
+      // Defensive JSON parsing and validation
+      const parsed = await r.json().catch(() => null);
+      if (!parsed || typeof parsed !== 'object' || !('ok' in parsed)) {
+        setResp({ ok: false, message: 'Unexpected server response' });
+      } else {
+        // parsed has ok prop — cast to ApiResp safely
+        setResp(parsed as ApiResp);
+      }
+    } catch (err: unknown) {
+      // don't use `any` — handle unknown safely
+      const msg = err instanceof Error ? err.message : String(err ?? 'Network error');
+      setResp({ ok: false, message: msg });
     } finally {
       setLoading(false);
     }

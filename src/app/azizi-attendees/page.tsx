@@ -1,8 +1,10 @@
-// app/tickets/page.tsx
+// src/app/azizi-attendees/page.tsx
 "use client";
 
 import React, { useMemo, useState } from "react";
 import aziziData from "@/lib/azizi"; // adjust if needed
+
+type Meta = { id?: string; path?: string; createTime?: string; updateTime?: string };
 
 type RawRecord = {
   ticketNumber?: string | null;
@@ -11,8 +13,8 @@ type RawRecord = {
   company?: string | null;
   respondedAt?: string | null;
   rsvp?: string | null;
-  __meta?: { id?: string; path?: string; createTime?: string; updateTime?: string };
-  [k: string]: any;
+  __meta?: Meta;
+  [k: string]: unknown;
 };
 
 type TicketRow = {
@@ -43,29 +45,29 @@ function normalizeRecords(data: Record<string, RawRecord>): TicketRow[] {
       company: rec.company ?? "-",
       rsvp: rec.rsvp ?? "-",
       respondedAt: responded,
-      raw: rec
+      raw: rec,
     };
   });
 }
 
 /* CSV helpers */
-function rowsToCsv(rows: TicketRow[]) {
-  const headers = ["ticketNumber", "name", "mobile", "company", "rsvp", "respondedAt"];
-  const esc = (v: any) => {
-    if (v == null) return "";
-    const s = typeof v === "string" ? v : String(v);
-    return `"${s.replace(/"/g, '""')}"`;
-  };
+function escValue(v: unknown): string {
+  if (v == null) return "";
+  const s = typeof v === "string" ? v : String(v);
+  return `"${s.replace(/"/g, '""')}"`;
+}
 
+function rowsToCsv(rows: TicketRow[]): string {
+  const headers = ["ticketNumber", "name", "mobile", "company", "rsvp", "respondedAt"];
   const lines = [headers.join(",")].concat(
-    rows.map(r =>
+    rows.map((r) =>
       [
-        esc(r.ticketNumber),
-        esc(r.name),
-        esc(r.mobile),
-        esc(r.company),
-        esc(r.rsvp),
-        esc(r.respondedAt ? r.respondedAt.toISOString() : "")
+        escValue(r.ticketNumber),
+        escValue(r.name),
+        escValue(r.mobile),
+        escValue(r.company),
+        escValue(r.rsvp),
+        escValue(r.respondedAt ? r.respondedAt.toISOString() : ""),
       ].join(",")
     )
   );
@@ -82,7 +84,17 @@ function downloadCsv(filename: string, content: string) {
   URL.revokeObjectURL(url);
 }
 
-function Th({ onClick, label, active, dir }: { onClick: () => void; label: string; active?: boolean; dir?: "asc" | "desc" }) {
+function Th({
+  onClick,
+  label,
+  active,
+  dir,
+}: {
+  onClick: () => void;
+  label: string;
+  active?: boolean;
+  dir?: "asc" | "desc";
+}) {
   return (
     <th
       onClick={onClick}
@@ -94,23 +106,25 @@ function Th({ onClick, label, active, dir }: { onClick: () => void; label: strin
         cursor: "pointer",
         userSelect: "none",
         whiteSpace: "nowrap",
-        textAlign: "left"
+        textAlign: "left",
       }}
       title={`Sort by ${label}`}
     >
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         <span>{label}</span>
-        <span style={{ color: active ? "#0b5fff" : "#bbb", fontSize: 12 }}>{active ? (dir === "asc" ? "▲" : "▼") : "↕"}</span>
+        <span style={{ color: active ? "#0b5fff" : "#bbb", fontSize: 12 }}>
+          {active ? (dir === "asc" ? "▲" : "▼") : "↕"}
+        </span>
       </div>
     </th>
   );
 }
 
-function generatePageNumbers(current: number, total: number) {
+function generatePageNumbers(current: number, total: number): number[] {
   const maxButtons = 7;
   const half = Math.floor(maxButtons / 2);
   let start = Math.max(1, current - half);
-  let end = Math.min(total, start + maxButtons - 1);
+  const end = Math.min(total, start + maxButtons - 1);
   if (end - start + 1 < maxButtons) start = Math.max(1, end - maxButtons + 1);
   const arr: number[] = [];
   for (let i = start; i <= end; i++) arr.push(i);
@@ -118,7 +132,13 @@ function generatePageNumbers(current: number, total: number) {
 }
 
 const tdStyle: React.CSSProperties = { padding: "12px 14px", fontSize: 14, verticalAlign: "top" };
-const paginationButtonStyle: React.CSSProperties = { padding: "8px 10px", borderRadius: 6, border: "1px solid #ddd", background: "#fff", cursor: "pointer" };
+const paginationButtonStyle: React.CSSProperties = {
+  padding: "8px 10px",
+  borderRadius: 6,
+  border: "1px solid #ddd",
+  background: "#fff",
+  cursor: "pointer",
+};
 
 export default function Page(): React.ReactElement {
   const rows = useMemo(() => normalizeRecords(aziziData as Record<string, RawRecord>), []);
@@ -130,7 +150,7 @@ export default function Page(): React.ReactElement {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const arr = rows.filter(r => {
+    const arr = rows.filter((r) => {
       if (!q) return true;
       return (
         (r.ticketNumber || "").toLowerCase().includes(q) ||
@@ -142,18 +162,17 @@ export default function Page(): React.ReactElement {
     });
 
     if (sortBy) {
+      const key = sortBy;
       arr.sort((a, b) => {
-        if (sortBy === "respondedAt") {
+        if (key === "respondedAt") {
           const ta = a.respondedAt?.getTime() ?? 0;
           const tb = b.respondedAt?.getTime() ?? 0;
           return sortDir === "asc" ? ta - tb : tb - ta;
         }
-        const A = (a as any)[sortBy] ?? "";
-        const B = (b as any)[sortBy] ?? "";
-        const sa = String(A).toLowerCase();
-        const sb = String(B).toLowerCase();
-        if (sa < sb) return sortDir === "asc" ? -1 : 1;
-        if (sa > sb) return sortDir === "asc" ? 1 : -1;
+        const A = String((a as unknown as Record<string, unknown>)[key] ?? "").toLowerCase();
+        const B = String((b as unknown as Record<string, unknown>)[key] ?? "").toLowerCase();
+        if (A < B) return sortDir === "asc" ? -1 : 1;
+        if (A > B) return sortDir === "asc" ? 1 : -1;
         return 0;
       });
     }
@@ -167,8 +186,11 @@ export default function Page(): React.ReactElement {
   const pageRows = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function toggleSort(column: keyof TicketRow) {
-    if (sortBy === column) setSortDir(prev => (prev === "asc" ? "desc" : "asc"));
-    else { setSortBy(column); setSortDir("asc"); }
+    if (sortBy === column) setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    else {
+      setSortBy(column);
+      setSortDir("asc");
+    }
     setPage(1);
   }
 
@@ -187,7 +209,10 @@ export default function Page(): React.ReactElement {
       <div style={{ display: "flex", gap: 12, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
         <input
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search ticket #, name, mobile, company, rsvp..."
           style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", minWidth: 320 }}
         />
@@ -196,21 +221,37 @@ export default function Page(): React.ReactElement {
           <span style={{ color: "#444" }}>Page size</span>
           <select
             value={pageSize}
-            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
             style={{ padding: 6, borderRadius: 6 }}
           >
-            {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+            {[10, 25, 50, 100].map((n) => (
+              <option key={n} value={n}>
+                {n}
+              </option>
+            ))}
           </select>
         </label>
 
-        <button onClick={() => { setQuery(""); setSortBy("ticketNumber"); setSortDir("asc"); setPage(1); }}
-                style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fff" }}>
+        <button
+          onClick={() => {
+            setQuery("");
+            setSortBy("ticketNumber");
+            setSortDir("asc");
+            setPage(1);
+          }}
+          style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fff" }}
+        >
           Reset
         </button>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-          <button onClick={exportCsvVisible}
-                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #0b5fff", background: "#0b5fff", color: "#fff" }}>
+          <button
+            onClick={exportCsvVisible}
+            style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #0b5fff", background: "#0b5fff", color: "#fff" }}
+          >
             Export CSV (filtered)
           </button>
         </div>
@@ -229,7 +270,7 @@ export default function Page(): React.ReactElement {
             </tr>
           </thead>
           <tbody>
-            {pageRows.map(r => (
+            {pageRows.map((r) => (
               <tr key={r.id} style={{ borderTop: "1px solid #f6f6f6" }}>
                 <td style={tdStyle}>
                   <div style={{ fontWeight: 600 }}>{r.ticketNumber}</div>
@@ -241,7 +282,9 @@ export default function Page(): React.ReactElement {
                     <a href={r.mobile.match(/^(\+|0|\d)/) ? `tel:${r.mobile}` : `#`} style={{ color: "#0b5fff" }}>
                       {r.mobile}
                     </a>
-                  ) : "-"}
+                  ) : (
+                    "-"
+                  )}
                 </td>
                 <td style={tdStyle}>{r.company ?? "-"}</td>
                 <td style={tdStyle}>{r.rsvp}</td>
@@ -251,7 +294,9 @@ export default function Page(): React.ReactElement {
 
             {pageRows.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: 20, color: "#666" }}>No rows to show</td>
+                <td colSpan={6} style={{ padding: 20, color: "#666" }}>
+                  No rows to show
+                </td>
               </tr>
             )}
           </tbody>
@@ -259,24 +304,35 @@ export default function Page(): React.ReactElement {
       </div>
 
       <div style={{ display: "flex", gap: 8, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
-        <button onClick={() => setPage(1)} disabled={currentPage === 1} style={paginationButtonStyle}>{"<<"}</button>
-        <button onClick={() => setPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} style={paginationButtonStyle}>Prev</button>
+        <button onClick={() => setPage(1)} disabled={currentPage === 1} style={paginationButtonStyle}>
+          {"<<"}
+        </button>
+        <button onClick={() => setPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1} style={paginationButtonStyle}>
+          Prev
+        </button>
 
-        {generatePageNumbers(currentPage, totalPages).map(p => (
-          <button key={p} onClick={() => setPage(p)}
-                  style={{
-                    ...paginationButtonStyle,
-                    fontWeight: p === currentPage ? 700 : 400,
-                    background: p === currentPage ? "#0b5fff" : undefined,
-                    color: p === currentPage ? "#fff" : undefined,
-                    borderColor: p === currentPage ? "#0b5fff" : "#ddd"
-                  }}>
+        {generatePageNumbers(currentPage, totalPages).map((p) => (
+          <button
+            key={p}
+            onClick={() => setPage(p)}
+            style={{
+              ...paginationButtonStyle,
+              fontWeight: p === currentPage ? 700 : 400,
+              background: p === currentPage ? "#0b5fff" : undefined,
+              color: p === currentPage ? "#fff" : undefined,
+              borderColor: p === currentPage ? "#0b5fff" : "#ddd",
+            }}
+          >
             {p}
           </button>
         ))}
 
-        <button onClick={() => setPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={paginationButtonStyle}>Next</button>
-        <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} style={paginationButtonStyle}>{">>"}</button>
+        <button onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} style={paginationButtonStyle}>
+          Next
+        </button>
+        <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} style={paginationButtonStyle}>
+          {">>"}
+        </button>
 
         <div style={{ marginLeft: "auto", color: "#444" }}>
           {Math.min((currentPage - 1) * pageSize + 1, total)} - {Math.min(currentPage * pageSize, total)} of {total}

@@ -1,35 +1,117 @@
-// data/tickets.ts
-const ticketsData: Record<string, any> = {
+// src/lib/tickets.ts
+// Typed sample dataset for tickets.
+
+export type FirestoreLikeTimestamp = {
+  _seconds?: number;
+  _nanoseconds?: number;
+} | {
+  seconds?: number;
+  nanoseconds?: number;
+};
+
+export type TicketRecord = {
+  ticketNumber?: string;
+  uid?: string;
+  ticketIssued?: boolean;
+  txRef?: string;
+  fullName?: string | null;
+  ticketType?: string | null;
+  email?: string | null;
+  emailLower?: string | null;
+  status?: string | null;
+  updatedAt?: FirestoreLikeTimestamp | null;
+  createdAt?: FirestoreLikeTimestamp | null;
+  location?: string | null;
+  checkIn?: Record<string, boolean> | null;
+  rolesAtPurchase?: string[] | null;
+  primaryRoleAtPurchase?: string | null;
+  complimentary?: boolean | null;
+  [k: string]: unknown;
+};
+
+const ticketsData: Record<string, TicketRecord> = {
   "1758667726075-jxSWjyRGdaP2vce2E7zbCamvpHC2": {
-    "ticketNumber": "WRK-ATIN16916",
-    "uid": "jxSWjyRGdaP2vce2E7zbCamvpHC2",
-    "ticketIssued": true,
-    "txRef": "1758667726075-jxSWjyRGdaP2vce2E7zbCamvpHC2",
-    "fullName": "Laait",
-    "ticketType": "Workshop Access",
-    "email": "u.rennaiye@gmail.com",
-    "emailLower": "u.rennaiye@gmail.com",
-    "status": "paid",
-    "updatedAt": {
-      "_seconds": 1758669869,
-      "_nanoseconds": 531000000
-    }
+    ticketNumber: "WRK-ATIN16916",
+    uid: "jxSWjyRGdaP2vce2E7zbCamvpHC2",
+    ticketIssued: true,
+    txRef: "1758667726075-jxSWjyRGdaP2vce2E7zbCamvpHC2",
+    fullName: "Laait",
+    ticketType: "Workshop Access",
+    email: "u.rennaiye@gmail.com",
+    emailLower: "u.rennaiye@gmail.com",
+    status: "paid",
+    updatedAt: {
+      _seconds: 1758669869,
+      _nanoseconds: 531000000,
+    },
   },
   "1758882499282-2ZfOKNgpX0XyOgkAybaCt1w1ZBr1": {
-    "ticketNumber": "PREM-ATIN87531",
-    "uid": "2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
-    "ticketIssued": true,
-    "txRef": "1758882499282-2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
-    "fullName": "Augustine",
-    "ticketType": "Premium Experience",
-    "email": "aksentevent@gmail.com",
-    "emailLower": "aksentevent@gmail.com",
-    "status": "paid",
-    "updatedAt": {
-      "_seconds": 1758882696,
-      "_nanoseconds": 210000000
-    }
+    ticketNumber: "PREM-ATIN87531",
+    uid: "2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
+    ticketIssued: true,
+    txRef: "1758882499282-2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
+    fullName: "Augustine",
+    ticketType: "Premium Experience",
+    email: "aksentevent@gmail.com",
+    emailLower: "aksentevent@gmail.com",
+    status: "paid",
+    updatedAt: {
+      _seconds: 1758882696,
+      _nanoseconds: 210000000,
+    },
   },
+  
+  "tf57FB0rR85HgacgFd6A": {
+    fullName: "Juyin",
+    email: "admin.manager@eventdesign.studio",
+    emailLower: "admin.manager@eventdesign.studio",
+    uid: "JcICnUDSulbiu4JD9swkkCMRWpC2",
+    ticketType: "Executive Access",
+    ticketNumber: "EXEC-ATIN63678",
+    location: "Lagos Continental Hotel & Royal Box Event Center, VI Lagos",
+    emailSent: true,
+    checkIn: {
+      azizi6th: false,
+      day1: false,
+      day2: false,
+      gala8pm: false,
+    },
+    createdAt: {
+      _seconds: 1758183559,
+      _nanoseconds: 787000000,
+    },
+  },
+
+  // "1758667726075-jxSWjyRGdaP2vce2E7zbCamvpHC2": {
+  //   "ticketNumber": "WRK-ATIN16916",
+  //   "uid": "jxSWjyRGdaP2vce2E7zbCamvpHC2",
+  //   "ticketIssued": true,
+  //   "txRef": "1758667726075-jxSWjyRGdaP2vce2E7zbCamvpHC2",
+  //   "fullName": "Laait",
+  //   "ticketType": "Workshop Access",
+  //   "email": "u.rennaiye@gmail.com",
+  //   "emailLower": "u.rennaiye@gmail.com",
+  //   "status": "paid",
+  //   "updatedAt": {
+  //     "_seconds": 1758669869,
+  //     "_nanoseconds": 531000000
+  //   }
+  // },
+  // "1758882499282-2ZfOKNgpX0XyOgkAybaCt1w1ZBr1": {
+  //   "ticketNumber": "PREM-ATIN87531",
+  //   "uid": "2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
+  //   "ticketIssued": true,
+  //   "txRef": "1758882499282-2ZfOKNgpX0XyOgkAybaCt1w1ZBr1",
+  //   "fullName": "Augustine",
+  //   "ticketType": "Premium Experience",
+  //   "email": "aksentevent@gmail.com",
+  //   "emailLower": "aksentevent@gmail.com",
+  //   "status": "paid",
+  //   "updatedAt": {
+  //     "_seconds": 1758882696,
+  //     "_nanoseconds": 210000000
+  //   }
+  // },
   "1758976821456-OHvKIJk5X4fdaSJhOxi2ObxIpVK2": {
     "ticketNumber": "CONF-ATIN30446",
     "uid": "OHvKIJk5X4fdaSJhOxi2ObxIpVK2",
@@ -1159,26 +1241,26 @@ const ticketsData: Record<string, any> = {
       "_nanoseconds": 886000000
     }
   },
-  "tf57FB0rR85HgacgFd6A": {
-    "fullName": "Juyin",
-    "email": "admin.manager@eventdesign.studio",
-    "emailLower": "admin.manager@eventdesign.studio",
-    "uid": "JcICnUDSulbiu4JD9swkkCMRWpC2",
-    "ticketType": "Executive Access",
-    "ticketNumber": "EXEC-ATIN63678",
-    "location": "Lagos Continental Hotel & Royal Box Event Center, VI Lagos",
-    "emailSent": true,
-    "checkIn": {
-      "azizi6th": false,
-      "day1": false,
-      "day2": false,
-      "gala8pm": false
-    },
-    "createdAt": {
-      "_seconds": 1758183559,
-      "_nanoseconds": 787000000
-    }
+
+  // "tf57FB0rR85HgacgFd6A": {
+  //   "fullName": "Juyin",
+  //   "email": "admin.manager@eventdesign.studio",
+  //   "emailLower": "admin.manager@eventdesign.studio",
+  //   "uid": "JcICnUDSulbiu4JD9swkkCMRWpC2",
+  //   "ticketType": "Executive Access",
+  //   "ticketNumber": "EXEC-ATIN63678",
+  //   "location": "Lagos Continental Hotel & Royal Box Event Center, VI Lagos",
+  //   "emailSent": true,
+  //   "checkIn": {
+  //     "azizi6th": false,
+  //     "day1": false,
+  //     "day2": false,
+  //     "gala8pm": false
+  //   },
+  //   "createdAt": {
+  //     "_seconds": 1758183559,
+  //     "_nanoseconds": 787000000
+  //   }
   }
-};
 
 export default ticketsData;

@@ -1,241 +1,280 @@
-// app/register/page.tsx
+// src/pages/api/offline-registration/page.tsx
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import toast, { Toaster } from "react-hot-toast";
+import { getAuth, User as FirebaseUser } from "firebase/auth";
 
-/**
- * Registration page: simple form fields:
- *  - name, email, phone, company
- *  - ticketType fixed to "Conference Access"
- *
- * POSTs to /api/register and displays the returned ticket details.
- */
-
-type RegisterResponse = {
-  ok: boolean;
-  message?: string;
+type SaveResult = {
   txRef?: string;
   ticketNumber?: string;
+  fullName?: string;
+  email?: string;
   qrCode?: string | null;
-  location?: string;
-  ticketType?: string;
-  emailSent?: boolean;
+  location?: string | null;
 };
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [company, setCompany] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+async function getIdTokenSafe(): Promise<string | null> {
+  const auth = getAuth();
+  const u: FirebaseUser | null = auth.currentUser;
+  if (u && typeof u.getIdToken === "function") {
+    try {
+      return await u.getIdToken();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
 
-  const [result, setResult] = useState<RegisterResponse | null>(null);
-  const mountedRef = useRef(true);
+/**
+ * This page component is intentionally defensive:
+ * - fetches canonical ticket info for a txRef (if present)
+ * - stores/loading state and uses next/image for QR rendering
+ * - avoids unused variables / eslint complaints
+ */
+export default function OfflineRegistrationSuccessPage(): React.ReactElement {
+  return (
+    <Suspense fallback={<div className="p-8">Loading…</div>}>
+      <Content />
+    </Suspense>
+  );
+}
 
-  React.useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
+function Content(): React.ReactElement {
+  // We read txRef from query in a robust way (works in pages or app router)
+  const [data, setData] = useState<SaveResult>({
+    txRef: undefined,
+    ticketNumber: undefined,
+    fullName: undefined,
+    email: undefined,
+    qrCode: null,
+    location: "Lagos Continental (TBA)",
+  });
+
+  const [loadingTicket, setLoadingTicket] = useState<boolean>(false);
+  const [downloading, setDownloading] = useState<boolean>(false);
+  const ticketRef = useRef<HTMLDivElement | null>(null);
+
+  // Try to discover txRef from location.search (this file is in pages/ so use window)
+  useEffect(() => {
+    // only run in browser
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const txRef = params.get("txRef") ?? undefined;
+    const ticketNumber = params.get("ticketNumber") ?? undefined;
+    const fullName = params.get("fullName") ?? undefined;
+    const email = params.get("email") ?? undefined;
+
+    // merge initial querystring values
+    setData((prev) => ({
+      ...prev,
+      txRef,
+      ticketNumber: ticketNumber ?? prev.ticketNumber,
+      fullName: fullName ?? prev.fullName,
+      email: email ?? prev.email,
+    }));
+
+    // if we have txRef+email, attempt to fetch canonical ticket (get stored qrCode etc.)
+    if (txRef && email) {
+      fetchTicket(txRef, email);
+    } else if (txRef && !email) {
+      // If txRef present but no email, try to fetch by txRef via an endpoint (if you have one);
+      // here we attempt by txRef using /api/get-ticket-from-txref (optional server route).
+      // If you don't have it, skip automatic fetch — UI will show query values only.
+      fetchTicketByTxRef(txRef).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function validate(): string | null {
-    if (!name.trim()) return "Please enter your full name.";
-    if (!email.trim()) return "Please enter an email address.";
-    // simple email check
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Please enter a valid email address.";
-    if (!phone.trim()) return "Please enter a phone number.";
-    return null;
+  async function fetchTicket(txRef: string, email: string) {
+    setLoadingTicket(true);
+    try {
+      const idToken = await getIdTokenSafe();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (idToken) headers["Authorization"] = `Bearer ${idToken}`;
+
+      // prefer GET /api/get-ticket?email=... (you already had that endpoint)
+      const q = new URLSearchParams({ email });
+      const res = await fetch(`/api/get-ticket?${q.toString()}`, { method: "GET", headers });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("get-ticket failed:", res.status, txt.slice?.(0, 2000) ?? txt);
+        setLoadingTicket(false);
+        return;
+      }
+
+      const parsed = await res.json();
+      // expected shape: { fullName, email, ticketType, ticketNumber, qrCode, location? }
+      setData((prev) => ({
+        ...prev,
+        fullName: parsed.fullName ?? prev.fullName,
+        email: parsed.email ?? prev.email,
+        ticketNumber: parsed.ticketNumber ?? prev.ticketNumber,
+        qrCode: parsed.qrCode ?? prev.qrCode,
+        location: parsed.location ?? prev.location,
+      }));
+    } catch (err) {
+      console.error("Error fetching ticket:", err);
+    } finally {
+      setLoadingTicket(false);
+    }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const err = validate();
-    if (err) {
-      toast.error(err);
+  // Optional: attempt a txRef-based fetch for setups that have a /api/get-ticket-by-txref endpoint
+  async function fetchTicketByTxRef(txRef: string) {
+    setLoadingTicket(true);
+    try {
+      const idToken = await getIdTokenSafe();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (idToken) headers["Authorization"] = `Bearer ${idToken}`;
+
+      const res = await fetch("/api/get-ticket-by-txref", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ txRef }),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        console.error("get-ticket-by-txref failed:", res.status, txt.slice?.(0, 2000) ?? txt);
+        return;
+      }
+
+      const json = await res.json();
+      setData((prev) => ({
+        ...prev,
+        fullName: json.fullName ?? prev.fullName,
+        email: json.email ?? prev.email,
+        ticketNumber: json.ticketNumber ?? prev.ticketNumber,
+        qrCode: json.qrCode ?? prev.qrCode,
+        location: json.location ?? prev.location,
+      }));
+    } catch (err) {
+      console.error("fetchTicketByTxRef error:", err);
+    } finally {
+      setLoadingTicket(false);
+    }
+  }
+
+  const handleDownload = async (): Promise<void> => {
+    if (!data.txRef) {
+      toast.error("Missing txRef — cannot download.");
       return;
     }
-
-    const payload = {
-      fullName: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone.trim(),
-      company: company.trim() || null,
-      ticketType: "Conference Access",
-    };
-
-    setSubmitting(true);
-    const toastId = toast.loading("Registering and issuing ticket…");
-
+    setDownloading(true);
+    const toastId = toast.loading("Downloading ticket…");
     try {
-      const res = await fetch("/api/register", {
+      const idToken = await getIdTokenSafe();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (idToken) headers["Authorization"] = `Bearer ${idToken}`;
+
+      const res = await fetch("/api/download-ticket", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers,
+        body: JSON.stringify({ txRef: data.txRef }),
       });
 
-      // Defensive: read text then parse JSON to avoid Unexpected '<' errors
-      const text = await res.text();
-      let json: RegisterResponse | null = null;
-      try {
-        json = text ? (JSON.parse(text) as RegisterResponse) : null;
-      } catch {
-        console.error("Non-JSON response from /api/register:", text.slice(0, 2000));
-        toast.dismiss(toastId);
-        toast.error("Server returned an unexpected response. Check console/network.");
-        setSubmitting(false);
-        return;
+      if (!res.ok) {
+        let errText = "";
+        try {
+          errText = await res.text();
+        } catch {}
+        console.error("download-ticket failed:", res.status, errText.slice?.(0, 2000) ?? errText);
+        throw new Error("PDF download failed");
       }
 
-      if (!res.ok || !json) {
-        toast.dismiss(toastId);
-        toast.error(json?.message ?? "Registration failed.");
-        setSubmitting(false);
-        return;
-      }
-
-      toast.dismiss(toastId);
-      toast.success("Registration complete — ticket issued.");
-      setResult(json);
-      // optionally clear form
-      setName("");
-      setEmail("");
-      setPhone("");
-      setCompany("");
-    } catch (err) {
-      console.error("Registration error:", err);
-      toast.dismiss(toastId);
-      toast.error("Network error during registration. Try again.");
-    } finally {
-      if (mountedRef.current) setSubmitting(false);
-    }
-  }
-
-  async function handleDownloadPdf() {
-    if (!result?.txRef) return;
-    try {
-      const res = await fetch("/api/download-ticket-from-txref", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ txRef: result.txRef }),
-      });
-      if (!res.ok) throw new Error("PDF download failed");
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+      const filename = `Ticket-${data.ticketNumber ?? data.txRef}.pdf`;
+      const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Ticket-${result.ticketNumber ?? result.txRef}.pdf`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(url);
+
+      toast.dismiss(toastId);
+      toast.success("Ticket downloaded.");
     } catch (err) {
-      console.error("PDF download error:", err);
-      toast.error("Failed to download ticket PDF.");
+      toast.dismiss(toastId);
+      console.error("Ticket download error:", err);
+      toast.error((err instanceof Error && err.message) || "Failed to download PDF. Check console/network.");
+    } finally {
+      setDownloading(false);
     }
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-[#F8F9FB] text-slate-900 py-12">
+    <main className="min-h-screen bg-[#F8F9FB] text-slate-900 p-6 flex items-center justify-center">
       <Toaster position="top-center" />
-      <div className="max-w-3xl mx-auto px-4">
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl font-bold">Conference Registration</h1>
-          <p className="mt-2 text-slate-600">Register for Conference Access and receive your ticket instantly.</p>
-        </header>
-
-        {!result ? (
-          <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow">
-            <div>
-              <label className="block text-sm font-medium">Full name</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="Jane Doe"
-              />
+      <div className="w-full max-w-3xl">
+        <div className="rounded-lg bg-white p-6 shadow">
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold mb-1">Registration received</h1>
+              <p className="text-sm text-slate-600">Ticket generated successfully — save or download below.</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium">Email</label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                type="email"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="you@example.com"
-              />
+            <div className="text-right">
+              <span className="text-xs text-slate-500">Category</span>
+              <div className="mt-1 font-semibold">Conference</div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium">Phone</label>
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="+234 801 234 5678"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Company (optional)</label>
-              <input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="Company or team"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium">Category</label>
-              <input
-                value="Conference"
-                readOnly
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2"
-              />
-            </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="rounded-lg bg-[#1B365D] px-5 py-2 text-white hover:bg-[#152c4a] disabled:opacity-60"
-              >
-                {submitting ? "Registering…" : "Register & Generate Ticket"}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-semibold mb-2">Registration successful</h2>
-            <p className="text-sm text-slate-600 mb-4">We issued your ticket. Use the controls below to download or forward the ticket.</p>
-
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="w-full md:w-1/3 bg-gray-50 p-4 rounded">
-                {result.qrCode ? (
-                  // eslint-disable-next-line jsx-a11y/alt-text
-                  <Image src={result.qrCode} width={220} height={220} className="mx-auto" alt="QR Code" />
-                ) : (
-                  <div className="w-44 h-44 bg-gray-200 mx-auto rounded animate-pulse" />
-                )}
-              </div>
-
-              <div className="flex-1">
-                <p><strong>Ticket No:</strong> <span className="text-[#FF7F41]">{result.ticketNumber ?? "—"}</span></p>
-                <p><strong>Location:</strong> {result.location ?? "Lagos Continental"}</p>
-                <p><strong>Category:</strong> {result.ticketType ?? "Conference Access"}</p>
-                <p className="mt-2 text-sm text-slate-600">An email was {result.emailSent ? "sent" : "queued / not sent"} to {email}.</p>
-
-                <div className="mt-4 flex gap-3">
-                  <button className="rounded-lg border px-4 py-2" onClick={handleDownloadPdf}>Download PDF</button>
+          <div ref={ticketRef} className="mt-6 relative bg-white/10 rounded-lg border border-gray-300 flex overflow-hidden">
+            <div className="flex items-center justify-center md:w-1/3 bg-white p-6">
+              {loadingTicket ? (
+                <div className="w-36 h-36 bg-gray-200 rounded animate-pulse" />
+              ) : data.qrCode ? (
+                // Next/Image works for base64/data URIs and remote URLs if unoptimized; use unoptimized for reliability
+                // (You can remove unoptimized if you prefer Next to optimize and you allowed remote domain).
+                <div className="w-36 h-36">
+                  <Image
+                    src={data.qrCode as string}
+                    alt="QR Code"
+                    width={144}
+                    height={144}
+                    className="w-36 h-36 object-contain border border-gray-300 rounded"
+                    unoptimized
+                  />
                 </div>
+              ) : (
+                <div className="w-36 h-36 bg-gray-200 rounded flex items-center justify-center">
+                  <span className="text-sm text-slate-600">No QR available</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 p-6">
+              <h2 className="text-xl font-semibold">🎫 Event Pass</h2>
+              {data.fullName ? <p className="mt-2"><strong>Name:</strong> {data.fullName}</p> : null}
+              {data.email ? <p className="mt-1"><strong>Email:</strong> {data.email}</p> : null}
+              {data.ticketNumber ? (
+                <p className="mt-3 font-mono text-lg text-[#FF7F41]">
+                  <strong>Ticket No:</strong> {data.ticketNumber}
+                </p>
+              ) : null}
+              <p className="mt-2 italic text-slate-700">You now have full access to all conference sessions.</p>
+
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={handleDownload}
+                  disabled={downloading}
+                  className="px-4 py-2 bg-[#1B365D] text-white rounded font-semibold disabled:opacity-60"
+                >
+                  {downloading ? "Downloading…" : "Download Ticket (PDF)"}
+                </button>
               </div>
             </div>
-          </section>
-        )}
+          </div>
+
+          <div className="mt-6 text-sm text-slate-600">
+            If you&apos;d like us to email the ticket instead, ensure the attendee&apos;s email is correct and the system will send it (subject to your backend email worker).
+          </div>
+        </div>
       </div>
     </main>
   );

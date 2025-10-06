@@ -223,7 +223,7 @@ export default function OfflineRegistrationPage(): React.ReactElement {
           </div>
 
           <div className="flex items-center justify-between gap-4">
-            <div className="text-sm text-slate-600">After submitting you’ll be taken to a success page with the ticket details.</div>
+            <div className="text-sm text-slate-600">After submitting you will be taken to a success page with the ticket details.</div>
 
             <button
               type="submit"

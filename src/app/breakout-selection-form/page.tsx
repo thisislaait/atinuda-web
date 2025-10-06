@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import SESSIONS from "@/lib/breakout";
+import Image from "next/image";
 
 /**
  * Types
@@ -261,19 +262,22 @@ export default function BreakoutsPage() {
   return (
     <>
       <Toaster position="top-center" />
-      <div className="bg-[#0b5fff] text-white py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Breakout sessions — sign up</h1>
-          <p className="mt-2">Enter your ticket to auto-validate, then pick the sessions you want to attend.</p>
-        </div>
-      </div>
+
+      {/* Hero */}
+            <div className="relative h-[320px] w-full sm:h-[380px] md:h-[420px]">
+              <Image src="/assets/images/elementtwo.png" alt="Ticket Banner" fill className="object-cover" priority />
+              <div className="absolute inset-0 z-10 bg-black/40" />
+              <div className="absolute inset-0 z-20 flex items-center justify-center">
+                <h1 className="text-center text-4xl font-bold hero-text text-white md:text-6xl">Breakout Registration</h1>
+              </div>
+            </div>
 
       {open && (
         <div className="max-w-5xl mx-auto px-4 py-8">
           <form onSubmit={handleSubmit} className="grid gap-4">
             {/* Ticket */}
             <div>
-              <label className="block text-sm font-medium">Ticket number (optional)</label>
+              <label className="block text-sm text-black font-medium">Ticket number</label>
 
               <div className="mt-1">
                 <input
@@ -293,7 +297,7 @@ export default function BreakoutsPage() {
             {/* Name & Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium">Name</label>
+                <label className="block text-sm text-black font-medium">Name</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -303,7 +307,7 @@ export default function BreakoutsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Email</label>
+                <label className="block text-black text-sm font-medium">Email</label>
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -320,7 +324,7 @@ export default function BreakoutsPage() {
               .sort()
               .map((round) => (
                 <div key={round}>
-                  <h3 className="font-semibold mb-2">
+                  <h3 className="font-semibold text-black mb-2">
                     {round === 1 ? "Round 1 — 12:00 – 2:10 PM" : round === 2 ? "Round 2 — 2:45 – 3:45 PM" : "Round 3 — 4:00 – 5:00 PM"}
                   </h3>
                   <div className="grid gap-3">

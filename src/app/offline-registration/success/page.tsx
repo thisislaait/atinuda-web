@@ -345,7 +345,7 @@ function SuccessContent(): React.ReactElement {
           </div>
 
           <div className="mt-6 text-sm text-slate-600">
-            If you'd like us to email the ticket instead, ensure the attendee's email is correct and the system will send it (subject to your backend email worker).
+            If you&apos;d like us to email the ticket instead, ensure the attendee&apos;s email is correct and the system will send it (subject to your backend email worker).
           </div>
         </div>
       </section>
