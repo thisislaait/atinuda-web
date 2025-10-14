@@ -176,7 +176,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ticketType: a.ticketType,
         location: getLocationText(a.ticketType || ""),
         qrDataUrl: await generateQRCode(
-          `http://localhost:3000/ticket/${encodeURIComponent(a.ticketNumber)}?name=${encodeURIComponent(
+          `https://www.atinuda.africa/ticket/${encodeURIComponent(a.ticketNumber)}?name=${encodeURIComponent(
             a.fullName
           )}`
         ),

@@ -1,63 +1,58 @@
-// pages/api/checkin.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
+import type { NextApiRequest, NextApiResponse } from "next";
+import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+import { ATTENDEES } from "@/lib/attendee";
+import { getLocationText } from "@/utils/constants";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+type Resp = { ok: true; message: string } | { ok: false; message: string };
+
+const norm = (s: string) => String(s || "").trim().toUpperCase();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Resp>) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ ok: false, message: "Method Not Allowed" });
   }
 
-  const { ticketNumber, day } = req.body;
-
-  if (!ticketNumber || ![1, 2].includes(day)) {
-    return res.status(400).json({ message: 'Missing or invalid ticket number or day.' });
-  }
+  const { ticketNumber, checker } = (req.body ?? {}) as { ticketNumber?: unknown; checker?: unknown };
+  const tn = norm(typeof ticketNumber === "string" ? ticketNumber : String(ticketNumber ?? ""));
+  const by = typeof checker === "string" && checker.trim() ? checker.trim() : "web";
+  if (!tn) return res.status(400).json({ ok: false, message: "ticketNumber is required" });
 
   try {
-    const ticketSnap = await adminDb
-      .collection('payments')
-      .where('ticketNumber', '==', ticketNumber)
-      .limit(1)
-      .get();
+    const ref = adminDb.collection("tickets").doc(tn);
+    const doc = await ref.get();
 
-    if (ticketSnap.empty) {
-      return res.status(404).json({ message: 'Ticket not found.' });
+    if (!doc.exists) {
+      const a = ATTENDEES.find(x => norm(x.ticketNumber) === tn);
+      if (!a) return res.status(404).json({ ok: false, message: "Ticket not found" });
+      await ref.set({
+        ticketNumber: tn,
+        fullName: String(a.fullName || "Guest"),
+        email: String(a.email || ""),
+        ticketType: String(a.ticketType || "General Admission"),
+        location: getLocationText(String(a.ticketType || "")) || null,
+        createdFrom: "attendees_seed",
+        createdAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
     }
 
-    const ticketDoc = ticketSnap.docs[0];
-    const ticketData = ticketDoc.data();
+    const now = Date.now();
+    await ref.set({
+      "checkIn.day1": true,
+      updatedAt: FieldValue.serverTimestamp(),
+      lastCheckinEvent: "day1",
+      lastCheckinAtMs: now,
+      lastCheckinBy: by,
+      scanCount: FieldValue.increment(1),
+    }, { merge: true });
 
-    const checkInStatus = ticketData.checkIn || { day1: false, day2: false };
-    const fieldKey = day === 1 ? 'checkIn.day1' : 'checkIn.day2';
-
-    if (checkInStatus[`day${day}`]) {
-      return res.status(200).json({
-        message: `Already checked in for Day ${day}.`,
-        alreadyCheckedIn: true,
-        fullName: ticketData.fullName,
-        ticketNumber,
-        day,
-      });
-    }
-
-    // Update check-in status
-    await ticketDoc.ref.update({
-      [fieldKey]: true,
-      lastCheckInTime: FieldValue.serverTimestamp(),
-    });
-
-    return res.status(200).json({
-      message: `Check-in successful for Day ${day}.`,
-      alreadyCheckedIn: false,
-      fullName: ticketData.fullName,
-      ticketNumber,
-      day,
-    });
-  } catch (err) {
-    console.error('Check-in error:', err);
-    return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(200).json({ ok: true, message: "Checked in" });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return res.status(500).json({ ok: false, message: msg });
   }
 }
+
 
 /**
  * POST /api/checkin

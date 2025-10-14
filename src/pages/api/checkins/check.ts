@@ -182,87 +182,89 @@
 //   }
 // }
 
+// import type { NextApiRequest, NextApiResponse } from "next";
+// import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+// import { ATTENDEES } from "@/lib/attendee";
+// import { getLocationText } from "@/utils/constants";
 
-// pages/api/checkins/check.ts
-import type { NextApiRequest, NextApiResponse } from "next";
-import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+// const ALLOWED_EVENTS = ["azizi","day1","day2","dinner","breakout","masterclass","gift"] as const;
+// type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
 
-const ALLOWED_EVENTS = [
-  "azizi",
-  "day1",
-  "day2",
-  "dinner",
-  "breakout",
-  "masterclass",
-  "gift",
-] as const;
+// type ErrorResp   = { ok: false; message: string };
+// type SuccessResp = {
+//   ok: true; ticketNumber: string; event: AllowedEvent; status: boolean; at: number; source: "tickets" | "upserted";
+// };
 
-type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
+// const isStr = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+// const norm  = (s: string) => String(s || "").trim().toUpperCase();
 
-type ErrorResp   = { ok: false; message: string };
-type SuccessResp = { ok: true; ticketNumber: string; event: AllowedEvent; status: boolean; at: number };
+// export default async function handler(req: NextApiRequest, res: NextApiResponse<SuccessResp | ErrorResp>) {
+//   if (req.method !== "POST") {
+//     res.setHeader("Allow", "POST");
+//     return res.status(405).json({ ok: false, message: "Method not allowed" });
+//   }
 
-const isStr = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+//   try {
+//     const body = req.body as { ticketNumber?: unknown; event?: unknown; status?: unknown } | undefined;
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<SuccessResp | ErrorResp>
-) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ ok: false, message: "Method not allowed" });
-  }
+//     const ticketNumber = isStr(body?.ticketNumber) ? body!.ticketNumber : null;
+//     const event        = isStr(body?.event) ? (body!.event as AllowedEvent) : null;
+//     const status       = typeof body?.status === "boolean" ? (body!.status as boolean) : null;
 
-  try {
-    const body = req.body as { ticketNumber?: unknown; event?: unknown; status?: unknown } | undefined;
+//     if (!ticketNumber) return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
+//     if (!event || !ALLOWED_EVENTS.includes(event)) return res.status(400).json({ ok: false, message: "Invalid event key" });
+//     if (status === null) return res.status(400).json({ ok: false, message: "Missing status (boolean)" });
 
-    const ticketNumber = isStr(body?.ticketNumber) ? body!.ticketNumber : null;
-    const event = isStr(body?.event) ? (body!.event as AllowedEvent) : null;
-    const status = typeof body?.status === "boolean" ? (body!.status as boolean) : null;
+//     const tn = norm(ticketNumber);
+//     const at = Date.now();
 
-    if (!ticketNumber) {
-      return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
-    }
-    if (!event || !ALLOWED_EVENTS.includes(event)) {
-      return res.status(400).json({ ok: false, message: "Invalid event key" });
-    }
-    if (status === null) {
-      return res.status(400).json({ ok: false, message: "Missing status (boolean)" });
-    }
+//     // 1) use doc ID = ticketNumber
+//     let ref = adminDb.collection("tickets").doc(tn);
+//     let doc = await ref.get();
 
-    const tn = ticketNumber.toString().trim().toUpperCase();
-    const at = Date.now();
+//     // 2) query fallback (older auto-IDs)
+//     if (!doc.exists) {
+//       const q = await adminDb.collection("tickets").where("ticketNumber", "==", tn).limit(1).get();
+//       if (!q.empty) {
+//         ref = q.docs[0].ref;
+//         doc = await ref.get();
+//       }
+//     }
 
-    const snap = await adminDb
-      .collection("tickets")
-      .where("ticketNumber", "==", tn)
-      .limit(1)
-      .get();
+//     // 3) upsert from ATTENDEES if still not found
+//     let source: "tickets" | "upserted" = "tickets";
+//     if (!doc.exists) {
+//       const local = ATTENDEES.find(a => norm(a.ticketNumber) === tn);
+//       if (!local) return res.status(404).json({ ok: false, message: "Ticket not found" });
+//       source = "upserted";
+//       await ref.set({
+//         ticketNumber: tn,
+//         fullName: String(local.fullName || "Guest"),
+//         email: String(local.email || ""),
+//         ticketType: String(local.ticketType || "General Admission"),
+//         location: getLocationText(String(local.ticketType || "")) || null,
+//         createdFrom: "attendees_seed",
+//         createdAt: FieldValue.serverTimestamp(),
+//       }, { merge: true });
+//     }
 
-    if (snap.empty) {
-      return res.status(404).json({ ok: false, message: "Ticket not found" });
-    }
+//     // 4) toggle
+//     const updates: Record<string, unknown> = {
+//       updatedAt: FieldValue.serverTimestamp(),
+//       lastCheckinEvent: event,
+//       lastCheckinAtMs: at,
+//       scanCount: FieldValue.increment(1),
+//     };
+//     if (event === "gift") updates["giftClaimed"] = status;
+//     else updates[`checkIn.${event}`] = status;
 
-    const ref = snap.docs[0].ref;
+//     await ref.set(updates, { merge: true });
 
-    const updates: Record<string, unknown> = {
-      updatedAt: FieldValue.serverTimestamp(),
-      lastCheckinEvent: event,
-      lastCheckinAtMs: at,
-      scanCount: FieldValue.increment(1),
-    };
+//     return res.status(200).json({ ok: true, ticketNumber: tn, event, status, at, source });
+//   } catch (err: unknown) {
+//     const message = err instanceof Error ? err.message : String(err);
+//     return res.status(500).json({ ok: false, message });
+//   }
+// }
 
-    if (event === "gift") {
-      updates["giftClaimed"] = status;
-    } else {
-      updates[`checkIn.${event}`] = status;
-    }
-
-    await ref.set(updates, { merge: true });
-
-    return res.status(200).json({ ok: true, ticketNumber: tn, event, status, at });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    return res.status(500).json({ ok: false, message });
-  }
-}
+export { default } from "./toggle";

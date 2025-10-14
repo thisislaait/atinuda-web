@@ -88,7 +88,6 @@
 //   }
 // }
 
-// pages/api/ticket-by-number.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import { adminDb } from "@/utils/firebaseAdmin";
 import { ATTENDEES } from "@/lib/attendee";
@@ -103,80 +102,63 @@ type TicketPayload = {
   checkIn?: Record<string, boolean> | null;
   giftClaimed?: boolean;
 };
-
-type TicketResp = {
-  ok: boolean;
-  source?: "tickets" | "attendees";
-  ticket?: TicketPayload;
-  message?: string;
-};
+type TicketResp = { ok: boolean; source?: "tickets" | "attendees"; ticket?: TicketPayload; message?: string; };
 
 type TicketDoc = {
-  ticketNumber?: string;
-  fullName?: string;
-  name?: string;
-  email?: string;
-  ticketType?: string;
-  giftClaimed?: boolean;
-  checkIn?: Record<string, unknown>;
+  ticketNumber?: string; fullName?: string; name?: string; email?: string;
+  ticketType?: string; giftClaimed?: boolean; checkIn?: Record<string, unknown>;
 };
 
 const norm = (s: string) => String(s || "").trim().toUpperCase();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<TicketResp>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<TicketResp>) {
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return res.status(405).json({ ok: false, message: "Method Not Allowed" });
   }
 
   const ticketNumber = norm(String(req.query.ticketNumber || ""));
-  if (!ticketNumber) {
-    return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
-  }
+  if (!ticketNumber) return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
 
   try {
-    // 1) Firestore lookup
-    const snap = await adminDb
-      .collection("tickets")
-      .where("ticketNumber", "==", ticketNumber)
-      .limit(1)
-      .get();
+    // A) doc by ID
+    let snap = await adminDb.collection("tickets").doc(ticketNumber).get();
+    // B) fallback query (older auto-ID docs)
+    if (!snap.exists) {
+      const q = await adminDb.collection("tickets").where("ticketNumber", "==", ticketNumber).limit(1).get();
+      if (!q.empty) snap = await q.docs[0].ref.get();
+    }
 
-    if (!snap.empty) {
-      const d = snap.docs[0].data() as TicketDoc;
-
+    if (snap.exists) {
+      const d = snap.data() as TicketDoc;
       const ticketType = String(d.ticketType || "General Admission");
       const location = getLocationText(ticketType) || null;
 
       const rawCheck = d.checkIn && typeof d.checkIn === "object" ? d.checkIn : null;
-      const checkInObj: Record<string, boolean> | null = rawCheck
-        ? Object.fromEntries(
-            Object.entries(rawCheck).map(([k, v]) => [k, Boolean(v)])
-          )
+      const checkIn = rawCheck
+        ? Object.fromEntries(Object.entries(rawCheck).map(([k, v]) => [k, Boolean(v)]))
         : null;
 
-      const payload: TicketPayload = {
-        fullName: String(d.fullName || d.name || "Guest"),
-        email: String(d.email || ""),
-        ticketType,
-        ticketNumber: String(d.ticketNumber || ticketNumber),
-        location,
-        checkIn: checkInObj,
-        giftClaimed: Boolean(d.giftClaimed ?? false),
-      };
-
-      return res.status(200).json({ ok: true, source: "tickets", ticket: payload });
+      return res.status(200).json({
+        ok: true,
+        source: "tickets",
+        ticket: {
+          fullName: String(d.fullName || d.name || "Guest"),
+          email: String(d.email || ""),
+          ticketType,
+          ticketNumber: String(d.ticketNumber || ticketNumber),
+          location,
+          checkIn,
+          giftClaimed: Boolean(d.giftClaimed ?? false),
+        },
+      });
     }
 
-    // 2) Fallback to generated attendees
+    // Fallback to static list
     const local = ATTENDEES.find((x) => norm(x.ticketNumber) === ticketNumber);
     if (local) {
       const ticketType = local.ticketType || "General Admission";
       const location = getLocationText(ticketType) || null;
-
       return res.status(200).json({
         ok: true,
         source: "attendees",
@@ -198,3 +180,4 @@ export default async function handler(
     return res.status(500).json({ ok: false, message });
   }
 }
+
