@@ -1,0 +1,141 @@
+[
+  {
+    "id": "job-1759913040337-3236",
+    "createdAt": "2025-10-08T08:44:00.337Z",
+    "dryRun": false,
+    "mode": "single",
+    "attempted": 1,
+    "skippedInvalid": 0,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "patog2303@gmail.com",
+        "ticketNumber": "EXEC-ATIN11931",
+        "ok": false,
+        "message": "connect ETIMEDOUT 172.65.255.143:465"
+      }
+    ]
+  },
+  {
+    "id": "job-1759912142935-6811",
+    "createdAt": "2025-10-08T08:29:02.936Z",
+    "dryRun": false,
+    "mode": "single",
+    "attempted": 1,
+    "skippedInvalid": 0,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "adetunjilabi@gmail.com",
+        "ticketNumber": "CONF-ATIN19748",
+        "ok": false,
+        "message": "connect ETIMEDOUT 172.65.255.143:465"
+      }
+    ]
+  },
+  {
+    "id": "job-1759903534461-7870",
+    "createdAt": "2025-10-08T06:05:34.461Z",
+    "dryRun": false,
+    "mode": "single",
+    "attempted": 1,
+    "skippedInvalid": 0,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "kunle.ksquare@gmail.com",
+        "ticketNumber": "CONF-ATIN28618",
+        "ok": false,
+        "message": "Message failed: 554 5.7.1 Disabled by user from hPanel"
+      }
+    ]
+  },
+  {
+    "id": "job-1759903528223-1368",
+    "createdAt": "2025-10-08T06:05:28.223Z",
+    "dryRun": false,
+    "mode": "single",
+    "attempted": 1,
+    "skippedInvalid": 0,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "contact@promoboxng.com",
+        "ticketNumber": "CONF-ATIN25180",
+        "ok": false,
+        "message": "Message failed: 554 5.7.1 Disabled by user from hPanel"
+      }
+    ]
+  },
+  {
+    "id": "job-1759903521137-6798",
+    "createdAt": "2025-10-08T06:05:21.137Z",
+    "dryRun": false,
+    "mode": "single",
+    "attempted": 1,
+    "skippedInvalid": 0,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "adetunjilabi@gmail.com",
+        "ticketNumber": "CONF-ATIN19748",
+        "ok": false,
+        "message": "Message failed: 554 5.7.1 Disabled by user from hPanel"
+      }
+    ]
+  },
+  {
+    "id": "job-1759901659234-9448",
+    "createdAt": "2025-10-08T05:34:19.234Z",
+    "type": "single",
+    "dryRun": false,
+    "attempted": 1,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "adetunjilabi@gmail.com",
+        "ticketNumber": "CONF-ATIN19748",
+        "ok": false,
+        "message": "Send failed: Message failed: Message failed: 554 5.7.1 Disabled by user from hPanel"
+      }
+    ],
+    "ticketNumber": "CONF-ATIN19748",
+    "recipient": "adetunjilabi@gmail.com"
+  },
+  {
+    "id": "job-1759901356723-6313",
+    "createdAt": "2025-10-08T05:29:16.723Z",
+    "type": "single",
+    "dryRun": false,
+    "attempted": 1,
+    "sent": 0,
+    "failed": 1,
+    "failures": [
+      {
+        "email": "adetunjilabi@gmail.com",
+        "ticketNumber": "CONF-ATIN19748",
+        "ok": false,
+        "message": "Send failed: Message failed: 554 5.7.1 Disabled by user from hPanel"
+      }
+    ],
+    "ticketNumber": "CONF-ATIN19748",
+    "recipient": "adetunjilabi@gmail.com"
+  },
+  {
+    "id": "job-1759840426098-132",
+    "createdAt": "2025-10-07T12:33:46.098Z",
+    "dryRun": true,
+    "mode": "inline",
+    "attempted": 108,
+    "skippedInvalid": 126,
+    "sent": 108,
+    "failed": 0,
+    "failures": []
+  }
+]

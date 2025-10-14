@@ -1,0 +1,485 @@
+{
+  "CONF-ATIN72466": {
+    "day1": {
+      "checked": true,
+      "at": 1759927905084,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "breakout": {
+      "checked": true,
+      "at": 1759927921723,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "masterclass": {
+      "checked": false,
+      "at": 1759851357835,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "azizi": {
+      "checked": true,
+      "at": 1759927899792,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "dinner": {
+      "checked": false,
+      "at": 1759851360717,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "gift": {
+      "checked": true,
+      "at": 1759927912369,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "checkIn": {
+      "azizi": true,
+      "masterclass": true,
+      "dinner": true,
+      "breakout": true,
+      "day2": true
+    },
+    "lastUpdatedAt": "2025-10-07T18:45:59.680Z",
+    "lastUpdatedBy": "unknown",
+    "scans": [
+      {
+        "id": "mggt48gz-bwfkgx",
+        "event": "azizi",
+        "action": "checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:32.771Z"
+      },
+      {
+        "id": "mggt49wd-8hugjx",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:34.621Z"
+      },
+      {
+        "id": "mggt4asl-d43bj9",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:35.781Z"
+      },
+      {
+        "id": "mggt4bde-on9owo",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:36.530Z"
+      },
+      {
+        "id": "mggt4bnk-eawsz8",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:36.896Z"
+      },
+      {
+        "id": "mggt4c3w-l8n9kt",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:37.484Z"
+      },
+      {
+        "id": "mggt4cbl-maki81",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:37.761Z"
+      },
+      {
+        "id": "mggt4cke-dwjwk0",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:38.078Z"
+      },
+      {
+        "id": "mggt4d12-x92um7",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:38.678Z"
+      },
+      {
+        "id": "mggt4dmd-zov7ez",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:39.445Z"
+      },
+      {
+        "id": "mggt4e3y-b6l0qp",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:40.078Z"
+      },
+      {
+        "id": "mggt4edn-htly7w",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:40.427Z"
+      },
+      {
+        "id": "mggt4et0-qf1thh",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:40.980Z"
+      },
+      {
+        "id": "mggt4fla-na5j88",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:41.998Z"
+      },
+      {
+        "id": "mggt4fvv-37nguw",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:42.379Z"
+      },
+      {
+        "id": "mggt4g54-p4loa8",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:42.712Z"
+      },
+      {
+        "id": "mggt4gfe-k67v61",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:43.082Z"
+      },
+      {
+        "id": "mggt4gqg-fjecyd",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:43.480Z"
+      },
+      {
+        "id": "mggt4gzn-h52yix",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:43.811Z"
+      },
+      {
+        "id": "mggt4hf0-yy2ycz",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:44.364Z"
+      },
+      {
+        "id": "mggt4i94-kpmab1",
+        "event": "masterclass",
+        "action": "checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:45.448Z"
+      },
+      {
+        "id": "mggt4j8o-moa2jd",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:46.728Z"
+      },
+      {
+        "id": "mggt4jgz-6ij78u",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:47.027Z"
+      },
+      {
+        "id": "mggt4jnx-z2r4al",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:47.277Z"
+      },
+      {
+        "id": "mggt4nd8-9sri5q",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:52.076Z"
+      },
+      {
+        "id": "mggt4nmj-oa853d",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:52.411Z"
+      },
+      {
+        "id": "mggt4pj2-kguts0",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:54.878Z"
+      },
+      {
+        "id": "mggt4psc-m8mqu0",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:55.212Z"
+      },
+      {
+        "id": "mggt4q30-w63zml",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:01:55.596Z"
+      },
+      {
+        "id": "mggt4tmf-3vyjux",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:02:00.183Z"
+      },
+      {
+        "id": "mggt4txg-bll4qf",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:02:00.580Z"
+      },
+      {
+        "id": "mggt4u66-exwt3w",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:02:00.894Z"
+      },
+      {
+        "id": "mggtu8nr-ia7owc",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:46.070Z"
+      },
+      {
+        "id": "mggtu9l9-g65h9o",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:47.277Z"
+      },
+      {
+        "id": "mggtuafu-vt74s7",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:48.378Z"
+      },
+      {
+        "id": "mggtubof-kif1yu",
+        "event": "dinner",
+        "action": "checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:49.983Z"
+      },
+      {
+        "id": "mggtuclp-pekytr",
+        "event": "dinner",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:51.181Z"
+      },
+      {
+        "id": "mggtugwt-gl36fz",
+        "event": "breakout",
+        "action": "checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:21:56.765Z"
+      },
+      {
+        "id": "mggu8thx-6e8cx6",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:06.261Z"
+      },
+      {
+        "id": "mggu8tpx-hoasq5",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:06.549Z"
+      },
+      {
+        "id": "mggu8ty0-kx04fu",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:06.840Z"
+      },
+      {
+        "id": "mggu8u7t-5jrys3",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:07.193Z"
+      },
+      {
+        "id": "mggu8uhx-qop8p0",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:07.557Z"
+      },
+      {
+        "id": "mggu8ut2-ykyz3h",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:07.958Z"
+      },
+      {
+        "id": "mggu8v7e-d0j8vw",
+        "event": "azizi",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T17:33:08.474Z"
+      },
+      {
+        "id": "mggwifc6-1ktihv",
+        "event": "day2",
+        "action": "checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:36:33.702Z"
+      },
+      {
+        "id": "mggwigkv-kwq2iv",
+        "event": "day2",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:36:35.311Z"
+      },
+      {
+        "id": "mggwihnh-7hv1lk",
+        "event": "dinner",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:36:36.701Z"
+      },
+      {
+        "id": "mggwue5p-f1ljif",
+        "event": "day2",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:45:52.045Z"
+      },
+      {
+        "id": "mggwufov-9s3ee5",
+        "event": "dinner",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:45:54.031Z"
+      },
+      {
+        "id": "mggwugu2-7qatti",
+        "event": "dinner",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:45:55.514Z"
+      },
+      {
+        "id": "mggwuk1s-leeppm",
+        "event": "day2",
+        "action": "already-checked-in",
+        "scannerId": "unknown",
+        "note": "",
+        "scannedAt": "2025-10-07T18:45:59.680Z"
+      }
+    ],
+    "fullName": "Seun",
+    "email": "moontopevents@gmail.com",
+    "ticketType": "Conference Access",
+    "location": "Lagos Continental Hotel"
+  },
+  "CONF-ATIN25180": {
+    "day1": {
+      "checked": true,
+      "at": 1759930415082,
+      "scannerId": "unknown",
+      "note": ""
+    },
+    "masterclass": {
+      "checked": true,
+      "at": 1759929338732,
+      "scannerId": "unknown",
+      "note": ""
+    }
+  }
+}

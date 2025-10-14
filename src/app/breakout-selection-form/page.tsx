@@ -1,354 +1,381 @@
-"use client";
+// app/tickets/breakouts/page.tsx
+'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
-import SESSIONS from "@/lib/breakout";
-import Image from "next/image";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
+import toast, { Toaster } from 'react-hot-toast';
+import SESSIONS from '@/lib/breakout'; // ensure this file exists and contains round===4 workshops
 
-/**
- * Types
- */
+const h = React.createElement;
+
+/* ----------------------
+   Types
+-----------------------*/
 type Session = {
   id: string;
-  round: number;
+  round: 1 | 2 | 3 | 4;
   room?: string;
   track?: string;
   title: string;
   speakers: string[];
-  moderator?: string | null;
+  moderator?: string;
   startsAt?: string;
 };
 
-type Selections = Record<number, string | null>;
+type Selections = Record<'1' | '2' | '3' | '4', string | null>;
 
-function roomLabel(room?: string) {
-  return room ? `Location: Lagos Continental — ${room}` : "Location: Lagos Continental";
+/* ----------------------
+   Config
+-----------------------*/
+const WORKSHOP_PREFIXES = ['WRK', 'CONF', 'PREM'];
+
+function roomLabel(r?: string) {
+  return r ? `Location: Lagos Continental — ${r}` : 'Location: Lagos Continental';
+}
+function ticketPrefixAllowsWorkshop(ticketNumber?: string | null) {
+  if (!ticketNumber) return false;
+  const t = String(ticketNumber).toUpperCase().trim();
+  const prefix = t.split(/[-_\s]/)[0];
+  return WORKSHOP_PREFIXES.includes(prefix);
 }
 
-/* Full page component — paste this file as app/tickets/breakouts/page.tsx */
-export default function BreakoutsPage() {
-  // typed sessions (no `any`)
+/* ----------------------
+   Component (NO JSX)
+-----------------------*/
+export default function BreakoutsPage(): React.ReactElement {
   const sessions = (SESSIONS as unknown) as Session[];
 
   const sessionsByRound = useMemo(() => {
-    const map = new Map<number, Session[]>();
+    const m = new Map<number, Session[]>();
     sessions.forEach((s) => {
-      const arr = map.get(s.round) ?? [];
+      const arr = m.get(s.round) ?? [];
       arr.push(s);
-      map.set(s.round, arr);
+      m.set(s.round, arr);
     });
-    return map;
+    return m;
   }, [sessions]);
 
-  // Control whether the form area is visible; keep default true if you want it visible immediately
-  const [open, setOpen] = useState(true);
-
-  // ticket verification state
-  const [ticketValue, setTicketValue] = useState("");
+  // UI state
+  const [ticketValue, setTicketValue] = useState<string>('');
   const [ticketValid, setTicketValid] = useState<boolean | null>(null);
-  const [ticketChecking, setTicketChecking] = useState(false);
+  const [ticketChecking, setTicketChecking] = useState<boolean>(false);
 
-  // identity fields
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
 
-  // selections (one pick per round)
-  const [selections, setSelections] = useState<Selections>({ 1: null, 2: null, 3: null });
+  const [selections, setSelections] = useState<Selections>({ '1': null, '2': null, '3': null, '4': null });
 
-  const [submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
-  // debounce timer and lastVerified cache
   const debounceRef = useRef<number | null>(null);
-  const lastVerifiedRef = useRef<string | null>(null);
-  const isMountedRef = useRef(true);
+  const lastVerified = useRef<string | null>(null);
+  const mounted = useRef(true);
+  const [showWorkshops, setShowWorkshops] = useState<boolean>(false);
 
   useEffect(() => {
-    isMountedRef.current = true;
+    mounted.current = true;
     return () => {
-      isMountedRef.current = false;
-      if (debounceRef.current) {
-        window.clearTimeout(debounceRef.current);
-      }
+      mounted.current = false;
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
   }, []);
 
-  // Debounced auto-verify: triggers when ticketValue changes and user stops typing.
+  // debounced ticket verification
   useEffect(() => {
-    // clear previous debounce
     if (debounceRef.current) {
       window.clearTimeout(debounceRef.current);
       debounceRef.current = null;
     }
-
-    const trimmed = ticketValue.trim();
-    if (!trimmed) {
-      // empty -> reset state & cache
+    const t = ticketValue.trim();
+    if (!t) {
       setTicketValid(null);
-      lastVerifiedRef.current = null;
+      lastVerified.current = null;
+      setShowWorkshops(false);
       return;
     }
-
-    // if we've already verified this exact ticket, do nothing
-    if (lastVerifiedRef.current === trimmed) {
+    if (lastVerified.current === t) {
+      setShowWorkshops(ticketPrefixAllowsWorkshop(t));
       return;
     }
-
-    // schedule verify after 600ms
-    const timer = window.setTimeout(() => {
-      void doVerify(trimmed);
-    }, 600);
-    debounceRef.current = timer;
-
+    const id = window.setTimeout(() => void verifyTicket(t), 450);
+    debounceRef.current = id;
     return () => {
-      if (timer) window.clearTimeout(timer);
+      if (id) window.clearTimeout(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketValue]);
 
-  // verify function uses your /api/verify-ticket unchanged; does NOT close UI
-  async function doVerify(ticket: string) {
-    if (!isMountedRef.current) return;
-
+  async function verifyTicket(ticket: string) {
+    if (!mounted.current) return;
     setTicketChecking(true);
     setTicketValid(null);
-
     try {
       const res = await fetch(`/api/verify-ticket?ticketNumber=${encodeURIComponent(ticket)}`);
-      const json = await res.json();
-
-      if (json?.ok) {
+      const data = await res.json();
+      if (data?.ok) {
         setTicketValid(true);
-        lastVerifiedRef.current = ticket;
-        toast.success("Ticket verified.");
-
-        // Optional quiet autofill if you provide /api/ticket-details
+        lastVerified.current = ticket;
+        toast.success('Ticket verified.');
+        // optional canonicalization
+        let canonical = ticket;
         try {
-          const detailsRes = await fetch(`/api/ticket-details?ticketNumber=${encodeURIComponent(ticket)}`);
-          if (detailsRes.ok) {
-            const detailsJson = await detailsRes.json();
-            if (detailsJson?.ok) {
-              if (typeof detailsJson.name === "string" && detailsJson.name.trim().length > 0) {
-                setName(detailsJson.name);
-              }
-              if (typeof detailsJson.email === "string" && detailsJson.email.trim().length > 0) {
-                setEmail(detailsJson.email);
-              }
+          const dres = await fetch(`/api/ticket-details?ticketNumber=${encodeURIComponent(ticket)}`);
+          if (dres.ok) {
+            const details = await dres.json();
+            if (details?.ok) {
+              if (typeof details.name === 'string' && details.name.trim()) setName(details.name);
+              if (typeof details.email === 'string' && details.email.trim()) setEmail(details.email);
+              if (typeof details.ticketNumber === 'string' && details.ticketNumber.trim()) canonical = details.ticketNumber;
             }
           }
         } catch {
-          // ignore — endpoint optional
+          // ignore optional endpoint errors
         }
+        setShowWorkshops(ticketPrefixAllowsWorkshop(canonical));
       } else {
         setTicketValid(false);
-        toast.error("Ticket not found. You can continue and provide name/email.");
+        setShowWorkshops(false);
+        toast.error('Ticket not found. You may continue with name/email.');
       }
-    } catch {
+    } catch (err) {
       setTicketValid(false);
-      toast.error("Ticket verification failed.");
+      setShowWorkshops(false);
+      toast.error('Ticket verification failed.');
+      // eslint-disable-next-line no-console
+      console.error('verifyTicket', err);
     } finally {
-      if (isMountedRef.current) setTicketChecking(false);
+      if (mounted.current) setTicketChecking(false);
     }
   }
 
-  function chooseSession(round: number, sessionId: string) {
-    setSelections((prev) => ({ ...prev, [round]: sessionId }));
-  }
-
-  function showFallbackIdentity() {
-    return ticketValue.trim().length === 0 || ticketValid === false;
+  function selectSession(roundKey: keyof Selections, sessionId: string) {
+    setSelections((p) => ({ ...p, [roundKey]: sessionId }));
   }
 
   function validateBeforeSubmit(): string | null {
-    const anySelected = Object.values(selections).some(Boolean);
-    if (!anySelected) return "Choose at least one breakout session (one per round).";
+    const ok = ['1', '2', '3'].every((r) => Boolean(selections[r as keyof Selections]));
+    if (!ok) return 'Select one session for each main round (Rounds 1, 2 & 3).';
 
-    if (showFallbackIdentity()) {
-      if (!name.trim()) return "Please provide name.";
-      if (!email.trim()) return "Please provide email.";
+    const needFallback = !ticketValue.trim() || ticketValid === false;
+    if (needFallback) {
+      if (!name.trim()) return 'Please provide name.';
+      if (!email.trim()) return 'Please provide email.';
     }
-
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      return "Please provide a valid email address.";
-    }
-
+    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'Please provide a valid email address.';
     return null;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
+  async function handleSubmit(e: Event) {
+    try {
+      e.preventDefault();
+    } catch {
+      // ignore
+    }
     const err = validateBeforeSubmit();
     if (err) {
       toast.error(err);
       return;
     }
-
     const payload = {
       ticket_number: ticketValue.trim() || null,
       name: name.trim() || null,
       email: email.trim() || null,
       selections,
     };
-
-    const toastId = toast.loading("Saving selections…");
+    const toastId = toast.loading('Saving selections…');
     try {
       setSubmitting(true);
-      const res = await fetch("/api/breakouts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/breakouts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
-
-      if (!res.ok || !json?.ok) {
+      const body = await res.json();
+      if (!res.ok || !body?.ok) {
         if (res.status === 409) {
           toast.dismiss(toastId);
-          toast.error(json?.message ?? "Selections already saved for this ticket.");
-        } else {
-          throw new Error(json?.message ?? "Save failed");
+          toast.error(body?.message ?? 'Selections already saved for this ticket.');
+          return;
         }
-        return;
+        throw new Error(body?.message ?? 'Save failed');
       }
-
       toast.dismiss(toastId);
-      toast.success("Saved — your breakout selections are recorded.");
-
-      // Do NOT automatically close the page; keep the UI available.
-      // Reset the form
-      setTicketValue("");
+      toast.success('Saved — selections recorded.');
+      // reset
+      setTicketValue('');
       setTicketValid(null);
-      lastVerifiedRef.current = null;
-      setName("");
-      setEmail("");
-      setSelections({ 1: null, 2: null, 3: null });
-    } catch (error) {
+      lastVerified.current = null;
+      setName('');
+      setEmail('');
+      setSelections({ '1': null, '2': null, '3': null, '4': null });
+      setShowWorkshops(false);
+    } catch (err) {
       toast.dismiss(toastId);
-      const msg = error instanceof Error ? error.message : "Save failed. Try again.";
+      const msg = err instanceof Error ? err.message : 'Save failed';
       toast.error(msg);
+      // eslint-disable-next-line no-console
+      console.error('submit', err);
     } finally {
       setSubmitting(false);
     }
   }
 
-  function sessionCard(s: Session, round: number) {
-    const selected = selections[round] === s.id;
-    return (
-      <label
-        key={s.id}
-        className={`block p-4 rounded-lg border ${selected ? "border-amber-400 bg-amber-50" : "border-slate-200 bg-white"} cursor-pointer`}
-      >
-        <div className="flex items-start gap-3">
-          <input
-            type="radio"
-            name={`round-${round}`}
-            checked={selected}
-            onChange={() => chooseSession(round, s.id)}
-            className="mt-1"
-          />
-          <div className="flex-1">
-            <div className="font-semibold text-black">{s.title}</div>
-            <div className="mt-1 text-orange-500 text-sm">
-              Speakers: {s.speakers.join(", ")}
-              {s.moderator ? <span className="ml-2"> — Moderator: {s.moderator}</span> : null}
-            </div>
-            <div className="mt-2 text-sm text-slate-600">{roomLabel(s.room)} · {s.track}</div>
-            {s.startsAt && <div className="text-xs text-slate-500 mt-1">{s.startsAt}</div>}
-          </div>
-        </div>
-      </label>
+  /* ----------------------
+     Render helpers (no JSX)
+  -----------------------*/
+  function sessionCard(session: Session, roundKey: keyof Selections) {
+    const selected = selections[roundKey] === session.id;
+    const border = selected ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-white';
+    return h(
+      'label',
+      { key: session.id, className: `block p-4 rounded-lg border ${border} cursor-pointer` },
+      h(
+        'div',
+        { className: 'flex items-start gap-3' },
+        h('input', {
+          type: 'radio',
+          name: `round-${String(roundKey)}`,
+          checked: selected,
+          onChange: () => selectSession(roundKey, session.id),
+          className: 'mt-1',
+        }),
+        h(
+          'div',
+          { className: 'flex-1' },
+          h('div', { className: 'font-semibold text-black' }, session.title),
+          h(
+            'div',
+            { className: 'mt-1 text-orange-500 text-sm' },
+            `Speakers: ${Array.isArray(session.speakers) ? session.speakers.join(', ') : ''}`,
+            session.moderator ? h('span', { className: 'ml-2' }, ` — Moderator: ${session.moderator}`) : null
+          ),
+          h('div', { className: 'mt-2 text-sm text-slate-600' }, `${roomLabel(session.room)}${session.track ? ` · ${session.track}` : ''}`),
+          session.startsAt ? h('div', { className: 'text-xs text-slate-500 mt-1' }, session.startsAt) : null
+        )
+      )
     );
   }
 
-  return (
-    <>
-      <Toaster position="top-center" />
+  /* ----------------------
+     Page composition
+     - Note: header removed per request — only hero + form
+  -----------------------*/
 
-      {/* Hero */}
-            <div className="relative h-[320px] w-full sm:h-[380px] md:h-[420px]">
-              <Image src="/assets/images/elementtwo.png" alt="Ticket Banner" fill className="object-cover" priority />
-              <div className="absolute inset-0 z-10 bg-black/40" />
-              <div className="absolute inset-0 z-20 flex items-center justify-center">
-                <h1 className="text-center text-4xl font-bold hero-text text-white md:text-6xl">Breakout Registration</h1>
-              </div>
-            </div>
-
-      {open && (
-        <div className="max-w-5xl mx-auto px-4 py-8">
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            {/* Ticket */}
-            <div>
-              <label className="block text-sm text-black font-medium">Ticket number</label>
-
-              <div className="mt-1">
-                <input
-                  value={ticketValue}
-                  onChange={(e) => setTicketValue(e.target.value)}
-                  placeholder="e.g. PREM-ATIN83511"
-                  className={`w-full rounded-lg border px-3 py-2 ${ticketValid === false ? "border-red-500" : "border-slate-300"}`}
-                  aria-label="ticket-number"
-                />
-              </div>
-
-              {ticketChecking && <p className="text-xs text-slate-500 mt-1">Checking ticket…</p>}
-              {ticketValid === true && !ticketChecking && <p className="text-xs text-emerald-700 mt-1">Ticket valid.</p>}
-              {ticketValid === false && <p className="text-xs text-red-600 mt-1">Ticket not found. Provide name/email below.</p>}
-            </div>
-
-            {/* Name & Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm text-black font-medium">Name</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  name="name"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  placeholder="Full name"
-                />
-              </div>
-              <div>
-                <label className="block text-black text-sm font-medium">Email</label>
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  name="email"
-                  type="email"
-                  className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            {/* Rounds */}
-            {Array.from(sessionsByRound.keys())
-              .sort()
-              .map((round) => (
-                <div key={round}>
-                  <h3 className="font-semibold text-black mb-2">
-                    {round === 1 ? "Round 1 — 12:00 – 2:10 PM" : round === 2 ? "Round 2 — 2:45 – 3:45 PM" : "Round 3 — 4:00 – 5:00 PM"}
-                  </h3>
-                  <div className="grid gap-3">
-                    {(sessionsByRound.get(round) ?? []).map((s) => sessionCard(s, round))}
-                  </div>
-                </div>
-              ))}
-
-            <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" name="consent" required className="mt-1" />
-              <span>I agree to receive communications and confirm my selections.</span>
-            </label>
-
-            <div className="flex gap-3 justify-end">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-lg border px-4 py-2">
-                Hide
-              </button>
-              <button type="submit" disabled={submitting} className="rounded-lg bg-[#1B365D] px-5 py-2 text-white">
-                {submitting ? "Saving…" : "Save selections"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </>
+  const hero = h(
+    'div',
+    { className: 'relative h-[320px] w-full sm:h-[380px] md:h-[420px]' },
+    h(Image, { src: '/assets/images/elementtwo.png', alt: 'Ticket Banner', fill: true, className: 'object-cover', priority: true }),
+    h('div', { className: 'absolute inset-0 z-10 bg-black/40' }),
+    h('div', { className: 'absolute inset-0 z-20 flex items-center justify-center' }, h('h1', { className: 'text-center text-4xl font-bold text-white md:text-6xl' }, 'Breakout Registration'))
   );
+
+  const form = h(
+    'div',
+    { className: 'max-w-5xl mx-auto px-4 py-8' },
+    h(
+      'form',
+      {
+        onSubmit: (ev: React.FormEvent) => {
+          try {
+            ev.preventDefault();
+          } catch {
+            // ignore
+          }
+          void handleSubmit(ev as unknown as Event);
+        },
+        className: 'grid gap-6',
+      },
+      // ticket input
+      h(
+        'div',
+        null,
+        h('label', { className: 'block text-sm font-medium text-black' }, 'Ticket number'),
+        h(
+          'div',
+          { className: 'mt-1' },
+          h('input', {
+            value: ticketValue,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setTicketValue(e.target.value),
+            placeholder: 'e.g. PREM-ATIN83511',
+            className: `w-full rounded-lg border px-3 py-2 ${ticketValid === false ? 'border-red-500' : 'border-slate-300'}`,
+            'aria-label': 'ticket-number',
+          })
+        ),
+        ticketChecking ? h('p', { className: 'text-xs text-slate-500 mt-1' }, 'Checking ticket…') : null,
+        ticketValid === true && !ticketChecking ? h('p', { className: 'text-xs text-emerald-700 mt-1' }, 'Ticket valid.') : null,
+        ticketValid === false ? h('p', { className: 'text-xs text-red-600 mt-1' }, 'Ticket not found. Provide name/email below.') : null
+      ),
+
+      // name + email
+      h(
+        'div',
+        { className: 'grid grid-cols-1 sm:grid-cols-2 gap-4' },
+        h(
+          'div',
+          null,
+          h('label', { className: 'block text-sm font-medium text-black' }, 'Name'),
+          h('input', {
+            value: name,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value),
+            name: 'name',
+            placeholder: 'Full name',
+            className: 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2',
+          })
+        ),
+        h(
+          'div',
+          null,
+          h('label', { className: 'block text-sm font-medium text-black' }, 'Email'),
+          h('input', {
+            value: email,
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value),
+            name: 'email',
+            type: 'email',
+            placeholder: 'you@example.com',
+            className: 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2',
+          })
+        )
+      ),
+
+      // rounds 1..3
+      ...[1, 2, 3].map((round) =>
+        h(
+          'section',
+          { key: `r-${round}` },
+          h('h3', { className: 'font-semibold mb-2 text-black' }, round === 1 ? 'Round 1 — 12:00 – 2:10 PM' : round === 2 ? 'Round 2 — 2:45 – 3:45 PM' : 'Round 3 — 4:00 – 5:00 PM'),
+          h('div', { className: 'grid gap-3' }, ...(sessionsByRound.get(round) ?? []).map((s) => sessionCard(s, String(round) as keyof Selections)))
+        )
+      ),
+
+      // Day 2 workshops — conditional and separate header
+      showWorkshops && (sessionsByRound.get(4) ?? []).length > 0
+        ? h(
+            'section',
+            { key: 'day2', className: 'mt-8' },
+            h('h2', { className: 'text-2xl font-bold mb-1 text-black' }, 'Day 2 — Workshops & Masterclasses (2:00 – 4:00 PM)'),
+            h('p', { className: 'text-sm text-slate-600 mb-4' }, 'Visible only for WRK, EXEC, PREM ticket holders. Choose one workshop.'),
+            h('div', { className: 'grid gap-3' }, ...(sessionsByRound.get(4) ?? []).map((s) => sessionCard(s, '4')))
+          )
+        : null,
+
+      // consent
+      h('label', { className: 'flex items-start text-black gap-3 text-sm' }, h('input', { type: 'checkbox', name: 'consent', required: true, className: 'mt-1' }), h('span', null, 'I agree to receive communications and confirm my selections.')),
+
+      // actions
+      h('div', { className: 'flex gap-3 justify-end' }, h('button', { type: 'button', className: 'rounded-lg border px-4 py-2' }, 'Cancel'), h('button', {
+        type: 'submit',
+        disabled: submitting,
+        className: `rounded-lg px-5 py-2 text-white ${submitting ? 'bg-gray-400' : 'bg-[#1B365D]'}`,
+        onClick: (ev: React.MouseEvent) => {
+          try {
+            ev.preventDefault();
+          } catch {}
+          void handleSubmit(ev.nativeEvent as unknown as Event);
+        },
+      }, submitting ? 'Saving…' : 'Save selections'))
+    )
+  );
+
+  const page = h(React.Fragment, null, h(Toaster, { position: 'top-center' }), hero, form);
+  return page;
 }

@@ -1,3 +1,4 @@
+// src/app/ticket/[ticketNumber]/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -132,7 +133,6 @@ export default function TicketPage(): React.ReactElement {
     console.debug("toggleEvent:", eventKey, "currentlyChecked:", currentlyChecked, "desired:", desiredStatus);
 
     try {
-      // <-- KEY CHANGE: send `event` (API expects `event`) not `eventKey`
       const res = await fetch("/api/checkins/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,17 +151,15 @@ export default function TicketPage(): React.ReactElement {
       }
 
       if (!res.ok) {
-        // safely extract message if available
-        let maybeMsg = `Check-in failed: ${res.status}`;
-        if (
-          typeof jsonBody === "object" &&
-          jsonBody !== null &&
-          "message" in jsonBody &&
-          typeof (jsonBody as Record<string, unknown>).message === "string"
-        ) {
-          maybeMsg = (jsonBody as Record<string, unknown>).message as string;
-        }
-        throw new Error(maybeMsg);
+        // jsonBody is unknown — check for a message prop in a safe typed way
+        const bodyObj = (jsonBody && typeof jsonBody === "object" && jsonBody !== null)
+          ? (jsonBody as Record<string, unknown>)
+          : null;
+        const msg =
+          bodyObj && typeof bodyObj["message"] === "string"
+            ? bodyObj["message"]
+            : `Check-in failed: ${res.status}`;
+        throw new Error(String(msg));
       }
 
       // success -> refresh ticket to reflect check-in
