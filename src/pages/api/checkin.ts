@@ -1,11 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
-import { ATTENDEES } from "@/lib/attendee";
-import { getLocationText } from "@/utils/constants";
+import { setChecked } from "@/utils/checkinsFile";
 
-type Resp = { ok: true; message: string } | { ok: false; message: string };
-
-const norm = (s: string) => String(s || "").trim().toUpperCase();
+type Resp = { ok: true; message: string; storedIn: "preferred" | "tmp"; filePath: string } | { ok: false; message: string };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Resp>) {
   if (req.method !== "POST") {
@@ -14,44 +10,76 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   const { ticketNumber, checker } = (req.body ?? {}) as { ticketNumber?: unknown; checker?: unknown };
-  const tn = norm(typeof ticketNumber === "string" ? ticketNumber : String(ticketNumber ?? ""));
-  const by = typeof checker === "string" && checker.trim() ? checker.trim() : "web";
+  const tn = typeof ticketNumber === "string" ? ticketNumber.trim() : String(ticketNumber ?? "").trim();
+  const by = typeof checker === "string" && checker.trim() ? checker.trim() : "list";
+
   if (!tn) return res.status(400).json({ ok: false, message: "ticketNumber is required" });
 
   try {
-    const ref = adminDb.collection("tickets").doc(tn);
-    const doc = await ref.get();
-
-    if (!doc.exists) {
-      const a = ATTENDEES.find(x => norm(x.ticketNumber) === tn);
-      if (!a) return res.status(404).json({ ok: false, message: "Ticket not found" });
-      await ref.set({
-        ticketNumber: tn,
-        fullName: String(a.fullName || "Guest"),
-        email: String(a.email || ""),
-        ticketType: String(a.ticketType || "General Admission"),
-        location: getLocationText(String(a.ticketType || "")) || null,
-        createdFrom: "attendees_seed",
-        createdAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
-    }
-
-    const now = Date.now();
-    await ref.set({
-      "checkIn.day1": true,
-      updatedAt: FieldValue.serverTimestamp(),
-      lastCheckinEvent: "day1",
-      lastCheckinAtMs: now,
-      lastCheckinBy: by,
-      scanCount: FieldValue.increment(1),
-    }, { merge: true });
-
-    return res.status(200).json({ ok: true, message: "Checked in" });
-  } catch (e: unknown) {
+    const { storedIn, filePath } = await setChecked(tn, by);
+    return res.status(200).json({ ok: true, message: "Checked in", storedIn, filePath });
+  } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return res.status(500).json({ ok: false, message: msg });
   }
 }
+
+
+
+// import type { NextApiRequest, NextApiResponse } from "next";
+// import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
+// import { ATTENDEES } from "@/lib/attendee";
+// import { getLocationText } from "@/utils/constants";
+
+// type Resp = { ok: true; message: string } | { ok: false; message: string };
+
+// const norm = (s: string) => String(s || "").trim().toUpperCase();
+
+// export default async function handler(req: NextApiRequest, res: NextApiResponse<Resp>) {
+//   if (req.method !== "POST") {
+//     res.setHeader("Allow", ["POST"]);
+//     return res.status(405).json({ ok: false, message: "Method Not Allowed" });
+//   }
+
+//   const { ticketNumber, checker } = (req.body ?? {}) as { ticketNumber?: unknown; checker?: unknown };
+//   const tn = norm(typeof ticketNumber === "string" ? ticketNumber : String(ticketNumber ?? ""));
+//   const by = typeof checker === "string" && checker.trim() ? checker.trim() : "web";
+//   if (!tn) return res.status(400).json({ ok: false, message: "ticketNumber is required" });
+
+//   try {
+//     const ref = adminDb.collection("tickets").doc(tn);
+//     const doc = await ref.get();
+
+//     if (!doc.exists) {
+//       const a = ATTENDEES.find(x => norm(x.ticketNumber) === tn);
+//       if (!a) return res.status(404).json({ ok: false, message: "Ticket not found" });
+//       await ref.set({
+//         ticketNumber: tn,
+//         fullName: String(a.fullName || "Guest"),
+//         email: String(a.email || ""),
+//         ticketType: String(a.ticketType || "General Admission"),
+//         location: getLocationText(String(a.ticketType || "")) || null,
+//         createdFrom: "attendees_seed",
+//         createdAt: FieldValue.serverTimestamp(),
+//       }, { merge: true });
+//     }
+
+//     const now = Date.now();
+//     await ref.set({
+//       "checkIn.day1": true,
+//       updatedAt: FieldValue.serverTimestamp(),
+//       lastCheckinEvent: "day1",
+//       lastCheckinAtMs: now,
+//       lastCheckinBy: by,
+//       scanCount: FieldValue.increment(1),
+//     }, { merge: true });
+
+//     return res.status(200).json({ ok: true, message: "Checked in" });
+//   } catch (e: unknown) {
+//     const msg = e instanceof Error ? e.message : String(e);
+//     return res.status(500).json({ ok: false, message: msg });
+//   }
+// }
 
 
 /**
