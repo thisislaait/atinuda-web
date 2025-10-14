@@ -111,6 +111,16 @@ type TicketResp = {
   message?: string;
 };
 
+type TicketDoc = {
+  ticketNumber?: string;
+  fullName?: string;
+  name?: string;
+  email?: string;
+  ticketType?: string;
+  giftClaimed?: boolean;
+  checkIn?: Record<string, unknown>;
+};
+
 const norm = (s: string) => String(s || "").trim().toUpperCase();
 
 export default async function handler(
@@ -128,7 +138,7 @@ export default async function handler(
   }
 
   try {
-    // 1) Try Firestore tickets
+    // 1) Firestore lookup
     const snap = await adminDb
       .collection("tickets")
       .where("ticketNumber", "==", ticketNumber)
@@ -136,13 +146,15 @@ export default async function handler(
       .get();
 
     if (!snap.empty) {
-      const d = snap.docs[0].data() as any;
+      const d = snap.docs[0].data() as TicketDoc;
+
       const ticketType = String(d.ticketType || "General Admission");
       const location = getLocationText(ticketType) || null;
 
-      const checkInObj = d.checkIn && typeof d.checkIn === "object"
+      const rawCheck = d.checkIn && typeof d.checkIn === "object" ? d.checkIn : null;
+      const checkInObj: Record<string, boolean> | null = rawCheck
         ? Object.fromEntries(
-            Object.entries(d.checkIn).map(([k, v]) => [k, Boolean(v)])
+            Object.entries(rawCheck).map(([k, v]) => [k, Boolean(v)])
           )
         : null;
 
@@ -159,7 +171,7 @@ export default async function handler(
       return res.status(200).json({ ok: true, source: "tickets", ticket: payload });
     }
 
-    // 2) Fallback to static ATTENDEES
+    // 2) Fallback to generated attendees
     const local = ATTENDEES.find((x) => norm(x.ticketNumber) === ticketNumber);
     if (local) {
       const ticketType = local.ticketType || "General Admission";
@@ -181,7 +193,8 @@ export default async function handler(
     }
 
     return res.status(404).json({ ok: false, message: "Ticket not found" });
-  } catch (err: any) {
-    return res.status(500).json({ ok: false, message: String(err?.message || err) });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ ok: false, message });
   }
 }

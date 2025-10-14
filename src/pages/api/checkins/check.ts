@@ -183,16 +183,24 @@
 // }
 
 
+// pages/api/checkins/check.ts
 import type { NextApiRequest, NextApiResponse } from "next";
-import { adminDb, FieldValue } from "@/utils/firebaseAdmin"; // your admin helper
+import { adminDb, FieldValue } from "@/utils/firebaseAdmin";
 
-const ALLOWED_EVENTS = new Set([
-  "azizi","day1","day2","dinner","breakout","masterclass","gift",
-] as const);
-type AllowedEvent = typeof ALLOWED_EVENTS extends Set<infer U> ? U : never;
+const ALLOWED_EVENTS = [
+  "azizi",
+  "day1",
+  "day2",
+  "dinner",
+  "breakout",
+  "masterclass",
+  "gift",
+] as const;
+
+type AllowedEvent = (typeof ALLOWED_EVENTS)[number];
 
 type ErrorResp   = { ok: false; message: string };
-type SuccessResp = { ok: true; ticketNumber: string; event: string; status: boolean; at: number };
+type SuccessResp = { ok: true; ticketNumber: string; event: AllowedEvent; status: boolean; at: number };
 
 const isStr = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
 
@@ -206,23 +214,27 @@ export default async function handler(
   }
 
   try {
-    const { ticketNumber, event, status } = req.body ?? {};
+    const body = req.body as { ticketNumber?: unknown; event?: unknown; status?: unknown } | undefined;
 
-    if (!isStr(ticketNumber)) {
+    const ticketNumber = isStr(body?.ticketNumber) ? body!.ticketNumber : null;
+    const event = isStr(body?.event) ? (body!.event as AllowedEvent) : null;
+    const status = typeof body?.status === "boolean" ? (body!.status as boolean) : null;
+
+    if (!ticketNumber) {
       return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
     }
-    if (!isStr(event) || !ALLOWED_EVENTS.has(event as any)) {
+    if (!event || !ALLOWED_EVENTS.includes(event)) {
       return res.status(400).json({ ok: false, message: "Invalid event key" });
     }
-    if (typeof status !== "boolean") {
+    if (status === null) {
       return res.status(400).json({ ok: false, message: "Missing status (boolean)" });
     }
 
     const tn = ticketNumber.toString().trim().toUpperCase();
     const at = Date.now();
 
-    // Find ticket by ticketNumber (create an index on tickets.ticketNumber if prompted)
-    const snap = await adminDb.collection("tickets")
+    const snap = await adminDb
+      .collection("tickets")
       .where("ticketNumber", "==", tn)
       .limit(1)
       .get();
@@ -233,16 +245,14 @@ export default async function handler(
 
     const ref = snap.docs[0].ref;
 
-    // Build atomic update
     const updates: Record<string, unknown> = {
       updatedAt: FieldValue.serverTimestamp(),
-      // store last event toggle metadata if you like
       lastCheckinEvent: event,
       lastCheckinAtMs: at,
+      scanCount: FieldValue.increment(1),
     };
 
     if (event === "gift") {
-      // legacy compatibility
       updates["giftClaimed"] = status;
     } else {
       updates[`checkIn.${event}`] = status;
@@ -251,7 +261,8 @@ export default async function handler(
     await ref.set(updates, { merge: true });
 
     return res.status(200).json({ ok: true, ticketNumber: tn, event, status, at });
-  } catch (err: any) {
-    return res.status(500).json({ ok: false, message: String(err?.message || err) });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    return res.status(500).json({ ok: false, message });
   }
 }
