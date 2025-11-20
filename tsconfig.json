@@ -20,7 +20,7 @@
       "node",
       "react"
     ],
-    "incremental": true,
+    "incremental": false,
     "plugins": [
       {
         "name": "next"

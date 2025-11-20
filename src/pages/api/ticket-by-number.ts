@@ -1,97 +1,10 @@
-// // src/pages/api/ticket-by-number.ts
-// import type { NextApiRequest, NextApiResponse } from "next";
-// import path from "path";
-// import os from "os";
-// import fs from "fs/promises";
-// import { ATTENDEES } from "@/lib/attendee";
-// import { getLocationText } from "@/utils/constants";
-
-// const DATA_DIR = process.env.CHECKINS_DIR && process.env.CHECKINS_DIR.trim().length > 0
-//   ? process.env.CHECKINS_DIR
-//   : path.join(os.tmpdir(), "atinuda_data");
-// const CHECKINS_FILE = path.join(DATA_DIR, "checkins.json");
-
-// type TicketPayload = {
-//   fullName: string;
-//   email: string;
-//   ticketType: string;
-//   ticketNumber: string;
-//   location?: string | null;
-//   checkIn?: Record<string, boolean> | null;
-// };
-
-// type TicketResp = {
-//   ok: boolean;
-//   source?: "tickets" | "payments" | "attendees";
-//   ticket?: TicketPayload;
-//   message?: string;
-// };
-
-// function normTicketNumber(s: string): string {
-//   return String(s || "").trim().toUpperCase();
-// }
-
-// async function readCheckins(): Promise<Record<string, Record<string, { checked?: boolean; at?: number }>>> {
-//   try {
-//     const raw = await fs.readFile(CHECKINS_FILE, "utf8");
-//     if (!raw) return {};
-//     return JSON.parse(raw);
-//   } catch {
-//     return {};
-//   }
-// }
-
-// export default async function handler(req: NextApiRequest, res: NextApiResponse<TicketResp>) {
-//   if (req.method !== "GET") {
-//     res.setHeader("Allow", ["GET"]);
-//     return res.status(405).json({ ok: false, message: "Method Not Allowed" });
-//   }
-
-//   const ticketNumber = normTicketNumber(String(req.query.ticketNumber || ""));
-//   if (!ticketNumber) {
-//     return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
-//   }
-
-//   try {
-//     // find in local attendees fallback
-//     const local = ATTENDEES.find((x) => normTicketNumber(x.ticketNumber) === ticketNumber);
-//     if (local) {
-//       const ticketType = local.ticketType || "General Admission";
-//       const location = getLocationText(ticketType) || null;
-
-//       // read checkins and merge flags
-//       const checkins = await readCheckins();
-//       const rawEntry = checkins[ticketNumber] ?? null;
-//       const checkIn: Record<string, boolean> | null = rawEntry
-//         ? Object.fromEntries(Object.entries(rawEntry).map(([k, v]) => [k, Boolean(v?.checked ?? false)]))
-//         : null;
-
-//       return res.status(200).json({
-//         ok: true,
-//         source: "attendees",
-//         ticket: {
-//           fullName: String(local.fullName || "Guest"),
-//           email: String(local.email || ""),
-//           ticketType,
-//           ticketNumber: String(local.ticketNumber || ticketNumber),
-//           location,
-//           checkIn,
-//         },
-//       });
-//     }
-
-//     return res.status(404).json({ ok: false, message: "Ticket not found" });
-//   } catch (err) {
-//     console.error("ticket-by-number error", err);
-//     const message = err instanceof Error ? err.message : "Server error";
-//     return res.status(500).json({ ok: false, message });
-//   }
-// }
+// src/pages/api/ticket-by-number.ts
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import { adminDb } from "@/utils/firebaseAdmin";
 import { ATTENDEES } from "@/lib/attendee";
 import { getLocationText } from "@/utils/constants";
+import { getTicketHostSlug } from "@/data/events";
 
 type TicketPayload = {
   fullName: string;
@@ -109,7 +22,43 @@ type TicketDoc = {
   ticketType?: string; giftClaimed?: boolean; checkIn?: Record<string, unknown>;
 };
 
+type EventAttendeeDoc = {
+  ticketNumber?: string;
+  ticketType?: string;
+  email?: string;
+  issuedToName?: string;
+  checkIns?: Record<string, unknown>;
+  giftClaimed?: boolean;
+};
+
 const norm = (s: string) => String(s || "").trim().toUpperCase();
+
+async function fetchFromEventAttendees(eventSlug: string, ticketNumber: string): Promise<TicketPayload | null> {
+  if (!eventSlug) return null;
+
+  const attendeeCol = adminDb.collection("events").doc(eventSlug).collection("attendees");
+  const q = await attendeeCol.where("ticketNumber", "==", ticketNumber).limit(1).get();
+  if (q.empty) return null;
+
+  const doc = q.docs[0];
+  const data = doc.data() as EventAttendeeDoc;
+  const ticketType = String(data.ticketType || "General Admission");
+  const location = getLocationText(ticketType) || null;
+  const rawChecks = data.checkIns && typeof data.checkIns === "object" ? data.checkIns : null;
+  const checkIn = rawChecks
+    ? Object.fromEntries(Object.entries(rawChecks).map(([key, value]) => [key, Boolean(value)]))
+    : null;
+
+  return {
+    fullName: String(data.issuedToName || data.email || "Guest"),
+    email: String(data.email || ""),
+    ticketType,
+    ticketNumber: String(data.ticketNumber || ticketNumber),
+    location,
+    checkIn,
+    giftClaimed: Boolean(data.giftClaimed ?? false),
+  };
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<TicketResp>) {
   if (req.method !== "GET") {
@@ -118,9 +67,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   const ticketNumber = norm(String(req.query.ticketNumber || ""));
+  const eventSlugRaw = typeof req.query.slug === "string" ? req.query.slug : "";
+  const normalizedSlug = eventSlugRaw.trim();
+  const hostSlug = normalizedSlug ? getTicketHostSlug(normalizedSlug) : "";
   if (!ticketNumber) return res.status(400).json({ ok: false, message: "Missing ticketNumber" });
 
   try {
+    if (hostSlug) {
+      const eventTicket = await fetchFromEventAttendees(hostSlug, ticketNumber);
+      if (eventTicket) {
+        return res.status(200).json({ ok: true, source: "tickets", ticket: eventTicket });
+      }
+    }
+
     // A) doc by ID
     let snap = await adminDb.collection("tickets").doc(ticketNumber).get();
     // B) fallback query (older auto-ID docs)
@@ -180,4 +139,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     return res.status(500).json({ ok: false, message });
   }
 }
-
