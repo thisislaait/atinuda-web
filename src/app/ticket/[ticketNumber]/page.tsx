@@ -59,6 +59,7 @@ export default function TicketPage(): React.ReactElement {
 
   const search = useSearchParams();
   const fallbackName = (search?.get("name") ?? "").trim();
+  const slug = (search?.get("slug") ?? "").trim();
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -76,8 +77,11 @@ export default function TicketPage(): React.ReactElement {
         setError("Invalid ticket link (no ticket number).");
         return;
       }
-      const q = `/api/ticket-by-number?ticketNumber=${encodeURIComponent(ticketNumber)}`;
-      const res = await fetch(q, { cache: "no-store" });
+      const slug = (search?.get("slug") ?? "").trim();
+      const qs = new URLSearchParams({ ticketNumber });
+      if (slug) qs.set("slug", slug);
+
+      const res = await fetch(`/api/ticket-by-number?${qs.toString()}`, { cache: "no-store" });
       if (!res.ok) {
         // try parse JSON message, otherwise fallback to status
         let bodyText = "";
@@ -106,7 +110,7 @@ export default function TicketPage(): React.ReactElement {
   useEffect(() => {
     void fetchTicket();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketNumber]);
+  }, [ticketNumber, slug]);
 
   /**
    * Toggle an event key (check / uncheck).
@@ -136,7 +140,7 @@ export default function TicketPage(): React.ReactElement {
       const res = await fetch("/api/checkins/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ticketNumber, event: eventKey, status: desiredStatus }),
+        body: JSON.stringify({ ticketNumber, event: eventKey, status: desiredStatus, slug }),
       });
 
       // Handle non-JSON responses gracefully

@@ -32,6 +32,24 @@ const CHECK_EVENTS = [
   { key: 'gift', label: 'Gift claimed' },
 ] as const;
 
+const CHECK_SEQUENCE: Array<(typeof CHECK_EVENTS)[number]['key']> = [
+  'day1',
+  'day2',
+  'dinner',
+  'azizi',
+  'breakout',
+  'masterclass',
+  'gift',
+];
+
+const LABEL_BY_KEY: Record<string, string> = CHECK_EVENTS.reduce(
+  (acc, item) => {
+    acc[item.key] = item.label;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 const normTicket = (value?: string) => {
   if (!value) return '';
   try {
@@ -117,7 +135,7 @@ export default function TicketPage(): React.ReactElement {
       const res = await fetch('/api/checkins/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticketNumber, event: eventKey, status: next }),
+        body: JSON.stringify({ ticketNumber, event: eventKey, status: next, slug }),
       });
 
       const body = await res.json();
@@ -135,8 +153,6 @@ export default function TicketPage(): React.ReactElement {
       setActionInProgress(null);
     }
   };
-
-  const checkDayNow = (dayKey: string) => toggleEvent(dayKey);
 
   if (loading) {
     return (
@@ -176,6 +192,24 @@ export default function TicketPage(): React.ReactElement {
   const checkedDay2 = Boolean(ticket.checkIn?.day2);
   const ticketUrl = makeTicketUrl(ticket.ticketNumber);
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketUrl)}`;
+  const nextKey = CHECK_SEQUENCE.find((key) => {
+    if (key === 'gift') return !(ticket.giftClaimed ?? false);
+    return !(ticket.checkIn?.[key]);
+  });
+  const nextLabelRaw = nextKey ? LABEL_BY_KEY[nextKey] : null;
+  const nextLabel = nextLabelRaw ? nextLabelRaw.split(' (')[0] : null;
+  const completedKeys = CHECK_SEQUENCE.filter((key) => {
+    if (key === 'gift') return Boolean(ticket.giftClaimed);
+    return Boolean(ticket.checkIn?.[key]);
+  });
+  const lastCompletedKey = completedKeys[completedKeys.length - 1];
+  const lastCompletedLabel = lastCompletedKey ? LABEL_BY_KEY[lastCompletedKey]?.split(' (')[0] : null;
+  const statusHeadline = lastCompletedLabel ? 'Checked in' : 'Not checked in';
+  const statusSubline = lastCompletedLabel
+    ? `${lastCompletedLabel} checked`
+    : nextLabel
+    ? `Next: ${nextLabel}`
+    : 'All scheduled events checked';
 
   return (
     <div className="max-w-xl mx-auto p-6 space-y-4">
@@ -185,7 +219,7 @@ export default function TicketPage(): React.ReactElement {
         <div className="flex items-start gap-4">
           <div className="w-36 flex-shrink-0">
             <img src={qrSrc} alt="QR code" className="w-36 h-36 object-contain rounded-md border" />
-            <div className="mt-2 text-xs text-slate-500 text-center">Scan at entrance</div>
+            <div className="mt-2 text-xs text-slate-500 text-center">Attendee Information</div>
           </div>
 
           <div className="flex-1">
@@ -258,20 +292,27 @@ export default function TicketPage(): React.ReactElement {
         </div>
       </div>
 
-      <div className="rounded-lg border p-4 bg-white text-black flex items-center justify-between">
-        <div className="text-sm">{checkedDay1 || checkedDay2 ? '✅ Already checked in' : 'Not checked in'}</div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            disabled={actionInProgress !== null || checkedDay1 || checkedDay2}
-            onClick={() => checkDayNow('day1')}
-            className={`px-4 py-2 rounded-md ${
-              checkedDay1 || checkedDay2 ? 'bg-emerald-600 text-white' : 'bg-[#1B365D] text-white hover:opacity-90'
-            }`}
-          >
-            {actionInProgress === 'day1' ? 'Checking…' : checkedDay1 || checkedDay2 ? 'Checked' : 'Check Day 1'}
-          </button>
+      <div className="rounded-lg border p-4 bg-white text-black flex items-center justify-between gap-4">
+        <div>
+          <div className="text-sm font-semibold">{statusHeadline}</div>
+          <div className="text-xs text-slate-500">{statusSubline}</div>
         </div>
+        <button
+          type="button"
+          disabled={!nextKey || Boolean(actionInProgress)}
+          onClick={() => nextKey && toggleEvent(nextKey)}
+          className={`px-4 py-2 rounded-md ${
+            !nextKey
+              ? 'bg-emerald-600 text-white'
+              : 'bg-[#1B365D] text-white hover:opacity-90'
+          } ${!nextKey || actionInProgress ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {nextKey
+            ? actionInProgress === nextKey
+              ? 'Checking…'
+              : `Check ${nextLabel ?? 'event'}`
+            : 'All checked'}
+        </button>
       </div>
 
       {message ? <div className="text-sm text-slate-600">{message}</div> : null}
