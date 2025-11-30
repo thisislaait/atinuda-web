@@ -233,20 +233,19 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       return;
     }
 
-    // Verify payment with Flutterwave first
+    // Verify payment with Flutterwave
     const flw = await verifyFlutterwave(transactionId!);
     const sameRef = flw.tx_ref === txRef;
     const sameCurrency = flw.currency?.toUpperCase() === currency;
     
-    // Use the actual Flutterwave amount as the source of truth (Flutterwave has already verified it)
-    // Only check that txRef and currency match
+    // Trust Flutterwave's verified amount as source of truth
+    // This allows flexible testing with different prices
     if (!sameRef || !sameCurrency) {
       res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: false, message: 'txRef/currency mismatch with Flutterwave' }));
+      res.end(JSON.stringify({ ok: false, message: 'txRef/currency mismatch' }));
       return;
     }
 
-    // Trust Flutterwave's verified amount
     const finalAmount = Number(flw.amount);
     const unitAmount = quantity > 0 ? Math.round(finalAmount / quantity) : finalAmount;
 
