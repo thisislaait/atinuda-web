@@ -37,7 +37,11 @@ function getServiceAccount(): Record<string, unknown> {
   const b64 = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
   if (b64) return JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
   const path = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (path) return require(path);
+  if (path) {
+    // allow require here for loading a JSON service account file in Node
+    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+    return require(path) as Record<string, unknown>;
+  }
   throw new Error('Set FIREBASE_SERVICE_ACCOUNT_B64 or GOOGLE_APPLICATION_CREDENTIALS');
 }
 
@@ -63,6 +67,18 @@ function parseJson(req: IncomingMessage): Promise<VerifyBody> {
   });
 }
 
+interface FlutterwaveVerifyResponse {
+  status: string;
+  data?: {
+    id: number;
+    status: string;
+    amount: number;
+    currency: string;
+    tx_ref: string;
+    customer?: { email?: string; name?: string };
+  };
+}
+
 async function verifyFlutterwave(txId: string | number) {
   const url = `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(String(txId))}/verify`;
   const resp = await fetch(url, {
@@ -72,7 +88,7 @@ async function verifyFlutterwave(txId: string | number) {
     const txt = await resp.text();
     throw new Error(`Flutterwave verify failed: ${resp.status} ${txt}`);
   }
-  const json = (await resp.json()) as any;
+  const json = (await resp.json()) as FlutterwaveVerifyResponse;
   if (json?.status !== 'success' || json?.data?.status !== 'successful') {
     throw new Error('Transaction not successful on Flutterwave');
   }
@@ -289,10 +305,11 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, ticket: primary, guests: guestTickets }));
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server error';
     console.error('verify handler error', err);
     res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: false, message: err?.message || 'Server error' }));
+    res.end(JSON.stringify({ ok: false, message }));
   }
 }
 
