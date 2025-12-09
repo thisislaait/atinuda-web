@@ -51,7 +51,14 @@ if (!getApps().length) {
 const adminAuth = getAuth();
 const db = getFirestore();
 
-function parseJson(req: IncomingMessage): Promise<VerifyBody> {
+async function parseJson(req: IncomingMessage): Promise<VerifyBody> {
+  // If a framework already parsed the body (e.g., Next.js API routes), reuse it.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyReq = req as any;
+  if (anyReq.body && typeof anyReq.body === 'object') {
+    return anyReq.body as VerifyBody;
+  }
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     req.on('data', (c) => chunks.push(Buffer.from(c)));
@@ -313,7 +320,16 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
-const port = process.env.PORT || 8080;
-http.createServer(handler).listen(port, () => {
-  console.log(`pay-verify listening on ${port}`);
-});
+// --- Exports for serverless/Next.js API routes ---
+// Vercel/Next will call the default export with (req, res)
+export default async function nextHandler(req: IncomingMessage, res: ServerResponse) {
+  return handler(req, res);
+}
+
+// --- Fallback to run as a tiny standalone HTTP server (e.g., Cloud Run local) ---
+if (require.main === module) {
+  const port = process.env.PORT || 8080;
+  http.createServer(handler).listen(port, () => {
+    console.log(`pay-verify listening on ${port}`);
+  });
+}
