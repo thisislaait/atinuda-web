@@ -111,7 +111,7 @@ const statics = {
     { time: '14:00', title: 'Workshop: Community Growth', room: 'Round Table' },
   ],
   faqs: [
-    { q: 'Where do I buy tickets?', a: 'All ticketing and RSVPs are handled in the Atinuda app.' },
+    { q: 'Where do I buy tickets?', a: 'All ticketing and RSVPs are handled in the Atinuda app. However, payment can also be made on the web' },
     { q: 'Will I get a QR pass?', a: 'Yes. After checkout your QR is stored in the app under Tickets.' },
     { q: 'Can I view the agenda?', a: 'Live itineraries and speaker details live in the app. A snapshot is shown below.' },
     { q: 'Is there a community group?', a: 'Join our WhatsApp community via the Explore section or the CTA below.' },
@@ -181,8 +181,8 @@ export default function HomePage(): React.JSX.Element {
               itineraries, meet speakers, and unlock guides—all from the app.
             </p>
             <div className="flex flex-wrap gap-3">
-              <CTAButton label="Download on iOS (placeholder)" primary />
-              <CTAButton label="Download on Android (placeholder)" />
+              <CTAButton label="Download on iOS (coming soon)" primary />
+              <CTAButton label="Download on Android (coming soon)" />
               <Link
                 href="#resource-hub"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-[#ff7f41] hover:text-[#0B1220] transition"
@@ -265,7 +265,7 @@ export default function HomePage(): React.JSX.Element {
         ))}
       </section>
 
-      <section className="bg-white text-[#0B1220] py-16">
+      {/* <section className="bg-white text-[#0B1220] py-16">
         <div className="max-w-6xl mx-auto px-6 space-y-8">
           <h2 className="text-3xl font-semibold hero-text">Collaborators & Partners</h2>
           <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -280,7 +280,7 @@ export default function HomePage(): React.JSX.Element {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section id="resource-hub" className="bg-white text-[#0B1220] py-16">
         <div className="max-w-6xl mx-auto px-6 flex flex-col gap-6">
@@ -355,23 +355,23 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 py-16 bg-white text-[#0B1220] rounded-3xl shadow-sm">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="max-w-xl space-y-3">
-            <p className="uppercase tracking-[0.2em] text-xs text-white/60">Highlights</p>
+            <p className="uppercase tracking-[0.2em] text-xs text-[#6b7280]">Highlights</p>
             <h2 className="text-3xl font-semibold hero-text">Speakers, schedules, and curated content</h2>
-            <p className="text-white/70">
+            <p className="text-[#4b5563]">
               Get a feel for the experience: curated speaker lineup, day-by-day itineraries, and
               downloadable guides—all housed in the app with notifications and reminders.
             </p>
             <div className="flex flex-wrap gap-3 pt-2">
-              <div className="px-3 py-2 rounded-full bg-white/10 text-sm flex items-center gap-2">
+              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
                 <Sparkles size={14} /> Speaker lineup preview
               </div>
-              <div className="px-3 py-2 rounded-full bg-white/10 text-sm flex items-center gap-2">
+              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
                 <CalendarClock size={14} /> Daily agenda
               </div>
-              <div className="px-3 py-2 rounded-full bg-white/10 text-sm flex items-center gap-2">
+              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
                 <ImageIcon size={14} /> Lookbooks
               </div>
             </div>
@@ -381,13 +381,15 @@ export default function HomePage(): React.JSX.Element {
               (item) => (
                 <div
                   key={item}
-                  className="rounded-2xl bg-white/5 border border-white/10 p-4 min-h-[120px] flex flex-col justify-between"
+                  className="rounded-2xl bg-[#0B1220]/5 border border-[#0B1220]/10 p-4 min-h-[120px] flex flex-col justify-between"
                 >
-                  <div className="flex items-center gap-2 text-sm text-white/70">
+                  <div className="flex items-center gap-2 text-sm text-[#4b5563]">
                     <span className="w-2 h-2 rounded-full bg-[#ff7f41]" />
                     {item}
                   </div>
-                  <p className="text-white font-semibold">{item.includes('Day') ? 'Agenda preview' : 'Curated content'}</p>
+                  <p className="text-[#0B1220] font-semibold">
+                    {item.includes('Day') ? 'Agenda preview' : 'Curated content'}
+                  </p>
                 </div>
               ),
             )}

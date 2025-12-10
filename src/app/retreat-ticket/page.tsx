@@ -84,7 +84,19 @@ export default function RetreatTicketsPage() {
     };
   }, []);
 
-  const filtered = useMemo(() => tickets.filter((t) => t.currency === currency), [tickets, currency]);
+  const filtered = useMemo(
+    () =>
+      tickets
+        .filter((t) => t.currency === currency)
+        .filter((t) => {
+          if (currency === 'NGN') {
+            return t.key !== 'test-ticket';
+          }
+          // USD: only main-usd and group-usd
+          return t.key === 'main-usd' || t.key === 'group-usd';
+        }),
+    [tickets, currency],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0b1220] via-[#0f1528] to-[#0b1220] text-white">

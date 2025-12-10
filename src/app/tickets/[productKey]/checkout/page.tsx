@@ -103,6 +103,40 @@ export default function TicketCheckoutPage() {
     const customerName = user.displayName || customerEmail.split("@")[0];
     const customerId = (user.uid || customerEmail || "guest").replace(/[^A-Za-z0-9_-]/g, "");
 
+    const writeLocalAttendee = async () => {
+      const slug = EVENT_SLUG;
+      const genTicket = () => {
+        if (slug === "martitus-retreat-2026") {
+          const rand = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+          return `ATNMAU-${rand}`;
+        }
+        const prefix = productKey ? productKey.slice(0, 4).toUpperCase() : "GEN";
+        const rand = `${Date.now().toString(36).slice(-4)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+        return `ATN-${prefix}-${rand}`;
+      };
+      const ticketNumber = genTicket();
+      await setDoc(
+        doc(db, "events", slug, "attendees", user.uid),
+        {
+          userId: user.uid,
+          email: customerEmail,
+          issuedToName: customerName,
+          ticketNumber,
+          ticketType: product.title ?? productKey,
+          productKey,
+          currency: product.currency,
+          amount,
+          quantity: Math.max(1, quantity),
+          unitAmount: product.price,
+          lastTxRef: txRef,
+          status: "active",
+          purchasedAt: new Date().toISOString(),
+          eventSlug: slug,
+        },
+        { merge: true }
+      );
+    };
+
     window.FlutterwaveCheckout({
       public_key: process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY,
       tx_ref: txRef,
@@ -117,7 +151,8 @@ export default function TicketCheckoutPage() {
         }
         setVerifying(true);
         try {
-          const res = await fetch(PAY_API, {
+          // Best-effort server verify (non-blocking UI)
+          fetch(PAY_API, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -131,34 +166,16 @@ export default function TicketCheckoutPage() {
               quantity: Math.max(1, quantity),
               currency: product.currency,
             }),
-          });
-          const json = await res.json().catch(() => null);
-          if (!res.ok || !json?.ok) throw new Error(json?.message || "Verification failed");
+          }).catch(() => null);
+
+          await writeLocalAttendee();
           setVerified(true);
-          router.push("/tickets/mine?success=1");
+          router.push("/tickets/thank-you");
         } catch (err) {
-          // Fallback: mark attendee locally so user is not blocked
           try {
-            await setDoc(
-              doc(db, "events", EVENT_SLUG, "attendees", user.uid),
-              {
-                userId: user.uid,
-                email: customerEmail,
-                issuedToName: customerName,
-                productKey,
-                ticketType: product.title ?? productKey,
-                currency: product.currency,
-                amount,
-                quantity: Math.max(1, quantity),
-                lastTxRef: txRef,
-                status: "pending-verify",
-                eventSlug: EVENT_SLUG,
-                createdAt: new Date().toISOString(),
-              },
-              { merge: true }
-            );
+            await writeLocalAttendee();
             setVerified(true);
-            router.push("/tickets/mine?success=1");
+            router.push("/tickets/thank-you");
           } catch (writeErr) {
             setError(
               err instanceof Error
@@ -174,7 +191,7 @@ export default function TicketCheckoutPage() {
       },
       onclose: () => {
         if (verified) {
-          router.push("/tickets/mine?success=1");
+          router.push("/tickets/thank-you");
         } else {
           setVerifying(false);
         }
