@@ -90,7 +90,7 @@ export default function RetreatTicketsPage() {
         .filter((t) => t.currency === currency)
         .filter((t) => {
           if (currency === 'NGN') {
-            return t.key !== 'test-ticket';
+            return !t.key.toLowerCase().startsWith('test');
           }
           // USD: only main-usd and group-usd
           return t.key === 'main-usd' || t.key === 'group-usd';
