@@ -29,7 +29,7 @@ const formatPrice = (price: number, currency: Currency) => {
 
 const imageForProduct = (key: string) => {
   const lower = key.toLowerCase();
-  if (lower.includes('group')) return '/assets/images/202404-Wallpole-Luxury-Summit-London-0495.jpg';
+  if (lower.includes('group')) return '/assets/images/Conference.png';
   return '/assets/images/Mauritius2.png';
 };
 
@@ -115,6 +115,10 @@ export default function RetreatTicketsPage() {
             Choose your pass for ATINUDA Retreat 2026. Toggle currencies, pick your tier, and join a curated week of leadership,
             creativity, and community in Mauritius.
           </p>
+          <p className="text-sm text-white/70 max-w-3xl mx-auto">
+            Passes include programming, hospitality, wellness and culture experiences during the retreat. Flights and accommodation
+            are not included.
+          </p>
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/10 p-1 shadow-lg shadow-black/30">
             {(['NGN', 'USD'] as Currency[]).map((c) => (
               <button
@@ -193,8 +197,8 @@ export default function RetreatTicketsPage() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {(isGroup
-                        ? ['Shared experiences', 'Reserved seating', 'Group concierge']
-                        : ['All sessions', 'Wellness & culture', 'Daily hospitality']
+                        ? ['Shared experiences', 'Reserved seating', 'Group concierge', 'Flights & lodging not included']
+                        : ['All sessions', 'Wellness & culture', 'Daily hospitality', 'Flights & lodging not included']
                       ).map((item) => (
                         <span
                           key={item}
