@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/firebase/config';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Login() {
+function LoginInner() {
   const router = useRouter();
+  const search = useSearchParams();
+  const nextParam = search?.get('next') ?? '';
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -35,7 +37,8 @@ export default function Login() {
     setError('');
     try {
       await signInWithEmailAndPassword(auth, form.email, form.password);
-      router.push('/ticket-payment');
+      const next = search?.get('next');
+      router.push(next ? decodeURIComponent(next) : '/tickets/mine');
     } catch (err: any) {
       setError(err?.message || 'Login failed');
     }
@@ -150,12 +153,23 @@ export default function Login() {
 
           <p className="mt-6 text-sm text-center">
             Don’t have an account?{' '}
-            <a href="/signup" className="text-blue-600 underline">
+            <a
+              href={nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : '/signup'}
+              className="text-blue-600 underline"
+            >
               Create one
             </a>
           </p>
         </div>
       </section>
     </>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<div className="p-6 text-white/70">Loading…</div>}>
+      <LoginInner />
+    </Suspense>
   );
 }

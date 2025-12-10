@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { auth, db } from '@/firebase/config';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 
 type Role = 'attendee' | 'speaker' | 'organizer';
 
-export default function SignUp() {
+function SignUpInner() {
   const router = useRouter();
+  const search = useSearchParams();
+  const nextParam = search?.get('next') ?? '';
 
   const [form, setForm] = useState({
     firstName: '',
@@ -139,7 +141,8 @@ export default function SignUp() {
       }
 
       // Continue to checkout or your next step
-      router.push('/ticket-payment');
+      const next = search?.get('next');
+      router.push(next ? decodeURIComponent(next) : '/tickets/mine');
     } catch (err: any) {
       setError(err?.message || 'Sign up failed');
     } finally {
@@ -268,13 +271,24 @@ export default function SignUp() {
           </button>
         </form>
 
-        <p className="mt-4 text-sm text-center">
-          Already have an account?{' '}
-          <a href="/login" className="text-blue-600 underline">
-            Login
-          </a>
-        </p>
+      <p className="mt-4 text-sm text-center">
+        Already have an account?{' '}
+        <a
+          href={nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : '/login'}
+          className="text-blue-600 underline"
+        >
+          Login
+        </a>
+      </p>
       </div>
     </section>
+  );
+}
+
+export default function SignUp() {
+  return (
+    <Suspense fallback={<div className="p-6 text-white">Loading…</div>}>
+      <SignUpInner />
+    </Suspense>
   );
 }

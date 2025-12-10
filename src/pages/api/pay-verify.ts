@@ -9,6 +9,7 @@ import http, { IncomingMessage, ServerResponse } from 'http';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
+import nodemailer from 'nodemailer';
 
 type Currency = 'NGN' | 'USD';
 
@@ -192,6 +193,62 @@ async function issueTicket(opts: {
   return payload;
 }
 
+async function sendReceiptEmail(opts: {
+  to: string;
+  name: string;
+  amount: number;
+  currency: Currency;
+  quantity: number;
+  productTitle: string;
+}) {
+  const { to, name, amount, currency, quantity, productTitle } = opts;
+  const sender = process.env.SENDER_EMAIL || process.env.HOSTINGER_EMAIL;
+  if (!sender) {
+    console.warn('Skipping email: no SENDER_EMAIL/HOSTINGER_EMAIL configured');
+    return;
+  }
+  const user = process.env.EMAIL_USER || process.env.HOSTINGER_EMAIL || sender;
+  const pass = process.env.EMAIL_PASS || process.env.HOSTINGER_EMAIL_PASS;
+  const host = process.env.EMAIL_HOST || 'smtp.hostinger.com';
+  const port = Number(process.env.EMAIL_PORT || 465);
+  const secure = (process.env.EMAIL_SECURE || (port === 465 ? 'true' : 'false')) === 'true';
+
+  if (!user || !pass) {
+    console.warn('Skipping email: missing EMAIL_USER/EMAIL_PASS (or HOSTINGER creds)');
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({ host, port, secure, auth: { user, pass } });
+  const logoUrl = process.env.LOGO_URL || '';
+  const amountText =
+    currency === 'NGN'
+      ? `₦${amount.toLocaleString('en-NG')}`
+      : `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+
+  const html = `
+    <div style="text-align:center;margin-bottom:16px;">
+      ${logoUrl ? `<img src="${logoUrl}" alt="Atinuda" height="48" />` : ''}
+    </div>
+    <p>Hello ${name || 'guest'},</p>
+    <p>Congratulations! You’re confirmed for the Atinuda Retreat in Mauritius.</p>
+    <p><strong>Order summary</strong></p>
+    <ul>
+      <li>Product: ${productTitle}</li>
+      <li>Quantity: ${quantity}</li>
+      <li>Amount: ${amountText}</li>
+    </ul>
+    <p>We’ll follow up with your ticket and QR. Look out for more emails.</p>
+    <p>Thank you,<br/>Atinuda Team</p>
+  `;
+
+  await transporter.sendMail({
+    from: `"Atinuda" <${sender}>`,
+    to,
+    subject: 'Your Atinuda Retreat purchase is confirmed',
+    html,
+  });
+}
+
 async function handler(req: IncomingMessage, res: ServerResponse) {
   try {
     if (req.method !== 'POST') {
@@ -308,6 +365,18 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
         unitAmount,
       });
       guestTickets.push(guest);
+    }
+
+    // Fire-and-forget email
+    if (userEmail) {
+      sendReceiptEmail({
+        to: userEmail,
+        name: userName ?? userEmail,
+        amount: finalAmount,
+        currency,
+        quantity: Math.max(1, quantity),
+        productTitle: product.title ?? productKey,
+      }).catch((err) => console.warn('Email send failed:', err));
     }
 
     res.writeHead(200, { 'Content-Type': 'application/json' });

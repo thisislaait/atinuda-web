@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Nav/HeaderNav";
 import SummitFooter from "../components/layout/SummitFooter";
 import { Toaster } from "react-hot-toast";
+import { FlutterwaveScript } from "@/components/FlutterwaveScript";
 
 // 👇 import your context provider
 import { AuthProvider } from "@/context/AuthContext";
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body>
         {/* 👇 Now your entire site has access to auth context */}
         <AuthProvider>
+          <FlutterwaveScript />
           <Navbar />
           <AuthModal />
           {children}
