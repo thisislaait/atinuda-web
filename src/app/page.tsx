@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowRight, CalendarClock, Download, Image as ImageIcon, MapPin, MessageCircle, ShieldCheck, Sparkles, Ticket } from 'lucide-react';
 import Link from 'next/link';
 import BottomNav from '../components/layout/Nav/BottomNav';
@@ -253,6 +253,7 @@ const statics = {
 };
 
 export default function HomePage(): React.JSX.Element {
+  const [showFullSchedule, setShowFullSchedule] = useState(false);
   return (
     <div className="bg-gradient-to-b from-[#f8fafc] via-[#f1f4f9] to-[#eef2f8] text-[#0B1220]">
       {/* New hero banner with background image and PSC-style text */}
@@ -435,6 +436,12 @@ export default function HomePage(): React.JSX.Element {
               <div className="border-t border-[#d1d5db] pt-2">Innovators, Builders & Visionaries</div>
             </div>
             <p className="text-[#4b5563] text-sm">A community grounded in values, ambition, and authenticity.</p>
+            <Link
+              href="/retreat-ticket"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
+            >
+              View retreat tickets <ArrowRight size={16} />
+            </Link>
           </div>
 
           <div className="space-y-8">
@@ -510,11 +517,11 @@ export default function HomePage(): React.JSX.Element {
 
         <div className="max-w-6xl mx-auto px-6 mt-8">
           <div className="border border-dashed border-[#d1d5db] rounded-3xl overflow-hidden">
-            {statics.schedule.map((day, idx) => (
+            {(showFullSchedule ? statics.schedule : statics.schedule.slice(0, 4)).map((day, idx, arr) => (
               <div
                 key={day.day}
                 className={`grid grid-cols-[120px_1fr] md:grid-cols-[160px_1fr] border-b border-dashed border-[#d1d5db] ${
-                  idx === statics.schedule.length - 1 ? 'border-b-0' : ''
+                  idx === arr.length - 1 ? 'border-b-0' : ''
                 }`}
               >
                 <div className="border-r border-dashed border-[#d1d5db] px-4 py-5 flex flex-col justify-center gap-2 bg-[#f8fafc]">
@@ -541,6 +548,21 @@ export default function HomePage(): React.JSX.Element {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="flex justify-center mt-6 gap-3 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowFullSchedule((s) => !s)}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0B1220]/20 text-sm font-semibold text-[#0B1220] hover:bg-[#0B1220]/5 transition"
+            >
+              {showFullSchedule ? 'Show less' : 'View full schedule'} <ArrowRight size={16} />
+            </button>
+            <Link
+              href="/retreat-ticket"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
+            >
+              Secure your retreat pass <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
