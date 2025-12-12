@@ -280,7 +280,7 @@ export default function HomePage(): React.JSX.Element {
               A week-long leadership and creativity immersion in Mauritius for visionary founders, executives, and creators across Africa and the diaspora. Rise in a luxurious, intentional setting that blends strategy, wellness, culture, and networking. Inspired by Mauritius—a nation that rose from the ocean floor—every moment invites you to grow personally, lead together, and build a lasting legacy.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-20">
             <button className="px-5 py-3 bg-white text-[#0B1220] text-sm font-semibold rounded-full border border-white/40 shadow-lg shadow-black/20 hover:bg-white/90 transition">
               Mauritius, March 8th - 14th 2026
             </button>
@@ -316,7 +316,7 @@ export default function HomePage(): React.JSX.Element {
               itineraries, meet speakers, and unlock guides—all from the app.
             </p>
             <div className="flex flex-wrap gap-3">
-              <CTAButton label="Download on iOS (coming soon)" primary />
+              <CTAButton label="Download on iOS" href="https://apps.apple.com/us/app/atinuda/id6755419370" primary />
               <CTAButton label="Download on Android (coming soon)" />
               <Link
                 href="#resource-hub"
@@ -516,7 +516,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
 
         <div className="max-w-6xl mx-auto px-6 mt-8">
-          <div className="border border-dashed border-[#d1d5db] rounded-3xl overflow-hidden">
+          <div className="border border-dashed border-[#d1d5db] rounded-3xl overflow-hidden relative z-10">
             {(showFullSchedule ? statics.schedule : statics.schedule.slice(0, 4)).map((day, idx, arr) => (
               <div
                 key={day.day}
