@@ -281,15 +281,16 @@ export default function HomePage(): React.JSX.Element {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-20">
+            <a
+              href="https://apps.apple.com/us/app/atinuda/id6755419370"
+              className="px-5 py-3 bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 shadow-lg shadow-black/25 hover:bg-black transition"
+            >
+              Claim your spot in the app
+            </a>
             <button className="px-5 py-3 bg-white text-[#0B1220] text-sm font-semibold rounded-full border border-white/40 shadow-lg shadow-black/20 hover:bg-white/90 transition">
               Mauritius, March 8th - 14th 2026
             </button>
-            <Link
-              href="/retreat-ticket"
-              className="px-5 py-3 bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 shadow-lg shadow-black/25 hover:bg-black transition"
-            >
-              Claim your spot
-            </Link>
+            
           </div>
         </div>
 
@@ -436,12 +437,12 @@ export default function HomePage(): React.JSX.Element {
               <div className="border-t border-[#d1d5db] pt-2">Innovators, Builders & Visionaries</div>
             </div>
             <p className="text-[#4b5563] text-sm">A community grounded in values, ambition, and authenticity.</p>
-            <Link
-              href="/retreat-ticket"
+            <a
+              href="https://apps.apple.com/us/app/atinuda/id6755419370"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
             >
-              View retreat tickets <ArrowRight size={16} />
-            </Link>
+              Get the app for tickets <ArrowRight size={16} />
+            </a>
           </div>
 
           <div className="space-y-8">
@@ -557,12 +558,12 @@ export default function HomePage(): React.JSX.Element {
             >
               {showFullSchedule ? 'Show less' : 'View full schedule'} <ArrowRight size={16} />
             </button>
-            <Link
-              href="/retreat-ticket"
+            <a
+              href="https://apps.apple.com/us/app/atinuda/id6755419370"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
             >
               Secure your retreat pass <ArrowRight size={16} />
-            </Link>
+            </a>
           </div>
         </div>
       </section>
