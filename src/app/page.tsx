@@ -145,12 +145,8 @@ const statics = {
       title: 'Arrival & First Light',
       highlight: 'The Arrival',
       slots: [
-        'Airport welcome + private transfers (garlands, cold towels, playlist, welcome letter/journal)',
-        'Hotel check-in with welcome drink; room reveals, amenity kits, golden hour rest',
-        '6:00–6:45 PM: Sunset cocktails — sega music, Elevation cocktails, intention wall, photo',
-        '6:45–7:15 PM: Opening ritual — blessing, founder welcome, Elevation partners reveal, group photo',
-        '7:15–10:00 PM: Barbecue & connection — live stations, icebreakers, fireside stories, DJ',
-        '10:00 PM+: Bonfire + stargazing (optional)',
+        'Airport welcome, private transfers, room reveals',
+        '6:00–10:00 PM: Sunset cocktails, opening ritual, barbecue',
       ],
     },
     {
@@ -158,11 +154,9 @@ const statics = {
       title: 'Rise Within',
       highlight: 'Wellness & restoration',
       slots: [
-        '6:00–7:30 AM: Dawn Rising (sunrise yoga, breathwork, silent shore walk)',
-        '7:00–9:00 AM: Gentle Awakening (in-room wellness breakfast, spa opens early)',
-        '8:00–10:00 AM: Communal breakfast · organic connections',
-        '10:00 AM–4:00 PM: Catamaran cruise or LUX* Belle Mare wellness day',
-        '7:00–10:00 PM: Sunset welcome + chef’s tasting dinner, reflection, wind-down',
+        'Morning wellness paths + communal breakfast',
+        '10:00 AM–4:00 PM: Catamaran or spa day',
+        '7:00–10:00 PM: Sunset welcome + chef’s tasting dinner',
       ],
     },
     {
@@ -170,16 +164,9 @@ const statics = {
       title: 'Rise Together',
       highlight: 'Leadership & community',
       slots: [
-        '6:30–7:30 AM: Optional practice (yoga/stretch/beach walk)',
-        '7:30–9:00 AM: Breakfast + networking',
-        '9:00–9:30 AM: Official opening “Ignition” (drummers, montage, keynote, covenant)',
-        '9:30–10:30 AM: Keynote — Leading from the Inside Out',
-        '10:30–11:00 AM: Coffee + Speed Connection',
-        '11:00–12:30 PM: Panel — Building Empires, Building Communities',
-        '12:30–2:30 PM: Lunch & leisure; optional speaker office hours',
-        '2:30–3:00 PM: Energiser — The Human Web',
-        '3:00–4:30 PM: Keynote — The Purpose Imperative (with workshop)',
-        '7:30–11:00 PM: Chateau dinner — arrival cocktails, fusion menu, stories',
+        'Opening sessions, keynotes, panels',
+        'Coffee + Speed Connection, office hours',
+        'Château dinner in the evening',
       ],
     },
     {
@@ -187,17 +174,9 @@ const statics = {
       title: 'Rise in Skill',
       highlight: 'Workshops & deep dives',
       slots: [
-        '6:30–7:30 AM: Morning options (bootcamp, meditation/journaling, swim laps)',
-        '7:30–9:00 AM: Breakfast',
-        '9:00–9:30 AM: The Strategy Summit kickoff',
-        '9:15–10:45 AM: Workshops round 1 — Scaling Smart, Money Workshop, Tech for Non-Techies',
-        '10:45–11:15 AM: Coffee break',
-        '11:15–12:45 PM: Workshops round 2 — Events Masterclass, Event Design Fundamentals',
-        '12:45–2:30 PM: Lunch & power tables; speaker office hours',
-        '2:30–3:00 PM: Energiser',
-        '3:00–4:15 PM: Strategy Hot Seat (live business consults)',
-        '4:45–6:00 PM: Masterclass — Building Your Event Empire',
-        '7:30–11:00 PM: Dinner + Elevation mini awards (Oberoi private dining)',
+        'Workshop tracks (business, finance, tech, events)',
+        'Strategy Hot Seat + masterclass',
+        'Dinner + Elevation mini awards',
       ],
     },
     {
@@ -205,18 +184,9 @@ const statics = {
       title: 'Rise in Creativity',
       highlight: 'Branding & experience',
       slots: [
-        '6:30–7:30 AM: Morning options (creative journaling, photo walk, yoga flow)',
-        '7:30–9:00 AM: Breakfast',
-        '9:00–10:30 AM: The Creativity Advantage keynote',
-        '10:30–11:00 AM: Coffee break',
-        '11:00–12:30 PM: Panel — Brand Building in the African Century',
-        '12:30–2:30 PM: Lunch + Mauritius Tourism Board session (1:00–2:00 PM)',
-        '2:30–2:45 PM: Energiser',
-        '2:45–4:15 PM: Workshops round 3 — Experiences, Experience Design, Visual Branding, Innovation Lab',
-        '4:15–4:45 PM: Afternoon break',
-        '4:45–6:00 PM: The Experience Challenge',
-        '6:00–6:45 PM: Bonus — Retreat design showcase',
-        '7:30–10:30 PM: Connection Dinner (beachfront/restaurant)',
+        'Creative summit + branding panels',
+        'Experience design labs and challenge',
+        'Connection Dinner in the evening',
       ],
     },
     {
@@ -224,19 +194,9 @@ const statics = {
       title: 'Rise Beyond',
       highlight: 'Global expansion & gala',
       slots: [
-        '6:30–7:30 AM: Final morning practice (group yoga/meditation/gratitude)',
-        '7:30–9:00 AM: Breakfast',
-        '9:00–9:15 AM: Day opening — energiser, celebrate the journey',
-        '9:15–10:30 AM: Keynote — Taking Africa to the World',
-        '10:30–11:00 AM: Coffee break',
-        '12:00–12:45 PM: Closing keynote — Your Elevation Continues',
-        '12:45–5:30 PM: Island experiences (Casela safari, Vallée des Couleurs trails, Chamarel rum, Wellness retreat)',
-        '7:00–8:00 PM: Gala arrivals — red carpet, photos, champagne, live band',
-        '8:00–8:30 PM: Gala opening — MC, montage, founder address',
-        '8:30–10:00 PM: Gala dinner — multi-course menu, entertainment',
-        '10:00–10:45 PM: Elevation Awards',
-        '10:45–11:00 PM: Commitment Ceremony — Elevation Box',
-        '11:00 PM–Late: Celebration party',
+        'Morning practice, going-global keynotes',
+        'Island experience tracks in the afternoon',
+        'Elevation Gala: dinner, awards, celebration',
       ],
     },
     {
@@ -244,9 +204,9 @@ const statics = {
       title: 'Departure',
       highlight: 'Farewell & follow-up',
       slots: [
-        '7:00–10:00 AM: Breakfast & checkout',
-        'Farewell gifts + transfers',
-        'Post-retreat: thank-you email, gallery, reunion call, alumni perks',
+        'Breakfast & checkout',
+        'Transfers and farewell',
+        'Follow-ups, gallery, reunion',
       ],
     },
   ],
@@ -281,12 +241,12 @@ export default function HomePage(): React.JSX.Element {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-20">
-            <a
-              href="https://apps.apple.com/us/app/atinuda/id6755419370"
+            <Link
+              href="/retreat-ticket"
               className="px-5 py-3 bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 shadow-lg shadow-black/25 hover:bg-black transition"
             >
-              Claim your spot in the app
-            </a>
+              Claim your spot
+            </Link>
             <button className="px-5 py-3 bg-white text-[#0B1220] text-sm font-semibold rounded-full border border-white/40 shadow-lg shadow-black/20 hover:bg-white/90 transition">
               Mauritius, March 8th - 14th 2026
             </button>
@@ -437,12 +397,12 @@ export default function HomePage(): React.JSX.Element {
               <div className="border-t border-[#d1d5db] pt-2">Innovators, Builders & Visionaries</div>
             </div>
             <p className="text-[#4b5563] text-sm">A community grounded in values, ambition, and authenticity.</p>
-            <a
-              href="https://apps.apple.com/us/app/atinuda/id6755419370"
+            <Link
+              href="/retreat-ticket"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
             >
-              Get the app for tickets <ArrowRight size={16} />
-            </a>
+              View retreat tickets <ArrowRight size={16} />
+            </Link>
           </div>
 
           <div className="space-y-8">
@@ -558,12 +518,12 @@ export default function HomePage(): React.JSX.Element {
             >
               {showFullSchedule ? 'Show less' : 'View full schedule'} <ArrowRight size={16} />
             </button>
-            <a
-              href="https://apps.apple.com/us/app/atinuda/id6755419370"
+            <Link
+              href="/retreat-ticket"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
             >
               Secure your retreat pass <ArrowRight size={16} />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
