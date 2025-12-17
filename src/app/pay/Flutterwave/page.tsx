@@ -4,6 +4,10 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { getAuth } from 'firebase/auth';
 
+type Currency = 'NGN' | 'USD';
+type FlutterwaveResponse = { status?: string; transaction_id?: string | number };
+type FlutterwaveCheckoutFn = (opts: Record<string, unknown>) => void;
+
 const EVENT_SLUG = process.env.NEXT_PUBLIC_EVENT_SLUG || 'martitus-retreat-2026';
 const PAY_API = process.env.NEXT_PUBLIC_PAY_API_URL || '';
 const FLW_PUBLIC_KEY = process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || '';
@@ -21,34 +25,36 @@ function useFlutterwaveScript() {
 
 export default function FlutterwavePayPage() {
   useFlutterwaveScript();
-  const router = useRouter();
   const search = useSearchParams();
-if (!search) {
-  return <div>Loading…</div>;
-}
+  const router = useRouter();
 
-
-  // Incoming payload from the buy page
-  const productKey = (search.get('productKey') || '').trim();      // e.g., main-ngn, main-usd, group-ngn, group-usd
-  const title = search.get('title') || 'Ticket';
-  const currency = (search.get('currency') || 'NGN').toUpperCase() as 'NGN' | 'USD';
-  const amount = Number(search.get('amount') || '0');
-  const quantity = Math.max(1, Number(search.get('quantity') || '1'));
+  // Parse incoming payload once
+  const payload = useMemo(() => {
+    const params = search;
+    const productKey = (params?.get('productKey') || '').trim().toLowerCase(); // main-ngn/usd, group-ngn/usd
+    const title = params?.get('title') || 'Ticket';
+    const currency = ((params?.get('currency') || 'NGN').toUpperCase() as Currency) || 'NGN';
+    const amount = Number(params?.get('amount') || '0');
+    const quantity = Math.max(1, Number(params?.get('quantity') || '1'));
+    return { productKey, title, currency, amount, quantity };
+  }, [search]);
 
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
   const txRef = useMemo(
     () => `atn-web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    [productKey, amount, currency, quantity]
+    [payload.productKey, payload.amount, payload.currency, payload.quantity]
   );
 
   const handlePay = useCallback(async () => {
+    const { productKey, amount, currency, quantity, title } = payload;
+
     if (!productKey || !amount || amount <= 0) {
       setError('Invalid checkout payload. Please restart.');
       return;
     }
-    const fw = (window as any).FlutterwaveCheckout;
+    const fw: FlutterwaveCheckoutFn | undefined = (window as any).FlutterwaveCheckout;
     if (!fw) {
       setError('Payment module not loaded yet.');
       return;
@@ -64,13 +70,18 @@ if (!search) {
     const customerName = user.displayName || customerEmail.split('@')[0];
 
     fw({
-      public_key: FLW_PUBLIC_KEY,
+      public_key: FLW_PUBLIC_KEY.trim(),
       tx_ref: txRef,
       amount,
       currency,
       customer: { email: customerEmail, name: customerName },
-      customizations: { title: 'Atinuda', description: `${title} • ${quantity} seat(s)`, logo: '/icon.png' },
-      callback: async (resp: any) => {
+      customizations: {
+        title: 'Atinuda',
+        description: `${title} • ${quantity} seat(s)`,
+        logo: '/icon.png',
+      },
+      // Flutterwave callback
+      callback: async (resp: FlutterwaveResponse) => {
         if (resp.status !== 'successful') return;
         setVerifying(true);
         try {
@@ -90,15 +101,16 @@ if (!search) {
           if (!res.ok || !json?.ok) throw new Error(json?.message || 'Verification failed');
           alert('Payment verified and ticket issued.');
           router.push('/tickets/mine');
-        } catch (err: any) {
-          setError(err?.message || 'Verification failed');
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'Verification failed';
+          setError(msg);
         } finally {
           setVerifying(false);
         }
       },
       onclose: () => {},
     });
-  }, [productKey, amount, currency, quantity, txRef, router]);
+  }, [payload, router, txRef]);
 
   return (
     <div style={{ maxWidth: 480, margin: '40px auto', padding: 16 }}>
@@ -106,14 +118,20 @@ if (!search) {
       {error && <div style={{ color: 'red' }}>{error}</div>}
       {!error && (
         <>
-          <p>{title}</p>
-          <p>{currency} {amount.toLocaleString()} ({quantity} seat{quantity > 1 ? 's' : ''})</p>
-          <button onClick={handlePay} disabled={verifying || amount <= 0}>
-            {verifying ? 'Verifying…' : 'Pay with Flutterwave'}
-          </button>
+          <p>{payload.title}</p>
+          <p>
+            {payload.currency} {payload.amount.toLocaleString()} ({payload.quantity} seat
+            {payload.quantity > 1 ? 's' : ''})
+          </p>
+          <div style={{ marginTop: 16 }}>
+            <button onClick={handlePay} disabled={verifying || payload.amount <= 0}>
+              {verifying ? 'Verifying…' : 'Pay with Flutterwave'}
+            </button>
+          </div>
         </>
       )}
     </div>
   );
 }
+
 
