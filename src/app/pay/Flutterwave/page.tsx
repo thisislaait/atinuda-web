@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { getAuth } from 'firebase/auth';
 
 type Currency = 'NGN' | 'USD';
@@ -31,7 +31,7 @@ export default function FlutterwavePayPage() {
   // Parse incoming payload once
   const payload = useMemo(() => {
     const params = search;
-    const productKey = (params?.get('productKey') || '').trim().toLowerCase(); // main-ngn/usd, group-ngn/usd
+    const productKey = (params?.get('productKey') || '').trim().toLowerCase();
     const title = params?.get('title') || 'Ticket';
     const currency = ((params?.get('currency') || 'NGN').toUpperCase() as Currency) || 'NGN';
     const amount = Number(params?.get('amount') || '0');
@@ -42,10 +42,8 @@ export default function FlutterwavePayPage() {
   const [error, setError] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
 
-  const txRef = useMemo(
-    () => `atn-web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    [payload.productKey, payload.amount, payload.currency, payload.quantity]
-  );
+  // Generate txRef once per page load
+  const txRef = useRef(`atn-web-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`).current;
 
   const handlePay = useCallback(async () => {
     const { productKey, amount, currency, quantity, title } = payload;
@@ -54,17 +52,20 @@ export default function FlutterwavePayPage() {
       setError('Invalid checkout payload. Please restart.');
       return;
     }
-    const fw: FlutterwaveCheckoutFn | undefined = (window as any).FlutterwaveCheckout;
+
+    const fw = (window as unknown as { FlutterwaveCheckout?: FlutterwaveCheckoutFn }).FlutterwaveCheckout;
     if (!fw) {
       setError('Payment module not loaded yet.');
       return;
     }
+
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) {
       setError('Please sign in first.');
       return;
     }
+
     const idToken = await user.getIdToken();
     const customerEmail = user.email || 'guest@atinuda.africa';
     const customerName = user.displayName || customerEmail.split('@')[0];
@@ -80,7 +81,6 @@ export default function FlutterwavePayPage() {
         description: `${title} • ${quantity} seat(s)`,
         logo: '/icon.png',
       },
-      // Flutterwave callback
       callback: async (resp: FlutterwaveResponse) => {
         if (resp.status !== 'successful') return;
         setVerifying(true);
@@ -133,5 +133,3 @@ export default function FlutterwavePayPage() {
     </div>
   );
 }
-
-
