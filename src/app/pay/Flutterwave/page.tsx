@@ -1,7 +1,9 @@
-'use client';
+"use client";
+
+export const dynamic = "force-dynamic";
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback, Suspense } from 'react';
 import { getAuth } from 'firebase/auth';
 
 type Currency = 'NGN' | 'USD';
@@ -9,8 +11,8 @@ type FlutterwaveResponse = { status?: string; transaction_id?: string | number }
 type FlutterwaveCheckoutFn = (opts: Record<string, unknown>) => void;
 
 const EVENT_SLUG = process.env.NEXT_PUBLIC_EVENT_SLUG || 'martitus-retreat-2026';
-const PAY_API = process.env.NEXT_PUBLIC_PAY_API_URL || '';
-const FLW_PUBLIC_KEY = process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || '';
+const PAY_API = process.env.NEXT_PUBLIC_PAY_API_URL || "/api/pay-verify";
+const FLW_PUBLIC_KEY = process.env.NEXT_PUBLIC_FLW_PUBLIC_KEY || "";
 
 function useFlutterwaveScript() {
   useEffect(() => {
@@ -23,7 +25,7 @@ function useFlutterwaveScript() {
   }, []);
 }
 
-export default function FlutterwavePayPage() {
+function FlutterwavePayPageInner() {
   useFlutterwaveScript();
   const search = useSearchParams();
   const router = useRouter();
@@ -131,5 +133,13 @@ export default function FlutterwavePayPage() {
         </>
       )}
     </div>
+  );
+}
+
+export default function FlutterwavePayPage() {
+  return (
+    <Suspense fallback={<div style={{ maxWidth: 480, margin: '40px auto', padding: 16 }}>Loading…</div>}>
+      <FlutterwavePayPageInner />
+    </Suspense>
   );
 }

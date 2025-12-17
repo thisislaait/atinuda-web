@@ -138,6 +138,8 @@ const statics = {
     { q: 'Will I get a QR pass?', a: 'Yes. After checkout your QR is stored in the app under Tickets.' },
     { q: 'Can I view the agenda?', a: 'Live itineraries and speaker details live in the app. A snapshot is shown below.' },
     { q: 'Is there a community group?', a: 'Join our WhatsApp community via the Explore section or the CTA below.' },
+    { q: 'Is accommodation included?', a: 'Retreat passes cover programming, hospitality, and experiences. Flights and lodging are not included. Preferred hotel links are shared in the app.' },
+    { q: 'Travel requirements?', a: 'Most passports are visa-free or VOA. Carry hotel confirmation, return ticket, proof of funds; passport valid 6+ months. Full travel guidance lives in the app.' },
   ],
   schedule: [
     {
