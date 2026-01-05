@@ -13,11 +13,11 @@ type InitBody = {
 
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY;
 
-async function parseJson(req: IncomingMessage) {
+async function parseJson(req: IncomingMessage): Promise<InitBody> {
   const chunks: Buffer[] = [];
   for await (const c of req) chunks.push(Buffer.from(c));
   const raw = Buffer.concat(chunks).toString('utf8') || '{}';
-  return JSON.parse(raw);
+  return JSON.parse(raw) as InitBody;
 }
 
 async function handler(req: IncomingMessage, res: ServerResponse) {
@@ -31,7 +31,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       return;
     }
 
-    const body = (await parseJson(req)) as InitBody;
+    const body = await parseJson(req);
     const { txRef, amount, currency, customer, title, description, redirectUrl } = body;
 
     if (!txRef || !amount || !currency || !customer?.email) {
@@ -58,7 +58,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       }),
     });
 
-    const json = await resp.json();
+    const json = (await resp.json()) as { status?: string; message?: string; data?: { link?: string } };
     const link = json?.data?.link;
     if (!resp.ok || !link) {
       res.writeHead(400).end(JSON.stringify({ ok: false, message: json?.message || 'Init failed' }));
@@ -67,8 +67,9 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ ok: true, link }));
-  } catch (err: any) {
-    res.writeHead(500).end(JSON.stringify({ ok: false, message: err?.message || 'Server error' }));
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server error';
+    res.writeHead(500).end(JSON.stringify({ ok: false, message }));
   }
 }
 
