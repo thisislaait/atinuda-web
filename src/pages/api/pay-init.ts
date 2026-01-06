@@ -3,7 +3,7 @@ import http, { IncomingMessage, ServerResponse } from 'http';
 
 type InitBody = {
   txRef?: string;
-  amount?: number;
+  amount?: number | string;
   currency?: 'NGN' | 'USD';
   customer?: { email?: string; name?: string };
   title?: string;
@@ -14,6 +14,13 @@ type InitBody = {
 const FLW_SECRET_KEY = process.env.FLW_SECRET_KEY;
 
 async function parseJson(req: IncomingMessage): Promise<InitBody> {
+  // If Next already parsed the body, reuse it.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const anyReq = req as any;
+  if (anyReq.body && typeof anyReq.body === 'object') {
+    return anyReq.body as InitBody;
+  }
+
   const chunks: Buffer[] = [];
   for await (const c of req) chunks.push(Buffer.from(c));
   const raw = Buffer.concat(chunks).toString('utf8') || '{}';
@@ -34,7 +41,8 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
     const body = await parseJson(req);
     const { txRef, amount, currency, customer, title, description, redirectUrl } = body;
 
-    if (!txRef || !amount || !currency || !customer?.email) {
+    const amountNumber = typeof amount === 'number' ? amount : Number(amount);
+    if (!txRef || !Number.isFinite(amountNumber) || amountNumber <= 0 || !currency || !customer?.email) {
       res.writeHead(400).end(JSON.stringify({ ok: false, message: 'Missing required fields' }));
       return;
     }
@@ -47,7 +55,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
       },
       body: JSON.stringify({
         tx_ref: txRef,
-        amount,
+        amount: amountNumber,
         currency,
         redirect_url: redirectUrl || 'https://www.atinuda.africa/pay-redirect',
         customer,
@@ -81,3 +89,4 @@ if (require.main === module) {
   const port = process.env.PORT || 8080;
   http.createServer(handler).listen(port);
 }
+
