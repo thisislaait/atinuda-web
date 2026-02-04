@@ -5,6 +5,7 @@
 // - FIREBASE_SERVICE_ACCOUNT_B64 or GOOGLE_APPLICATION_CREDENTIALS
 // - A price catalog stored in Firestore: events/{slug}/ticketProducts/{productKey}
 
+import fs from 'fs';
 import http, { IncomingMessage, ServerResponse } from 'http';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -39,9 +40,8 @@ function getServiceAccount(): Record<string, unknown> {
   if (b64) return JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
   const path = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (path) {
-    // allow require here for loading a JSON service account file in Node
-    // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-    return require(path) as Record<string, unknown>;
+    const json = fs.readFileSync(path, 'utf8');
+    return JSON.parse(json) as Record<string, unknown>;
   }
   throw new Error('Set FIREBASE_SERVICE_ACCOUNT_B64 or GOOGLE_APPLICATION_CREDENTIALS');
 }
