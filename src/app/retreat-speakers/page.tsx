@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { FaApple, FaGooglePlay } from 'react-icons/fa';
 
 type Workshop = {
   track: string;
@@ -47,7 +48,7 @@ const sessionBlocks: SessionBlock[] = [
         speaker: 'Justine Irabor',
         image: '/assets/images/speakers/Justin.jpeg',
         description:
-          'In premium categories, technology is most powerful when it is almost invisible. It should remove friction, protect discretion, and make excellence feel effortless, especially at scale. This session explores digital transformation as credibility infrastructure: the systems and operating rhythm that allow a brand to deliver consistently across borders, personalise with taste, and modernise without losing its human signature.',
+          'Technology is most powerful when it is almost invisible. It should remove friction, protect discretion, and make excellence feel effortless, especially at scale. This session explores digital transformation as credibility infrastructure: the systems and operating rhythm that allow a brand to deliver consistently across borders, personalise with taste, and modernise without losing its human signature.',
         takeaways: [
           'Export-ready operations: standards, documentation, service rhythm',
           'AI as quiet advantage: speed, precision, personalisation with discretion',
@@ -61,7 +62,7 @@ const sessionBlocks: SessionBlock[] = [
         track: 'Leadership',
         topic: 'Emotional Intelligence as Your Leadership Superpower',
         speaker: 'Simon Alexander',
-        image: '/assets/images/speakers/simon.JPG',
+        image: '/assets/images/speakers/Simon.JPG',
         description:
           'In global rooms, authority is often subtle. It is carried in pace, tone, composure, and in the ability to hold tension without making it louder. This session explores emotional intelligence as reputational capital: how trust is built quickly, how conflict is handled cleanly, and how influence is sustained across complex stakeholder relationships where perception matters as much as performance.',
         takeaways: [
@@ -322,6 +323,11 @@ const sessionBlocks: SessionBlock[] = [
   },
 ];
 
+const APP_DEEP_LINK = 'atinuda://';
+const IOS_APP_URL = 'https://apps.apple.com/ng/app/atinuda/id6755419370';
+const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=com.laait.atinudaconferenceapp&pcampaignid=web_share';
+
 export default function RetreatSpeakersPage() {
   const [activeSessionId, setActiveSessionId] = useState(sessionBlocks[0].id);
   const [activeSpeakerIndex, setActiveSpeakerIndex] = useState(0);
@@ -340,6 +346,22 @@ export default function RetreatSpeakersPage() {
 
   const showNextSpeaker = () => {
     setActiveSpeakerIndex((index) => (index + 1) % activeSession.workshops.length);
+  };
+
+  const openAtinudaApp = () => {
+    if (typeof window === 'undefined') return;
+
+    const ua = window.navigator.userAgent;
+    const isAndroid = /Android/i.test(ua);
+
+    const start = Date.now();
+    window.location.href = APP_DEEP_LINK;
+
+    window.setTimeout(() => {
+      if (Date.now() - start < 1800) {
+        window.location.href = isAndroid ? PLAY_STORE_URL : IOS_APP_URL;
+      }
+    }, 1200);
   };
 
   return (
@@ -371,6 +393,40 @@ export default function RetreatSpeakersPage() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-6 py-16 md:py-24">
+        <div className="mb-10 rounded-[24px] border border-[#d5cebf] bg-[#fbf8f3] p-6 md:p-8">
+          <p className="text-xs uppercase tracking-[0.28em] text-[#7b7468]">Workshop Selection</p>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#2a241c] md:text-base">
+            Ticket confirmed? Head back to your Atinuda app dashboard to curate your workshop sessions.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            {/* <button
+              type="button"
+              onClick={openAtinudaApp}
+              className="inline-flex items-center rounded-full border border-[#1d1915] bg-[#1d1915] px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-[#f6f3ee] transition hover:bg-[#2b251f]"
+            >
+              Open Atinuda App
+            </button> */}
+            <a
+              href={IOS_APP_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download Atinuda on iOS"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#b9b09f] text-[#3f382f] transition hover:border-[#8f8473] hover:text-[#201b16]"
+            >
+              <FaApple size={18} />
+            </a>
+            <a
+              href={PLAY_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Download Atinuda on Google Play"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#b9b09f] text-[#3f382f] transition hover:border-[#8f8473] hover:text-[#201b16]"
+            >
+              <FaGooglePlay size={16} />
+            </a>
+          </div>
+        </div>
+
         <div className="grid gap-10 lg:min-h-[760px] lg:grid-cols-[0.86fr_1.14fr]">
           <aside className="h-full rounded-[30px] border border-[#d5cebf] bg-[#fbf8f3] p-8 md:p-10">
             <p className="text-xs uppercase tracking-[0.3em] text-[#7b7468]">Day & Session</p>
