@@ -45,7 +45,7 @@ const sessionBlocks: SessionBlock[] = [
       {
         track: 'AI & Tech',
         topic: 'Digital Transformation in Practice',
-        speaker: 'Justine Irabor',
+        speaker: 'Justin Irabor',
         image: '/assets/images/speakers/Justin.jpeg',
         description:
           'Technology is most powerful when it is almost invisible. It should remove friction, protect discretion, and make excellence feel effortless, especially at scale. This session explores digital transformation as credibility infrastructure: the systems and operating rhythm that allow a brand to deliver consistently across borders, personalise with taste, and modernise without losing its human signature.',
@@ -181,7 +181,7 @@ const sessionBlocks: SessionBlock[] = [
       {
         track: 'AI & Strategy',
         topic: 'The Future-Proof Enterprise',
-        speaker: 'Sega Awosanya',
+        speaker: 'Sega',
         image: '/assets/images/speakers/Sega.jpeg',
         description:
           'The future belongs to brands that can adapt without losing themselves. This session explores future-proofing as a discipline: building agility into operations, strengthening decision-making with intelligence, and using AI to create leverage without turning the business into a laboratory. The focus is readiness so you can move with the market and still keep your standard intact.',
