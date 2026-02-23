@@ -339,7 +339,6 @@ const sessionBlocks: SessionBlock[] = [
   },
 ];
 
-const APP_DEEP_LINK = 'atinuda://';
 const IOS_APP_URL = 'https://apps.apple.com/ng/app/atinuda/id6755419370';
 const PLAY_STORE_URL =
   'https://play.google.com/store/apps/details?id=com.laait.atinudaconferenceapp&pcampaignid=web_share';
@@ -362,22 +361,6 @@ export default function RetreatSpeakersPage() {
 
   const showNextSpeaker = () => {
     setActiveSpeakerIndex((index) => (index + 1) % activeSession.workshops.length);
-  };
-
-  const openAtinudaApp = () => {
-    if (typeof window === 'undefined') return;
-
-    const ua = window.navigator.userAgent;
-    const isAndroid = /Android/i.test(ua);
-
-    const start = Date.now();
-    window.location.href = APP_DEEP_LINK;
-
-    window.setTimeout(() => {
-      if (Date.now() - start < 1800) {
-        window.location.href = isAndroid ? PLAY_STORE_URL : IOS_APP_URL;
-      }
-    }, 1200);
   };
 
   return (
@@ -557,6 +540,7 @@ export default function RetreatSpeakersPage() {
           </article>
         </div>
       </section>
+
     </main>
   );
 }

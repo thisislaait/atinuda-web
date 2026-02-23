@@ -35,6 +35,12 @@ function ensureDb(): Firestore {
   }
 
   cachedDb = getFirestore();
+  try {
+    // Prefer REST transport to avoid gRPC load-balancer stalls in some local networks.
+    cachedDb.settings({ preferRest: true });
+  } catch {
+    // Ignore if settings were already applied by another initializer.
+  }
   return cachedDb;
 }
 
