@@ -75,7 +75,7 @@ const sessionBlocks: SessionBlock[] = [
 
       {
         track: 'Master Workshop',
-        topic: 'The Iconic Aesthetic: Building a Visual Empire (Practical Workshop)',
+        topic: 'Strategic Choice Architecture - The Iconic Aesthetic: Building a Visual Empire (Practical Workshop)',
         speaker: 'Mai Atafo',
         image: '/assets/images/speakers/Mai.jpeg',
         description:
@@ -112,20 +112,20 @@ const sessionBlocks: SessionBlock[] = [
         ],
       },
 
-      // {
-      //   track: 'Wellness / Sustainability & Health',
-      //   topic: 'Longevity Thinking',
-      //   speaker: 'Queen',
-      //   image: '/assets/images/Marcy.jpg',
-      //   description:
-      //     'Longevity is not a trend; it is the quiet discipline behind sustained excellence. It shows up in your energy, your clarity, and your capacity to travel, deliver, recover, and return with the same standard intact. This session reframes wellbeing as performance infrastructure: how to protect your pace, reduce invisible strain, and build resilience that supports high-demand seasons without asking you to slow your ambition.',
-      //   takeaways: [
-      //     'Travel-proof performance: energy, sleep, recovery under movement',
-      //     'Sustainable excellence: resilience without visible strain',
-      //     'Cognitive clarity under demand: fatigue reduction, decision hygiene',
-      //     'Longevity strategy that is sustainable: habits built daily',
-      //   ],
-      // },
+      {
+        track: 'Wellness / Sustainability & Health',
+        topic: 'Longevity Thinking',
+        speaker: 'Queen',
+        image: '/assets/images/speakers/Queen.jpeg',
+        description:
+          'Longevity is not a trend; it is the quiet discipline behind sustained excellence. It shows up in your energy, your clarity, and your capacity to travel, deliver, recover, and return with the same standard intact. This session reframes wellbeing as performance infrastructure: how to protect your pace, reduce invisible strain, and build resilience that supports high-demand seasons without asking you to slow your ambition.',
+        takeaways: [
+          'Travel-proof performance: energy, sleep, recovery under movement',
+          'Sustainable excellence: resilience without visible strain',
+          'Cognitive clarity under demand: fatigue reduction, decision hygiene',
+          'Longevity strategy that is sustainable: habits built daily',
+        ],
+      },
     
       {
         track: 'Personal Finance & Wealth',
@@ -144,7 +144,7 @@ const sessionBlocks: SessionBlock[] = [
 
       {
         track: 'The Reputation Playbook',
-        topic: 'Strategic Frameworks for Building Trust, Credibility, and Opportunity',
+        topic: 'Design/Luxury - Luxury & Client Experience Design: Strategic Frameworks for Building Trust, Credibility, and Opportunity',
         speaker: 'Sophie Masipa',
         image: '/assets/images/speakers/Sophie.jpeg',
         description:
@@ -193,20 +193,20 @@ const sessionBlocks: SessionBlock[] = [
         ],
       },
 
-      // {
-      //   track: 'Leadership',
-      //   topic: 'Embodied Leadership & Inner Resilience',
-      //   speaker: 'Imani Rhodes',
-      //   image: '/assets/images/marianna2.png',
-      //   description:
-      //     'Presence is not performance; it is stamina, clarity, and self-possession. In high-visibility environments, people read your nervous system before they read your resume. This session explores the internal foundations of leadership that holds: resilience under scrutiny, boundaries without hardness, and a steadiness that makes others feel safe, confident, and willing to follow.',
-      //   takeaways: [
-      //     'Steadiness under pressure: composure, pacing, clarity in demanding rooms',
-      //     'Recovery as leadership: resetting without withdrawal or collapse',
-      //     'Boundaries with elegance: access, expectations, energy protection',
-      //     'Resilience that sustains visibility: consistency across heavy seasons',
-      //   ],
-      // },
+      {
+        track: 'Leadership',
+        topic: 'Embodied Leadership & Inner Resilience',
+        speaker: 'Anita Erskine',
+        image: '/assets/images/speakers/Anita.jpg',
+        description:
+          'Presence is not performance; it is stamina, clarity, and self-possession. In high-visibility environments, people read your nervous system before they read your resume. This session explores the internal foundations of leadership that holds: resilience under scrutiny, boundaries without hardness, and a steadiness that makes others feel safe, confident, and willing to follow.',
+        takeaways: [
+          'Steadiness under pressure: composure, pacing, clarity in demanding rooms',
+          'Recovery as leadership: resetting without withdrawal or collapse',
+          'Boundaries with elegance: access, expectations, energy protection',
+          'Resilience that sustains visibility: consistency across heavy seasons',
+        ],
+      },
       {
         track: 'Masterworkshop',
         topic: 'Building Your Signature Style',
@@ -224,7 +224,7 @@ const sessionBlocks: SessionBlock[] = [
 
       {
         track: 'Global Expansions and Networking',
-        topic: 'Building Strategic Relationships Across Borders',
+        topic: 'MasterWorkshop - The Iconic Aesthetic: Building Strategic Relationships Across Borders',
         speaker: 'Kamil Olufowobi',
         image: '/assets/images/speakers/kamil.webp',
         description:
