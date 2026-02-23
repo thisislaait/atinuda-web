@@ -178,20 +178,20 @@ const sessionBlocks: SessionBlock[] = [
         ],
       },
 
-      {
-        track: 'AI & Strategy',
-        topic: 'The Future-Proof Enterprise',
-        speaker: 'Sega',
-        image: '/assets/images/speakers/Sega.jpeg',
-        description:
-          'The future belongs to brands that can adapt without losing themselves. This session explores future-proofing as a discipline: building agility into operations, strengthening decision-making with intelligence, and using AI to create leverage without turning the business into a laboratory. The focus is readiness so you can move with the market and still keep your standard intact.',
-        takeaways: [
-          'Competitive readiness: agility without identity loss',
-          'AI for executive leverage: insight, speed, precision in decisions',
-          'A 6-12 month evolution map: priorities, sequencing, adoption rhythm',
-          'Protecting the premium: trust, discretion, quality as non-negotiables',
-        ],
-      },
+      // {
+      //   track: 'AI & Strategy',
+      //   topic: 'The Future-Proof Enterprise',
+      //   speaker: 'Sega',
+      //   image: '/assets/images/speakers/Sega.jpeg',
+      //   description:
+      //     'The future belongs to brands that can adapt without losing themselves. This session explores future-proofing as a discipline: building agility into operations, strengthening decision-making with intelligence, and using AI to create leverage without turning the business into a laboratory. The focus is readiness so you can move with the market and still keep your standard intact.',
+      //   takeaways: [
+      //     'Competitive readiness: agility without identity loss',
+      //     'AI for executive leverage: insight, speed, precision in decisions',
+      //     'A 6-12 month evolution map: priorities, sequencing, adoption rhythm',
+      //     'Protecting the premium: trust, discretion, quality as non-negotiables',
+      //   ],
+      // },
 
       {
         track: 'Leadership',
@@ -274,6 +274,22 @@ const sessionBlocks: SessionBlock[] = [
           'Strategic narrative that travels: partners, press, stakeholder alignment',
         ],
       },
+
+      {
+        track: 'AI & Strategy',
+        topic: 'The Future-Proof Enterprise',
+        speaker: 'Sega',
+        image: '/assets/images/speakers/Sega.jpeg',
+        description:
+          'The future belongs to brands that can adapt without losing themselves. This session explores future-proofing as a discipline: building agility into operations, strengthening decision-making with intelligence, and using AI to create leverage without turning the business into a laboratory. The focus is readiness so you can move with the market and still keep your standard intact.',
+        takeaways: [
+          'Competitive readiness: agility without identity loss',
+          'AI for executive leverage: insight, speed, precision in decisions',
+          'A 6-12 month evolution map: priorities, sequencing, adoption rhythm',
+          'Protecting the premium: trust, discretion, quality as non-negotiables',
+        ],
+      },
+
       {
         track: 'Wealth',
         topic: 'The Wealth Operating System',
