@@ -114,7 +114,7 @@ export default function SpeakerSlotsPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-10">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-[#7b7468]">Speaker Details</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#7b7468]">Delegate Details</p>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
               <label className="block">
                 <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-[#5b5348]">

@@ -5,7 +5,7 @@ import { speakerSlotSessions } from '@/data/speakerSlots';
 const FIRESTORE_WRITE_TIMEOUT_MS = 12000;
 
 type RouteContext = {
-  params: Promise<{ eventslug: string }> | { eventslug: string };
+  params: Promise<{ eventslug: string }>;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -41,7 +41,7 @@ function isTransportTimeoutError(message: string): boolean {
 }
 
 export async function POST(req: Request, context: RouteContext) {
-  const params = await Promise.resolve(context.params);
+  const params = await context.params;
   const eventSlug = typeof params.eventslug === 'string' ? params.eventslug.trim() : '';
   if (!eventSlug) {
     return NextResponse.json({ ok: false, message: 'Missing event slug.' }, { status: 400 });
@@ -71,7 +71,7 @@ export async function POST(req: Request, context: RouteContext) {
     return NextResponse.json({ ok: false, message: 'Selections are required.' }, { status: 400 });
   }
 
-  const selections = payload.selections;
+  const selections = payload.selections as Record<string, unknown>;
 
   let sessionsSelected: Array<{
     sessionId: string;
@@ -85,8 +85,8 @@ export async function POST(req: Request, context: RouteContext) {
 
   try {
     sessionsSelected = speakerSlotSessions.map((session) => {
-      const selectedOptionId =
-        typeof selections[session.id] === 'string' ? selections[session.id].trim() : '';
+      const selectedRaw = selections[session.id];
+      const selectedOptionId = typeof selectedRaw === 'string' ? selectedRaw.trim() : '';
       if (!selectedOptionId) {
         throw new Error(`Please select one workshop for ${session.label}.`);
       }
