@@ -17,6 +17,11 @@ function normalizeName(value: unknown): string {
   return value.trim().replace(/\s+/g, ' ');
 }
 
+function normalizeEmail(value: unknown): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().toLowerCase();
+}
+
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
   let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -60,11 +65,18 @@ export async function POST(req: Request, context: RouteContext) {
 
   const firstName = normalizeName(payload.firstName);
   const lastName = normalizeName(payload.lastName);
+  const email = normalizeEmail(payload.email);
   if (!firstName || !lastName) {
     return NextResponse.json(
       { ok: false, message: 'Firstname and lastname are required.' },
       { status: 400 }
     );
+  }
+  if (!email) {
+    return NextResponse.json({ ok: false, message: 'Email is required.' }, { status: 400 });
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ ok: false, message: 'Please provide a valid email address.' }, { status: 400 });
   }
 
   if (!isRecord(payload.selections)) {
@@ -124,6 +136,7 @@ export async function POST(req: Request, context: RouteContext) {
         eventSlug,
         firstName,
         lastName,
+        email,
         fullName: `${firstName} ${lastName}`,
         selections: sessionsSelected,
         createdAt: FieldValue.serverTimestamp(),

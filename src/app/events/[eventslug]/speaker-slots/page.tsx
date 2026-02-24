@@ -16,6 +16,7 @@ export default function SpeakerSlotsPage() {
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
   const [selections, setSelections] = useState<SelectionState>(() => buildInitialSelections());
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -30,6 +31,7 @@ export default function SpeakerSlotsPage() {
     Boolean(eventSlug) &&
     Boolean(firstName.trim()) &&
     Boolean(lastName.trim()) &&
+    Boolean(email.trim()) &&
     allSessionsSelected &&
     !submitting;
 
@@ -58,6 +60,7 @@ export default function SpeakerSlotsPage() {
         body: JSON.stringify({
           firstName,
           lastName,
+          email,
           selections,
         }),
       });
@@ -137,6 +140,19 @@ export default function SpeakerSlotsPage() {
                   type="text"
                   value={lastName}
                   onChange={(inputEvent) => setLastName(inputEvent.target.value)}
+                  required
+                  className="w-full rounded-xl border border-[#d2cab9] bg-[#fffdf9] px-4 py-3 text-sm text-[#211c16] outline-none transition focus:border-[#95856f]"
+                />
+              </label>
+
+              <label className="block md:col-span-2">
+                <span className="mb-2 block text-xs uppercase tracking-[0.18em] text-[#5b5348]">
+                  Email
+                </span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(inputEvent) => setEmail(inputEvent.target.value)}
                   required
                   className="w-full rounded-xl border border-[#d2cab9] bg-[#fffdf9] px-4 py-3 text-sm text-[#211c16] outline-none transition focus:border-[#95856f]"
                 />
