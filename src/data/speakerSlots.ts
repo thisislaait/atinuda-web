@@ -19,9 +19,21 @@ export const speakerSlotSessions: SpeakerSlotSession[] = [
     heading: 'Day 2 | Wellness & Restoration Experience',
     options: [
       {
-        id: 'd2-watersport-experience',
+        id: 'd2-watersport-kayaking',
         track: 'Experience',
-        topic: 'Water Sport',
+        topic: 'Kayaking',
+        speaker: 'Atinuda Experience Team',
+      },
+      {
+        id: 'd2-watersport-glass-boat',
+        track: 'Experience',
+        topic: 'Glass Boat',
+        speaker: 'Atinuda Experience Team',
+      },
+      {
+        id: 'd2-watersport-water-ski',
+        track: 'Experience',
+        topic: 'Water Ski',
         speaker: 'Atinuda Experience Team',
       },
       {
@@ -73,7 +85,7 @@ export const speakerSlotSessions: SpeakerSlotSession[] = [
         id: 'd4s2-1',
         track: 'Strategy',
         topic: 'High-Impact Negotiation & Deal-Making',
-        speaker: 'Gideon Hermosa',
+        speaker: 'Georgie Ndirangu',
       },
       {
         id: 'd4s2-2',
@@ -179,7 +191,7 @@ export const speakerSlotSessions: SpeakerSlotSession[] = [
       {
         id: 'd6-adventure-park',
         track: 'Experience',
-        topic: 'Valle Park (Adevnture Park',
+        topic: 'Valle Park Adevnture Park',
         speaker: 'Atinuda Hospitality Team',
       },
       {
@@ -198,3 +210,5 @@ export const speakerSlotSessions: SpeakerSlotSession[] = [
     ],
   },
 ];
+
+export const fullSpeakerSlotOptionIds = new Set<string>(['d2-spa-day-experience']);

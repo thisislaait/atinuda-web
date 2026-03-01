@@ -6,6 +6,11 @@ import { useParams } from 'next/navigation';
 import { speakerSlotSessions } from '@/data/speakerSlots';
 
 type SelectionState = Record<string, string>;
+const fullSpeakerSlotOptionIds = new Set<string>([
+  'd2-spa-day-experience',
+  'd6-rum-track',
+  'd6-pottery-track',
+]);
 
 const buildInitialSelections = (): SelectionState =>
   Object.fromEntries(speakerSlotSessions.map((session) => [session.id, '']));
@@ -161,46 +166,75 @@ export default function SpeakerSlotsPage() {
           </div>
 
           <div className="space-y-8">
-            {speakerSlotSessions.map((session) => (
-              <fieldset
-                key={session.id}
-                className="rounded-2xl border border-[#dbd2c3] bg-[#fefcf8] p-5 md:p-6"
-              >
-                <legend className="px-2 text-sm uppercase tracking-[0.2em] text-[#4f473b]">
-                  {session.label}
-                </legend>
-                <p className="mt-3 text-sm text-[#6a6256]">{session.heading}</p>
+            {speakerSlotSessions.map((session) => {
+              const firstSelectableOptionIndex = session.options.findIndex(
+                (option) => !fullSpeakerSlotOptionIds.has(option.id)
+              );
 
-                <div className="mt-4 space-y-3">
-                  {session.options.map((option, optionIndex) => {
-                    const radioId = `${session.id}-${option.id}`;
-                    return (
-                      <label
-                        key={radioId}
-                        htmlFor={radioId}
-                        className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#e3dbcd] bg-[#fffefb] px-4 py-3 transition hover:border-[#bcae99]"
-                      >
-                        <input
-                          id={radioId}
-                          type="radio"
-                          name={session.id}
-                          value={option.id}
-                          checked={selections[session.id] === option.id}
-                          onChange={(inputEvent) =>
-                            handleSessionSelection(session.id, inputEvent.target.value)
-                          }
-                          required={optionIndex === 0}
-                          className="mt-1 h-4 w-4 border-[#9c8c77] text-[#2f2921] focus:ring-[#9c8c77]"
-                        />
-                        <span className="text-sm leading-relaxed text-[#251f18]">
-                          <strong>{option.topic}</strong> - {option.speaker}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            ))}
+              return (
+                <fieldset
+                  key={session.id}
+                  className="rounded-2xl border border-[#dbd2c3] bg-[#fefcf8] p-5 md:p-6"
+                >
+                  <legend className="px-2 text-sm uppercase tracking-[0.2em] text-[#4f473b]">
+                    {session.label}
+                  </legend>
+                  <p className="mt-3 text-sm text-[#6a6256]">{session.heading}</p>
+
+                  <div className="mt-4 space-y-3">
+                    {session.options.map((option, optionIndex) => {
+                      const radioId = `${session.id}-${option.id}`;
+                      const isOptionFull = fullSpeakerSlotOptionIds.has(option.id);
+
+                      return (
+                        <label
+                          key={radioId}
+                          htmlFor={radioId}
+                          className={`flex items-start gap-3 rounded-xl border px-4 py-3 transition ${
+                            isOptionFull
+                              ? 'cursor-not-allowed border-[#d7d2c8] bg-[#f2f0ea]'
+                              : 'cursor-pointer border-[#e3dbcd] bg-[#fffefb] hover:border-[#bcae99]'
+                          }`}
+                        >
+                          <input
+                            id={radioId}
+                            type="radio"
+                            name={session.id}
+                            value={option.id}
+                            checked={selections[session.id] === option.id}
+                            onChange={(inputEvent) =>
+                              handleSessionSelection(session.id, inputEvent.target.value)
+                            }
+                            disabled={isOptionFull}
+                            required={
+                              firstSelectableOptionIndex !== -1 &&
+                              optionIndex === firstSelectableOptionIndex
+                            }
+                            className={`mt-1 h-4 w-4 ${
+                              isOptionFull
+                                ? 'border-[#b8b2a7] text-[#b8b2a7] focus:ring-0'
+                                : 'border-[#9c8c77] text-[#2f2921] focus:ring-[#9c8c77]'
+                            }`}
+                          />
+                          <span
+                            className={`text-sm leading-relaxed ${
+                              isOptionFull ? 'text-[#8e877b]' : 'text-[#251f18]'
+                            }`}
+                          >
+                            <strong>{option.topic}</strong> - {option.speaker}
+                            {isOptionFull ? (
+                              <span className="ml-2 rounded-full border border-[#c6c0b4] px-2 py-0.5 text-[11px] uppercase tracking-[0.14em]">
+                                Full
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              );
+            })}
           </div>
 
           {errorMessage ? <p className="text-sm text-[#8d1f1f]">{errorMessage}</p> : null}

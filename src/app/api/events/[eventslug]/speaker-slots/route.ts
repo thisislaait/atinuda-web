@@ -3,6 +3,11 @@ import { FieldValue, adminDb } from '@/utils/firebaseAdmin';
 import { speakerSlotSessions } from '@/data/speakerSlots';
 
 const FIRESTORE_WRITE_TIMEOUT_MS = 12000;
+const fullSpeakerSlotOptionIds = new Set<string>([
+  'd2-spa-day-experience',
+  'd6-rum-track',
+  'd6-pottery-track',
+]);
 
 type RouteContext = {
   params: Promise<{ eventslug: string }>;
@@ -106,6 +111,9 @@ export async function POST(req: Request, context: RouteContext) {
       const selectedOption = session.options.find((option) => option.id === selectedOptionId);
       if (!selectedOption) {
         throw new Error(`Invalid workshop selected for ${session.label}.`);
+      }
+      if (fullSpeakerSlotOptionIds.has(selectedOption.id)) {
+        throw new Error(`${selectedOption.topic} is full. Please select another option for ${session.label}.`);
       }
 
       return {
