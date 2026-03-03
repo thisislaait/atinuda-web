@@ -4,15 +4,7 @@ import Image from 'next/image';
 import { FormEvent, useMemo, useState } from 'react';
 import { Sparkles, Ticket } from 'lucide-react';
 import { DINNER_BLOCKS, type CourseBlock, type CourseChoice } from '@/lib/menu-dinner-data';
-import { type ProfilePreview } from '@/lib/menu-options';
 import styles from './page.module.css';
-
-type LookupState = {
-  loading: boolean;
-  message: string;
-  matched: boolean;
-  profile: ProfilePreview | null;
-};
 
 type SelectionState = {
   belombre: { starter: string; main: string; dessert: string };
@@ -37,12 +29,6 @@ export default function MenuOptionsPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [activeDinnerId, setActiveDinnerId] = useState(DINNER_BLOCKS[0]?.id ?? '');
-  const [lookup, setLookup] = useState<LookupState>({
-    loading: false,
-    message: '',
-    matched: false,
-    profile: null,
-  });
   const [submitState, setSubmitState] = useState<{ loading: boolean; message: string; ok: boolean }>({
     loading: false,
     message: '',
@@ -58,7 +44,7 @@ export default function MenuOptionsPage() {
 
   const requiredCourses = useMemo(() => DINNER_BLOCKS.flatMap((block) => block.courses), []);
 
-  const canLookup = useMemo(
+  const canSubmitIdentity = useMemo(
     () => firstName.trim().length > 0 && lastName.trim().length > 0 && eventSlug.trim().length > 0,
     [eventSlug, firstName, lastName],
   );
@@ -82,40 +68,6 @@ export default function MenuOptionsPage() {
     [requiredCourses, selections],
   );
 
-  const onLookup = async () => {
-    if (!canLookup) return;
-
-    setLookup({ loading: true, matched: false, profile: null, message: '' });
-    const res = await fetch('/api/menu-options/profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ eventSlug, firstName, lastName }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setLookup({
-        loading: false,
-        matched: false,
-        profile: null,
-        message: data?.error || 'Profile not found. You can still continue manually.',
-      });
-      return;
-    }
-
-    const profile = (data?.profile || null) as ProfilePreview | null;
-    if (profile?.firstName) setFirstName(profile.firstName);
-    if (profile?.lastName) setLastName(profile.lastName);
-
-    setLookup({
-      loading: false,
-      matched: true,
-      profile,
-      message: `Profile matched from ${data?.source || 'list'}.`,
-    });
-  };
-
   const toggleSelection = (course: CourseBlock, choice: CourseChoice) => {
     setSelections((prev) => {
       const current = prev[course.venue][course.courseKey];
@@ -133,7 +85,7 @@ export default function MenuOptionsPage() {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!canLookup) {
+    if (!canSubmitIdentity) {
       setSubmitState({ loading: false, ok: false, message: 'Enter first name, last name, and event slug.' });
       return;
     }
@@ -152,7 +104,7 @@ export default function MenuOptionsPage() {
         eventSlug,
         firstName,
         lastName,
-        profile: lookup.profile,
+        profile: null,
         belombre: {
           starter: selections.belombre.starter,
           main: selections.belombre.main,
@@ -181,12 +133,33 @@ export default function MenuOptionsPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.shell}>
-        <h1 className={styles.title}>Dinner Menu Selection</h1>
-        <p className={styles.sub}>Choose your courses for Day 3 and Day 6 dinners, then submit once.</p>
+      <section className="relative flex min-h-[90vh] items-end overflow-hidden px-6 pb-16 pt-36 md:pb-24">
+        <div className="absolute inset-0">
+          <Image
+            src="/assets/images/Chewton-Glen.jpg"
+            alt="Retreat setting"
+            fill
+            priority
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(13,11,10,0.82)_5%,rgba(13,11,10,0.45)_55%,rgba(13,11,10,0.7)_100%)]" />
+        </div>
 
+        <div className="relative mx-auto w-full max-w-6xl">
+          <p className="mb-4 text-xs uppercase tracking-[0.32em] text-[#ede7dd]">
+            Atinuda Retreat 2026
+          </p>
+          <h1 className="hero-text max-w-4xl text-4xl leading-[1.05] text-[#f4efe5] md:text-6xl lg:text-7xl">
+            Dinner Menu Selection
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-relaxed text-[#e7ded0] md:text-lg">
+            Choose your courses for Day 3 and Day 6 dinners, then submit once.
+          </p>
+        </div>
+      </section>
+
+      <div className={styles.shell}>
         <section className={styles.card}>
-          {/* <h2 className={styles.sectionTitle}>Attendee Lookup</h2> */}
           <div className={styles.grid3}>
             <div className={styles.field}>
               <label>Event</label>
@@ -205,26 +178,6 @@ export default function MenuOptionsPage() {
               <input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last name" />
             </div>
           </div>
-
-          <div className={styles.buttonRow}>
-            <button type="button" className={styles.primary} disabled={!canLookup || lookup.loading} onClick={onLookup}>
-              {lookup.loading ? 'Checking profile...' : 'Find profile'}
-            </button>
-            {lookup.message ? (
-              <span className={lookup.matched ? styles.success : styles.err}>{lookup.message}</span>
-            ) : null}
-          </div>
-
-          {lookup.profile ? (
-            <div className={styles.profileCard}>
-              <strong>
-                {lookup.profile.displayName || `${lookup.profile.firstName || ''} ${lookup.profile.lastName || ''}`.trim()}
-              </strong>
-              <div className={styles.mutedLine}>Email: {lookup.profile.email || 'N/A'}</div>
-              <div className={styles.mutedLine}>Company: {lookup.profile.company || 'N/A'}</div>
-              {/* <div className={styles.mutedLine}>UID: {lookup.profile.uid || 'N/A'}</div> */}
-            </div>
-          ) : null}
         </section>
 
         <div className={styles.tabBar}>
@@ -286,7 +239,10 @@ export default function MenuOptionsPage() {
                   {course.choices.map((choice) => {
                     const selected = selectedValue === choice.title;
                     return (
-                      <article key={choice.optionId} className={`${styles.choiceCard} ${selected ? styles.choiceCardSelected : ''}`}>
+                      <article
+                        key={choice.optionId}
+                        className={`${styles.choiceCard} ${selected ? styles.choiceCardSelected : ''}`}
+                      >
                         <button
                           type="button"
                           className={styles.imageButton}
@@ -430,7 +386,11 @@ function MealDetailModal({
             <button type="button" className={styles.ghostBtn} onClick={onClose}>
               Close
             </button>
-            <button type="button" className={`${styles.selectBtn} ${selected ? styles.selectBtnActive : ''}`} onClick={onToggleSelection}>
+            <button
+              type="button"
+              className={`${styles.selectBtn} ${selected ? styles.selectBtnActive : ''}`}
+              onClick={onToggleSelection}
+            >
               {selected ? 'Tap to unselect' : 'Select this dish'}
             </button>
           </div>

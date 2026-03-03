@@ -1,12 +1,13 @@
 .page {
   min-height: 100vh;
   background: #f5f6fa;
-  padding: 28px 14px 80px;
+  padding: 0 0 80px;
 }
 
 .shell {
   max-width: 980px;
   margin: 0 auto;
+  padding: 0 14px;
 }
 
 .title {
@@ -461,4 +462,46 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
+}
+
+.heroWrap {
+  position: relative;
+  width: 100%;
+  min-height: clamp(260px, 45vw, 430px);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #0b1220;
+}
+
+.heroImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.heroOverlay {
+  position: relative;
+  z-index: 1;
+  min-height: clamp(260px, 45vw, 430px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(20px, 4vw, 46px);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.2) 0%, rgba(2, 6, 23, 0.6) 56%, rgba(2, 6, 23, 0.78) 100%);
+}
+
+.heroTitle {
+  font-family: 'Orpheus Pro', serif;
+  color: #ffffff;
+  font-size: clamp(2rem, 5.4vw, 5rem);
+  line-height: 0.95;
+  max-width: 12ch;
+}
+
+.heroSub {
+  margin-top: 12px;
+  color: rgba(241, 245, 249, 0.96);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.4;
+  max-width: 56ch;
 }
