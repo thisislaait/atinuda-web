@@ -82,6 +82,45 @@
   gap: 10px;
 }
 
+.navigationRow {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.secondaryNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ded4c2;
+  color: #000000;
+  font-weight: 700;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.primaryNavBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #0f172a;
+  border-radius: 999px;
+  background: #769b83;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.primaryNavBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .primary {
   border: none;
   border-radius: 999px;

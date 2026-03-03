@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { FormEvent, useMemo, useState } from 'react';
-import { Sparkles, Ticket } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Ticket } from 'lucide-react';
 import { DINNER_BLOCKS, type CourseBlock, type CourseChoice } from '@/lib/menu-dinner-data';
 import styles from './page.module.css';
 
@@ -42,6 +42,11 @@ export default function MenuOptionsPage() {
     [activeDinnerId],
   );
 
+  const activeDinnerIndex = useMemo(
+    () => DINNER_BLOCKS.findIndex((block) => block.id === activeBlock.id),
+    [activeBlock.id],
+  );
+
   const requiredCourses = useMemo(() => DINNER_BLOCKS.flatMap((block) => block.courses), []);
 
   const canSubmitIdentity = useMemo(
@@ -67,6 +72,27 @@ export default function MenuOptionsPage() {
       ),
     [requiredCourses, selections],
   );
+
+  const activeSelectedCount = useMemo(
+    () =>
+      activeBlock.courses.reduce(
+        (count, course) =>
+          count + (selections[course.venue][course.courseKey].trim().length > 0 ? 1 : 0),
+        0,
+      ),
+    [activeBlock.courses, selections],
+  );
+
+  const isFirstDinner = activeDinnerIndex <= 0;
+  const isLastDinner = activeDinnerIndex === DINNER_BLOCKS.length - 1;
+  const nextBlock = !isLastDinner ? DINNER_BLOCKS[activeDinnerIndex + 1] : null;
+
+  const goToDinnerByIndex = (index: number) => {
+    const target = DINNER_BLOCKS[index];
+    if (!target) return;
+    setActiveDinnerId(target.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const toggleSelection = (course: CourseBlock, choice: CourseChoice) => {
     setSelections((prev) => {
@@ -146,9 +172,7 @@ export default function MenuOptionsPage() {
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl">
-          <p className="mb-4 text-xs uppercase tracking-[0.32em] text-[#ede7dd]">
-            Atinuda Retreat 2026
-          </p>
+          <p className="mb-4 text-xs uppercase tracking-[0.32em] text-[#ede7dd]">Atinuda Retreat 2026</p>
           <h1 className="hero-text max-w-4xl text-4xl leading-[1.05] text-[#f4efe5] md:text-6xl lg:text-7xl">
             Dinner Menu Selection
           </h1>
@@ -179,22 +203,6 @@ export default function MenuOptionsPage() {
             </div>
           </div>
         </section>
-
-        <div className={styles.tabBar}>
-          {DINNER_BLOCKS.map((block) => {
-            const active = block.id === activeBlock.id;
-            return (
-              <button
-                key={block.id}
-                type="button"
-                onClick={() => setActiveDinnerId(block.id)}
-                className={`${styles.tabBtn} ${active ? styles.tabBtnActive : ''}`}
-              >
-                {block.tabTitle}
-              </button>
-            );
-          })}
-        </div>
 
         <section className={styles.card}>
           <div className={styles.metaHeader}>
@@ -297,14 +305,44 @@ export default function MenuOptionsPage() {
         </section>
 
         <form className={styles.card} onSubmit={onSubmit}>
-          <h2 className={styles.sectionTitle}>Submit Menu Choices</h2>
+          <h2 className={styles.sectionTitle}>{isLastDinner ? 'Submit Menu Choices' : 'Continue to Next Dinner'}</h2>
           <p className={styles.subtleProgress}>
-            Completed {selectedCount} of {requiredCourses.length} required selections.
+            {isLastDinner
+              ? `Completed ${selectedCount} of ${requiredCourses.length} required selections.`
+              : `Completed ${activeSelectedCount} of ${activeBlock.courses.length} selections for ${activeBlock.tabTitle}.`}
           </p>
+
+          <div className={styles.navigationRow}>
+            {!isFirstDinner ? (
+              <button
+                type="button"
+                className={styles.secondaryNavBtn}
+                onClick={() => goToDinnerByIndex(activeDinnerIndex - 1)}
+              >
+                <ArrowLeft size={16} />
+                Prev
+              </button>
+            ) : (
+              <span />
+            )}
+
+            {!isLastDinner ? (
+              <button
+                type="button"
+                className={styles.primaryNavBtn}
+                onClick={() => goToDinnerByIndex(activeDinnerIndex + 1)}
+              >
+                Next {nextBlock ? `(${nextBlock.tabTitle})` : ''}
+                <ArrowRight size={16} />
+              </button>
+            ) : (
+              <button type="submit" className={styles.primaryNavBtn} disabled={submitState.loading || !isComplete}>
+                {submitState.loading ? 'Saving...' : 'Submit Menu Choices'}
+              </button>
+            )}
+          </div>
+
           <div className={styles.buttonRow}>
-            <button type="submit" className={styles.primary} disabled={submitState.loading || !isComplete}>
-              {submitState.loading ? 'Saving...' : 'Save Menu Selections'}
-            </button>
             {submitState.message ? (
               <span className={submitState.ok ? styles.success : styles.err}>{submitState.message}</span>
             ) : null}
