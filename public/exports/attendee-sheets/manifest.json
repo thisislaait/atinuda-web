@@ -1,0 +1,15 @@
+{
+  "eventSlug": "martitus-retreat-2026",
+  "generatedAt": "2026-03-04T23:47:05.546Z",
+  "counts": {
+    "attendees": 31,
+    "workshopsRows": 31,
+    "mealsRows": 31,
+    "experiencesRows": 31
+  },
+  "files": {
+    "sheet1WorkshopsCsv": "/exports/attendee-sheets/sheet1-workshops.csv",
+    "sheet2MealsCsv": "/exports/attendee-sheets/sheet2-meals.csv",
+    "sheet3ExperiencesCsv": "/exports/attendee-sheets/sheet3-experiences.csv"
+  }
+}

@@ -1,0 +1,179 @@
+.page {
+  min-height: 100vh;
+  background: #f7f7f5;
+  padding: 40px 16px 60px;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.title {
+  color: #111827;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.sub {
+  margin-top: 8px;
+  color: #4b5563;
+  font-size: 0.98rem;
+}
+
+.form {
+  margin-top: 20px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.group {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.group label {
+  color: #111827;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.group input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #111827;
+}
+
+.radioGroup {
+  margin: 14px 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.radioGroup legend {
+  padding: 0 4px;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.radioList {
+  display: grid;
+  gap: 10px;
+}
+
+.radioOption {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.radioOption input {
+  margin-top: 3px;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.optionTitle {
+  color: #111827;
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.optionDescription {
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  font-style: italic;
+}
+
+.submit {
+  margin-top: 8px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.legend {
+  margin-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.legend h2 {
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.legend p {
+  margin-top: 4px;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.legend ul {
+  margin-top: 8px;
+  padding-left: 18px;
+  color: #374151;
+}
+
+.legend li {
+  margin-top: 4px;
+  font-size: 0.92rem;
+}
+
+.summary {
+  margin-top: 16px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.summary h2 {
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.summary p {
+  margin-top: 6px;
+  color: #374151;
+}
