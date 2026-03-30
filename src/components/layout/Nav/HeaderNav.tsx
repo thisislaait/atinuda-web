@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
 const HeaderNav = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasNoHero, setHasNoHero] = useState(false);
   const [isSolid, setIsSolid] = useState(false); // controls bg + text color (black when true)
@@ -42,7 +43,7 @@ const HeaderNav = () => {
 
   const handleNavClick = (path: string) => {
     setMenuOpen(false);
-    window.location.href = path;
+    router.push(path);
   };
 
   const logoSrc = isSolid
@@ -131,7 +132,7 @@ const HeaderNav = () => {
               "Our Story",
               "Membership",
               "Brands Activation",
-              "Spark The Future 2025",
+              "Spark The Future",
               "Regional Events",
             ].map((item, index) => {
               const path = `/${item.toLowerCase().replace(/\s+/g, "-")}`;

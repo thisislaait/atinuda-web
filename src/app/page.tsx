@@ -1,717 +1,889 @@
-'use client';
+// Server component, no 'use client'.
+// Interactive islands (FAQ, Schedule, StickyNav) are imported as client components
+// and will be SSR'd with their initial (closed/hidden) state, then hydrated.
 
-import React, { useState } from 'react';
-import { ArrowRight, CalendarClock, Download, Image as ImageIcon, MapPin, MessageCircle, ShieldCheck, Sparkles, Ticket } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import BottomNav from '../components/layout/Nav/BottomNav';
+import {
+  ArrowRight,
+  MapPin,
+  Calendar,
+  Sparkles,
+  MessageCircle,
+  Download,
+  ShieldCheck,
+} from 'lucide-react';
 
-const CTAButton = ({
-  label,
-  href = '#',
-  primary = false,
-}: {
-  label: string;
-  href?: string;
-  primary?: boolean;
-}) => (
-  <Link
-    href={href}
-    className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition ${
-      primary
-        ? 'bg-[#0B1220] text-white hover:bg-[#131b2f]'
-        : 'bg-white/80 text-[#0B1220] border border-white/50 hover:bg-white'
-    }`}
-  >
-    <Download size={16} />
-    <span>{label}</span>
-  </Link>
-);
+import Image from 'next/image';
+import FAQAccordion from '@/components/home/FAQAccordion';
+import StickyRetreatNav from '@/components/layout/Nav/StickyRetreatNav';
+import { featuredSpeakers, totalSpeakers } from '@/data/speakers';
+import WhoAttendsSection from '@/components/home/WhoAttendsSection';
+import RotatingHeading from '@/components/home/RotatingHeading';
 
-const statics = {
-  features: [
-    {
-      title: 'Tickets & RSVP',
-      desc: 'Buy and store passes, RSVP, and keep your QR handy at the door.',
-      icon: Ticket,
-    },
-    {
-      title: 'Schedule & Speakers',
-      desc: 'Live itinerary, speaker lineup, and curated sessions in one view.',
-      icon: CalendarClock,
-    },
-    {
-      title: 'Guides & Lookbooks',
-      desc: 'Venue, travel, and city guides with attire/lookbook inspiration.',
-      icon: MapPin,
-    },
-    {
-      title: 'Photos & Community',
-      desc: 'Relive moments, share galleries, and connect via WhatsApp.',
-      icon: ImageIcon,
-    },
-  ],
-  events: [
-    {
-      title: 'Azizi Mixer 2025',
-      blurb: 'Afrofuturist soirée with curated networking and live sets.',
-      tag: 'Lagos',
-      tone: 'from-[#0B1220] to-[#1f2c4a]',
-    },
-    {
-      title: 'CEO Dinner 2025',
-      blurb: 'Black-tie reception for founders, investors, and partners.',
-      tag: 'Lagos',
-      tone: 'from-[#1a1a1a] to-[#2e1c12]',
-    },
-    {
-      title: 'Summit Day 1',
-      blurb: 'Keynotes, panels, and masterclasses on luxury experiences.',
-      tag: 'Conference',
-      tone: 'from-[#0d1828] to-[#213d52]',
-    },
-    {
-      title: 'Summit Day 2',
-      blurb: 'Breakouts, showcases, and deal-making with global peers.',
-      tag: 'Conference',
-      tone: 'from-[#1b2438] to-[#2b3f56]',
-    },
-  ],
-  posts: [
-    {
-      title: 'Designing unforgettable luxury events',
-      tag: 'Insights',
-      desc: 'How Atinuda curates immersive experiences across retreats and summits.',
-    },
-    {
-      title: 'What we learned at Atinuda 2025',
-      tag: 'Recap',
-      desc: 'Highlights from speakers, partners, and the community.',
-    },
-    {
-      title: 'Building community beyond the ballroom',
-      tag: 'Community',
-      desc: 'Connecting attendees year-round through the Atinuda app.',
-    },
-  ],
-  collaborators: [
-    'Logos',
-    'build_cities',
-    'Charter Cities Institute',
-    'Kleros',
-    'Waku',
-    'Railgun',
-    'ZuVillage',
-  ],
-  agenda: [
-    { time: '10:00', title: 'Doors open', room: 'Main Stage' },
-    { time: '10:30', title: 'Welcome remarks', room: 'Main Stage' },
-    { time: '11:00', title: 'Keynote: Future of Luxury', room: 'Main Stage' },
-    { time: '12:00', title: 'Panel: Experience Design', room: 'Demo Room' },
-    { time: '13:00', title: 'Lunch & networking', room: 'Chill Zone' },
-    { time: '14:00', title: 'Workshop: Community Growth', room: 'Round Table' },
-  ],
-  whoAttends: [
-    'CEOs, Founders & Entrepreneurs',
-    'Creative Directors & Event Professionals',
-    'Brand Leaders & Strategists',
-    'Corporate Executives',
-    'Innovators, Builders & Visionaries',
-  ],
-  highlights: [
-    'Opening Night: Welcome cocktail & beach barbecue (The Oberoi)',
-    'Wellness Day: Spa, water sports, mindfulness & exploration (LUX* Belle Mare)',
-    'Leadership Keynotes & Panels: Purpose, influence, community building (The Oberoi)',
-    'Workshops: Strategy, finance, creativity, branding, tech & events (The Oberoi)',
-    'Château Dinner: Signature dining at Château de Labourdonnais',
-    'Elevation Gala: Black-tie awards & entertainment (Le Château de Bel Ombre)',
-    'Island Adventures: Catamaran cruise, cultural tours, spa immersion',
-  ],
-  differentiators: [
-    'Wellness and leadership in one experience',
-    'High-level networking with intention',
-    'Africa-centred vision with global pathways',
-    'Experiential learning and immersive design',
-    'Community that continues long after the retreat',
-  ],
-  faqs: [
-    { q: 'Where do I buy tickets?', a: 'All ticketing and RSVPs are handled in the Atinuda app. However, payment can also be made on the web' },
-    { q: 'Will I get a QR pass?', a: 'Yes. After checkout your QR is stored in the app under Tickets.' },
-    { q: 'Can I view the agenda?', a: 'Live itineraries and speaker details live in the app. A snapshot is shown below.' },
-    { q: 'Is there a community group?', a: 'Join our WhatsApp community via the Explore section or the CTA below.' },
-    { q: 'Is accommodation included?', a: 'Retreat passes cover programming, hospitality, and experiences. Flights and lodging are not included. Preferred hotel links are shared in the app.' },
-    { q: 'Travel requirements?', a: 'Most passports are visa-free or VOA. Carry hotel confirmation, return ticket, proof of funds; passport valid 6+ months. Full travel guidance lives in the app.' },
-  ],
-  schedule: [
-    {
-      day: 'Day 1 · Mar 8',
-      title: 'Arrival & First Light',
-      highlight: 'The Arrival',
-      slots: [
-        'Airport welcome, private transfers, room reveals',
-        '6:00–10:00 PM: Sunset cocktails, opening ritual, barbecue',
-      ],
-    },
-    {
-      day: 'Day 2 · Mar 9',
-      title: 'Rise Within',
-      highlight: 'Wellness & restoration',
-      slots: [
-        'Morning wellness paths + communal breakfast',
-        '10:00 AM–4:00 PM: Catamaran or spa day',
-        '7:00–10:00 PM: Sunset welcome + chef’s tasting dinner',
-      ],
-    },
-    {
-      day: 'Day 3 · Mar 10',
-      title: 'Rise Together',
-      highlight: 'Leadership & community',
-      slots: [
-        'Opening sessions, keynotes, panels',
-        'Coffee + Speed Connection, office hours',
-        'Château dinner in the evening',
-      ],
-    },
-    {
-      day: 'Day 4 · Mar 11',
-      title: 'Rise in Skill',
-      highlight: 'Workshops & deep dives',
-      slots: [
-        'Workshop tracks (business, finance, tech, events)',
-        'Strategy Hot Seat + masterclass',
-        'Dinner + Elevation mini awards',
-      ],
-    },
-    {
-      day: 'Day 5 · Mar 12',
-      title: 'Rise in Creativity',
-      highlight: 'Branding & experience',
-      slots: [
-        'Creative summit + branding panels',
-        'Experience design labs and challenge',
-        'Connection Dinner in the evening',
-      ],
-    },
-    {
-      day: 'Day 6 · Mar 13',
-      title: 'Rise Beyond',
-      highlight: 'Global expansion & gala',
-      slots: [
-        'Morning practice, going-global keynotes',
-        'Island experience tracks in the afternoon',
-        'Elevation Gala: dinner, awards, celebration',
-      ],
-    },
-    {
-      day: 'Day 7 · Mar 14',
-      title: 'Departure',
-      highlight: 'Farewell & follow-up',
-      slots: [
-        'Breakfast & checkout',
-        'Transfers and farewell',
-        'Follow-ups, gallery, reunion',
-      ],
-    },
-  ],
+// ── Page metadata ─────────────────────────────────────────────────────────────
+
+export const metadata: Metadata = {
+  title: 'Atinuda Retreat 2026, The Elevation | Mauritius',
+  description:
+    "A seven-day leadership immersion in Mauritius for Africa's most intentional founders, executives, and creators. March 8–14, 2026.",
+  openGraph: {
+    title: 'Atinuda Retreat 2026, The Elevation',
+    description:
+      "Seven days in Mauritius. For the most intentional leaders in Africa and the diaspora.",
+    images: [{ url: '/assets/images/Mauritius2.png' }],
+  },
 };
 
-export default function HomePage(): React.JSX.Element {
-  const [showFullSchedule, setShowFullSchedule] = useState(false);
+// ── Static data ───────────────────────────────────────────────────────────────
+
+const RETREAT_TICKET_URL = '/retreat-ticket';
+
+// [BUSINESS DATA] Replace [X] values with real numbers before launch
+const proofStats = [
+  { value: '6th', label: 'Edition' },
+  { value: '742+', label: 'Leaders' },
+  { value: '53', label: 'Sessions' },
+  { value: 'Curated', label: 'By Application' },
+];
+
+
+const differentiators = [
+  {
+    title: 'Africa-centred, globally executed',
+    desc: "Built for and by Africa's most ambitious, then taken to the world.",
+  },
+  {
+    title: 'Wellness and leadership, woven together',
+    desc: "Not a break from work. An elevation of self that makes the work better.",
+  },
+  {
+    title: 'Immersive, not instructional',
+    desc: "Every moment is designed. Every venue is deliberate. Nothing is accidental.",
+  },
+  {
+    title: 'High-level access with intention',
+    desc: "The people in this room are selected for what they bring, not just what they've achieved.",
+  },
+  {
+    title: 'A community that outlasts the week',
+    desc: "The relationships, collaborations, and accountability continue long after Mauritius.",
+  },
+];
+
+const programmeHighlights = [
+  {
+    day: '1',
+    date: 'Mar 8',
+    title: 'The Arrival',
+    desc: "Airport welcome, private transfers, room reveals at The Oberoi. Sunset cocktails, welcome ceremony, and a beach barbecue as the week begins.",
+    venue: 'The Oberoi, Mauritius',
+  },
+  {
+    day: '2',
+    date: 'Mar 9',
+    title: 'Rise Within',
+    desc: "A full day of wellness and restoration. Morning practices, a catamaran cruise or spa immersion, and a chef's tasting dinner at LUX* Belle Mare.",
+    venue: 'LUX* Belle Mare',
+  },
+  {
+    day: '3',
+    date: 'Mar 10',
+    title: 'Rise Together',
+    desc: "Opening keynotes, leadership panels, speed connections, and executive office hours. An evening Château dinner in the vineyards.",
+    venue: 'The Oberoi & Château de Labourdonnais',
+  },
+  {
+    day: '4',
+    date: 'Mar 11',
+    title: 'Rise in Skill',
+    desc: "Deep-dive workshop tracks across business, finance, technology, and events. A Strategy Hot Seat, masterclass, and Elevation mini awards dinner.",
+    venue: 'The Oberoi, Mauritius',
+  },
+  {
+    day: '5',
+    date: 'Mar 12',
+    title: 'Rise in Creativity',
+    desc: "A creative summit, branding panels, and immersive experience design labs. Closing with a connection dinner as the cohort finds its rhythm.",
+    venue: 'The Oberoi, Mauritius',
+  },
+  {
+    day: '6',
+    date: 'Mar 13',
+    title: 'Rise Beyond',
+    desc: "Going-global keynotes and island experience tracks through the afternoon. The pinnacle Elevation Gala, a black-tie dinner and awards celebration.",
+    venue: 'Le Château de Bel Ombre',
+  },
+];
+
+const departureProgramme = {
+  day: '7',
+  date: 'Mar 14',
+  title: 'Departure',
+  desc: "A closing breakfast, private farewells, and the promise of what comes next. The week ends. The work continues.",
+  venue: 'Mauritius',
+};
+
+
+const pastEvents = [
+  {
+    title: 'Azizi Mixer 2025',
+    blurb: 'Afrofuturist soirée with curated networking and live sets.',
+    tag: 'Lagos',
+    gradient: 'from-[#0d2010] to-[#1f3622]',
+  },
+  {
+    title: 'CEO Dinner 2025',
+    blurb: 'Black-tie reception for founders, investors, and partners.',
+    tag: 'Lagos',
+    gradient: 'from-[#1a1a1a] to-[#2e1c12]',
+  },
+  {
+    title: 'Summit Day 1',
+    blurb: 'Keynotes, panels, and masterclasses on luxury experiences.',
+    tag: 'Conference',
+    gradient: 'from-[#0d1e0e] to-[#213d28]',
+  },
+  {
+    title: 'Summit Day 2',
+    blurb: 'Breakouts, showcases, and deal-making with global peers.',
+    tag: 'Conference',
+    gradient: 'from-[#1b2438] to-[#2b3f56]',
+  },
+];
+
+// [BUSINESS DATA] What's included in the retreat pass
+const included = [
+  'All retreat sessions, keynotes & workshop tracks',
+  'Welcome reception, cocktails & opening barbecue',
+  "Château dinner at Château de Labourdonnais",
+  'Elevation Gala, black-tie awards evening',
+  'Catamaran cruise or full spa day',
+  'Island excursions & cultural experiences',
+  'Coffee connections & executive speed sessions',
+  'All meals during hosted retreat activities',
+  'Atinuda app access: itineraries, speakers & guides',
+  'Post-retreat: gallery, resources & alumni access',
+];
+
+const notIncluded = [
+  'Flights to and from Mauritius',
+  'Hotel accommodation (preferred rates & links shared in the app)',
+];
+
+const faqs = [
+  {
+    q: 'How do I apply for a retreat pass?',
+    a: "Retreat passes are available at atinuda.com/retreat-ticket. Once you apply, your submission is reviewed for cohort fit. Approved applicants receive a confirmation and payment link.",
+  },
+  {
+    q: 'What is the investment?',
+    a: "Retreat passes start from [PRICE RANGE]. Your pass covers all programming, curated hospitality, hosted meals, and experiences listed in the programme. Flights and accommodation are not included.",
+  },
+  {
+    q: 'Is accommodation included?',
+    a: "No. Your retreat pass covers all programming and curated experiences. Preferred hotel rates and booking links are shared in the Atinuda app after your pass is confirmed.",
+  },
+  {
+    q: 'Are there visa requirements for Mauritius?',
+    a: "Most passports are visa-free or visa-on-arrival for Mauritius. Carry your hotel confirmation, return ticket, and proof of funds. Your passport must be valid for 6+ months. Full travel guidance is shared in the app after booking.",
+  },
+  {
+    q: 'Will I get a QR pass?',
+    a: "Yes. After checkout your QR pass is stored in the Atinuda app under Tickets. It is your entry to all retreat experiences and venues.",
+  },
+  {
+    q: 'Is there a community after the retreat?',
+    a: "Yes. Atinuda delegates gain access to a private circle via the app, WhatsApp community, and early access to future events. The community continues long after Mauritius.",
+  },
+  {
+    q: 'Where can I view the full schedule?',
+    a: "A snapshot of the seven-day arc is on this page. The complete live itinerary with speaker details, session times, and venue maps lives in the Atinuda app.",
+  },
+];
+
+// ── Shared style shorthand ────────────────────────────────────────────────────
+const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' } as const;
+
+// ── Page Component ─────────────────────────────────────────────────────────────
+
+export default function HomePage() {
   return (
-    <div className="bg-gradient-to-b from-[#f8fafc] via-[#f1f4f9] to-[#eef2f8] text-[#0B1220]">
-      {/* New hero banner with background image and PSC-style text */}
-      <section className="relative overflow-hidden min-h-screen flex items-center">
-        <div className="absolute inset-0">
+    <>
+      {/* Sticky retreat CTA bar, appears after scrolling past the hero */}
+      <StickyRetreatNav />
+
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <section
+        id="hero"
+        className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+      >
+        <div className="absolute inset-0" aria-hidden="true">
           <div
-            className="absolute inset-0 bg-cover bg-center scale-105"
-            style={{ backgroundImage: "url('/assets/images/Mauritius2.png')" }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/assets/images/Retreat/landinghero.JPG')" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-black/75" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-6 py-16 lg:py-20 text-center space-y-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm mx-auto" />
-          <div className="space-y-3">
-            <p className="text-xs tracking-[0.25em] text-white/70">ATINUDA RETREAT 2026</p>
-            <h1 className="hero-text text-4xl md:text-5xl lg:text-6xl leading-tight uppercase text-white drop-shadow-[0_10px_25px_rgba(0,0,0,0.45)]">
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto space-y-8">
+          <p className="nav-text text-xs tracking-[0.35em] uppercase text-white/45">
+            Atinuda Retreat 2026
+          </p>
+
+          <div className="space-y-4">
+            <h1
+              className="text-6xl md:text-7xl lg:text-8xl uppercase text-white leading-none tracking-tight"
+              style={{ ...serif, textShadow: '0 4px 60px rgba(0,0,0,0.4)' }}
+            >
               The Elevation
             </h1>
-            <p className="text-sm tracking-[0.2em] uppercase text-white/70">Rise Within | Rise Together | Rise Beyond</p>
-          </div>
-          <div className="max-w-3xl mx-auto rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 px-6 py-5 shadow-2xl shadow-black/30">
-            <p className="text-base leading-relaxed text-white/85">
-              A week-long leadership and creativity immersion in Mauritius for visionary founders, executives, and creators across Africa and the diaspora. Rise in a luxurious, intentional setting that blends strategy, wellness, culture, and networking. Inspired by Mauritius—a nation that rose from the ocean floor—every moment invites you to grow personally, lead together, and build a lasting legacy.
+            <p className="nav-text text-xs tracking-[0.3em] uppercase text-white/45">
+              Rise Within · Rise Together · Rise Beyond
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 relative z-20">
+
+          <p className="text-white/70 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
+            A seven-day leadership immersion in Mauritius for Africa&apos;s most
+            intentional founders, executives, and creators.
+          </p>
+
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/8 backdrop-blur-sm border border-white/15 text-sm text-white/60">
+            <MapPin size={12} aria-hidden="true" />
+            <span>Mauritius</span>
+            <span className="text-white/25" aria-hidden="true">·</span>
+            <Calendar size={12} aria-hidden="true" />
+            <span>March 8–14, 2026</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
-              href="/retreat-ticket"
-              className="px-5 py-3 bg-black/80 text-white text-sm font-semibold rounded-full border border-white/20 shadow-lg shadow-black/25 hover:bg-black transition"
+              href={RETREAT_TICKET_URL}
+              className="px-8 py-4 bg-white text-[#0d2010] text-sm font-semibold rounded-full hover:bg-white/92 transition-colors shadow-xl shadow-black/30"
             >
-              Claim your spot
+              Claim your retreat pass
             </Link>
-            <button className="px-5 py-3 bg-white text-[#0B1220] text-sm font-semibold rounded-full border border-white/40 shadow-lg shadow-black/20 hover:bg-white/90 transition">
-              Mauritius, March 8th - 14th 2026
-            </button>
-            
+            <Link
+              href="#programme"
+              className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-white transition-colors"
+            >
+              Explore the programme
+              <ArrowRight size={13} aria-hidden="true" />
+            </Link>
           </div>
         </div>
 
-        <div className="absolute bottom-4 inset-x-0">
-          <BottomNav />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2" aria-hidden="true">
+          <div className="w-px h-14 bg-gradient-to-b from-transparent to-white/25" />
         </div>
       </section>
 
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-white via-[#f3f6fb] to-[#e9eef7]" />
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-16 -left-20 w-96 h-96 bg-[#9fb7ff]/10 blur-[140px]" />
-          <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-[#ffb36c]/10 blur-[160px]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.6),transparent_35%),radial-gradient(circle_at_80%_40%,rgba(255,255,255,0.35),transparent_40%)]" />
+      {/* ── PROOF BAR ────────────────────────────────────────────────────── */}
+      <section className="bg-[#faf9f7] border-b border-[#ede9e4]" aria-label="At a glance">
+        <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-0 md:divide-x md:divide-[#e5e0da]">
+            {proofStats.map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center text-center px-6">
+                <span
+                  className="text-4xl md:text-5xl text-[#0d2010]"
+                  style={serif}
+                >
+                  {stat.value}
+                </span>
+                <span className="nav-text text-[10px] tracking-[0.28em] uppercase text-[#9ca3af] mt-2">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28 flex flex-col gap-12 lg:flex-row lg:items-center">
-          <div className="flex-1 space-y-6">
-            <p className="uppercase tracking-[0.25em] text-xs text-[#6b7280]">Atinuda App</p>
-            <h1 className="hero-text text-4xl md:text-5xl lg:text-6xl leading-tight">
-              The luxury events companion for tickets, schedules, and community.
-            </h1>
-            <p className="text-[#475569] text-lg max-w-2xl">
-              Keep everything for Atinuda in one place: buy tickets, store QR passes, view live
-              itineraries, meet speakers, and unlock guides—all from the app.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <CTAButton label="Download on iOS" href="https://apps.apple.com/us/app/atinuda/id6755419370" primary />
-              <CTAButton label="Download on Android (coming soon)" />
-              <Link
-                href="#resource-hub"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-[#ff7f41] hover:text-[#0B1220] transition"
+      </section>
+
+      {/* ── STORY ────────────────────────────────────────────────────────── */}
+      <section className="bg-[#faf9f7] py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-[1fr_1.6fr] gap-16 lg:gap-24 items-start">
+            <div className="lg:sticky lg:top-32">
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#9ca3af] mb-8">
+                The Elevation
+              </p>
+              <h2
+                className="text-5xl md:text-6xl lg:text-7xl leading-[0.93] text-[#0d2010]"
+                style={serif}
               >
-                Explore resources <ArrowRight size={16} />
+                Not a<br /><RotatingHeading />
+              </h2>
+            </div>
+
+            <div className="space-y-8 pt-1 lg:pt-16">
+              <p className="text-[#3a3a3a] text-xl leading-relaxed">
+                The Elevation is a curated seven-day immersion in Mauritius, a nation
+                that rose from the ocean floor, designed for Africa&apos;s most intentional
+                leaders. A week that weaves luxury hospitality with real programming,
+                deep wellness, and the kind of relationships that redefine what is possible.
+              </p>
+              <p className="text-[#3a3a3a] text-xl leading-relaxed">
+                Every moment is designed. Every venue is deliberate. Every person in the
+                room belongs there.
+              </p>
+
+              <div className="flex items-start gap-2.5 text-sm text-[#9ca3af] pt-2">
+                <MapPin size={13} className="mt-0.5 flex-shrink-0" aria-hidden="true" />
+                <span className="leading-relaxed">
+                  The Oberoi · LUX* Belle Mare · Château de Labourdonnais · Le Château de Bel Ombre
+                </span>
+              </div>
+
+              <Link
+                href="#programme"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-[#0d2010] group"
+              >
+                See what&apos;s included
+                <ArrowRight
+                  size={14}
+                  className="group-hover:translate-x-1 transition-transform"
+                  aria-hidden="true"
+                />
               </Link>
             </div>
-            <div className="flex items-center gap-6 pt-4 text-[#6b7280]">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={18} />
-                <span className="text-sm">Secure payments via Flutterwave</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-2">
-                <Sparkles size={18} />
-                <span className="text-sm">Curated for premium experiences</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className="relative mx-auto max-w-md rounded-3xl bg-white border border-white/60 shadow-2xl shadow-[#a5b4fc]/30 p-6 backdrop-blur">
-              <div className="absolute -top-8 -left-6 w-32 h-32 bg-[#ffb36c]/20 blur-[70px]" />
-              <div className="absolute -bottom-10 right-0 w-40 h-40 bg-[#9fb7ff]/20 blur-[90px]" />
-              <div className="relative aspect-[3/5] rounded-2xl bg-gradient-to-br from-[#f5f7fb] via-[#eef2f8] to-[#e7ebf5] border border-[#e2e8f0] p-6 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#6b7280]">Today</p>
-                  <div className="space-y-1">
-                    <p className="text-sm text-[#475569]">Mauritius Retreat</p>
-                    <p className="text-2xl font-semibold hero-text">Check-in window opens</p>
-                    <p className="text-[#64748b] text-sm">Tap to view your QR pass</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between rounded-xl bg-white border border-[#e2e8f0] px-4 py-3 shadow-sm">
-                    <div>
-                      <p className="text-xs text-[#6b7280]">Ticket</p>
-                      <p className="font-semibold">Executive Pass</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-[#6b7280]">Status</p>
-                      <p className="text-emerald-600 font-semibold">Ready</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 rounded-xl bg-white border border-[#e2e8f0] px-4 py-3 shadow-sm">
-                    <div className="w-10 h-10 rounded-full bg-[#eef2f8] flex items-center justify-center">
-                      <CalendarClock size={18} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">Evening Welcome</p>
-                      <p className="text-xs text-[#6b7280]">Bel Ombre · 6:00 PM</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 rounded-xl bg-white border border-[#e2e8f0] px-4 py-3 shadow-sm">
-                    <div className="w-10 h-10 rounded-full bg-[#eef2f8] flex items-center justify-center">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">Venue guide</p>
-                      <p className="text-xs text-[#6b7280]">Maps, transfers, concierge</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-6 py-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {statics.features.map((f) => (
-          <div
-            key={f.title}
-            className="rounded-2xl bg-white border border-[#e5e7eb] p-5 shadow-sm flex flex-col gap-3"
-          >
-            <div className="w-12 h-12 rounded-full bg-[#eef2f8] flex items-center justify-center">
-              <f.icon size={18} />
-            </div>
-            <p className="font-semibold text-lg hero-text">{f.title}</p>
-            <p className="text-sm text-[#475569]">{f.desc}</p>
-          </div>
-        ))}
-      </section>
+      {/* ── WHO ATTENDS ──────────────────────────────────────────────────── */}
+      <WhoAttendsSection />
 
-      {/* <section className="bg-white text-[#0B1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 space-y-8">
-          <h2 className="text-3xl font-semibold hero-text">Collaborators & Partners</h2>
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {statics.collaborators.map((name) => (
-              <div
-                key={name}
-                className="rounded-2xl border border-dashed border-[#d1d5db] px-4 py-8 text-center flex flex-col items-center gap-3 bg-white shadow-sm"
-              >
-                <div className="w-14 h-14 rounded-full bg-[#f3f4f6] border border-[#e5e7eb]" />
-                <p className="text-sm font-semibold">{name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      <section className="bg-white text-[#0B1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 grid gap-10 lg:grid-cols-2 items-start">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="uppercase tracking-[0.25em] text-xs text-[#6b7280]">Atinuda Retreat 2026</p>
-              <h2 className="text-4xl md:text-5xl font-serif leading-tight">Curated for the most intentional leaders.</h2>
-            </div>
-            <p className="text-[#4b5563] text-sm md:text-base max-w-xl">
-              A week of luxury, learning, and connection in Mauritius—crafted for founders, executives, and creators who want
-              to rise together. Expect programming that blends wellness, leadership, and immersive experiences.
-            </p>
-            <div className="space-y-2 text-sm">
-              <div className="border-t border-[#d1d5db] pt-2">CEOs, Founders & Entrepreneurs</div>
-              <div className="border-t border-[#d1d5db] pt-2">Creative Directors & Event Professionals</div>
-              <div className="border-t border-[#d1d5db] pt-2">Brand Leaders & Strategists</div>
-              <div className="border-t border-[#d1d5db] pt-2">Corporate Executives</div>
-              <div className="border-t border-[#d1d5db] pt-2">Innovators, Builders & Visionaries</div>
-            </div>
-            <p className="text-[#4b5563] text-sm">A community grounded in values, ambition, and authenticity.</p>
-            <Link
-              href="/retreat-ticket"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
-            >
-              View retreat tickets <ArrowRight size={16} />
-            </Link>
-          </div>
-
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <h3 className="text-sm uppercase tracking-[0.2em] text-[#6b7280]">Programme Highlights</h3>
-              <div className="space-y-2 text-sm">
-                {statics.highlights.map((item) => (
-                  <div key={item} className="border-t border-[#d1d5db] pt-2 leading-relaxed">
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#f2dfd2] text-[#2b1f1a] py-16">
-        <div className="max-w-5xl mx-auto px-6 space-y-4">
-          <p className="uppercase tracking-[0.25em] text-xs text-[#5a433a]">What makes Atinuda different</p>
-          <p
-            className="text-3xl md:text-4xl lg:text-5xl leading-snug"
-            style={{ fontFamily: 'Orpheus Pro, "Playfair Display", serif' }}
-          >
-            Wellness and leadership in one experience. High-level networking with intention. An Africa-centred vision with global
-            pathways. Experiential learning and immersive design. A community that continues long after the retreat ends.
-          </p>
-        </div>
-      </section>
-
-     
-      {/* <section className="bg-white text-[#0B1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 space-y-6">
-          <div className="flex flex-col gap-2">
-            <p className="uppercase tracking-[0.2em] text-xs text-[#7a7a7a]">Agenda Preview</p>
-            <h2 className="text-3xl font-semibold hero-text">Itinerary snapshot</h2>
-            <p className="text-[#4b5563]">
-              A PSC-inspired grid: time blocks across stages. Full, live schedule lives in the app.
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <div className="min-w-[720px] border border-dashed border-[#d1d5db] rounded-3xl bg-white">
-              <div className="grid grid-cols-3 border-b border-dashed border-[#d1d5db] text-xs uppercase tracking-[0.15em] text-[#6b7280]">
-                <div className="px-4 py-3">Main Stage</div>
-                <div className="px-4 py-3 border-l border-r border-dashed border-[#d1d5db]">Demo Room</div>
-                <div className="px-4 py-3">Round Table</div>
-              </div>
-              <div className="grid grid-cols-3">
-                {statics.agenda.map((item, idx) => (
-                  <div
-                    key={`${item.time}-${idx}`}
-                    className={`px-4 py-5 border-b border-dashed border-[#d1d5db] ${
-                      idx % 3 === 1 ? 'border-l border-r border-dashed border-[#d1d5db]' : ''
-                    }`}
-                  >
-                    <p className="text-xs uppercase tracking-[0.15em] text-[#9ca3af]">{item.time}</p>
-                    <p className="text-sm font-semibold">{item.title}</p>
-                    <p className="text-xs text-[#6b7280] mt-1">{item.room}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> */}
-
-      <section className="bg-white text-[#0B1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 space-y-3">
-          <p className="uppercase tracking-[0.2em] text-xs text-[#7a7a7a]">Retreat Schedule</p>
-          <h2 className="text-3xl font-semibold hero-text">Seven days of elevation</h2>
-          <p className="text-[#4b5563]">Snapshot of Mauritius. Full flow lives in the app.</p>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 mt-8">
-          <div className="border border-dashed border-[#d1d5db] rounded-3xl overflow-hidden relative z-10">
-            {(showFullSchedule ? statics.schedule : statics.schedule.slice(0, 4)).map((day, idx, arr) => (
-              <div
-                key={day.day}
-                className={`grid grid-cols-[120px_1fr] md:grid-cols-[160px_1fr] border-b border-dashed border-[#d1d5db] ${
-                  idx === arr.length - 1 ? 'border-b-0' : ''
-                }`}
-              >
-                <div className="border-r border-dashed border-[#d1d5db] px-4 py-5 flex flex-col justify-center gap-2 bg-[#f8fafc]">
-                  <div className="text-xs uppercase tracking-[0.2em] text-[#6b7280]">{day.day}</div>
-                  <div className="text-xs font-semibold">{day.highlight}</div>
-                </div>
-                <div className="px-5 py-5 space-y-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-xl font-semibold hero-text">{day.title}</h3>
-                    <span className="hidden sm:inline-flex text-xs px-2 py-1 rounded-full border border-dashed border-[#d1d5db]">
-                      {day.highlight}
-                    </span>
-                  </div>
-                  <div className="grid gap-2 md:grid-cols-2">
-                    {day.slots.map((slot) => (
-                      <div
-                        key={slot}
-                        className="min-h-[64px] border border-dashed border-[#d1d5db] rounded-xl px-3 py-2 flex items-center text-sm leading-snug"
-                      >
-                        {slot}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center mt-6 gap-3 flex-wrap">
-            <button
-              type="button"
-              onClick={() => setShowFullSchedule((s) => !s)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0B1220]/20 text-sm font-semibold text-[#0B1220] hover:bg-[#0B1220]/5 transition"
-            >
-              {showFullSchedule ? 'Show less' : 'View full schedule'} <ArrowRight size={16} />
-            </button>
-            <Link
-              href="/retreat-ticket"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
-            >
-              Secure your retreat pass <ArrowRight size={16} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-       <section id="resource-hub" className="bg-white text-[#0B1220] py-16">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* ── PROGRAMME ────────────────────────────────────────────────────── */}
+      <section id="programme" className="bg-white py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-20">
             <div>
-              <p className="uppercase tracking-[0.2em] text-xs text-[#7a7a7a]">Resources</p>
-              <h2 className="text-3xl font-semibold hero-text">Event resources & past highlights</h2>
-              <p className="text-[#4b5563] mt-2">
-                Browse past events, static recaps, and blog posts while all live flows happen in the app.
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#9ca3af] mb-5">
+                The Programme
               </p>
+              <h2
+                className="text-5xl md:text-6xl leading-tight text-[#0d2010]"
+                style={serif}
+              >
+                Seven days.<br />Seven chapters.
+              </h2>
             </div>
             <Link
-              href="#"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0B1220] px-4 py-2 rounded-full border border-[#0B1220]/15 hover:bg-[#0B1220]/5 transition"
+              href={RETREAT_TICKET_URL}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#0d2010]/20 text-[#0d2010] text-sm font-semibold hover:bg-[#0d2010] hover:text-white transition-all self-start md:self-auto whitespace-nowrap"
             >
-              View press & media kit
-              <ArrowRight size={16} />
+              Secure your place
+              <ArrowRight size={13} aria-hidden="true" />
             </Link>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {statics.events.map((evt) => (
+          {/* Editorial rows */}
+          <div>
+            {[...programmeHighlights, departureProgramme].map((item, idx) => (
               <div
-                key={evt.title}
-                className={`rounded-2xl p-5 text-white bg-gradient-to-br ${evt.tone} shadow-xl shadow-black/10`}
+                key={item.title}
+                className="group grid grid-cols-[56px_1fr] md:grid-cols-[72px_180px_1fr] lg:grid-cols-[72px_200px_1fr_220px] gap-x-8 gap-y-1 py-8 border-t border-[#f0ede9] items-baseline hover:bg-[#faf9f7] -mx-6 px-6 transition-colors"
               >
-                <div className="text-xs uppercase tracking-[0.15em] text-white/70">{evt.tag}</div>
-                <h3 className="text-xl font-semibold mt-2 hero-text">{evt.title}</h3>
-                <p className="text-sm text-white/80 mt-2">{evt.blurb}</p>
-                <div className="mt-6 inline-flex items-center gap-2 text-sm text-white/80">
-                  <ArrowRight size={16} />
-                  <span>View recap</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-
-
-      <section className="max-w-6xl mx-auto px-6 py-16 bg-white text-[#0B1220] rounded-3xl shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-          <div className="max-w-xl space-y-3">
-            <p className="uppercase tracking-[0.2em] text-xs text-[#6b7280]">Highlights</p>
-            <h2 className="text-3xl font-semibold hero-text">Speakers, schedules, and curated content</h2>
-            <p className="text-[#4b5563]">
-              Get a feel for the experience: curated speaker lineup, day-by-day itineraries, and
-              downloadable guides—all housed in the app with notifications and reminders.
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
-                <Sparkles size={14} /> Speaker lineup preview
-              </div>
-              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
-                <CalendarClock size={14} /> Daily agenda
-              </div>
-              <div className="px-3 py-2 rounded-full bg-[#0B1220]/5 border border-[#0B1220]/10 text-sm flex items-center gap-2">
-                <ImageIcon size={14} /> Lookbooks
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 flex-1">
-            {['Speaker lineup', 'Day 1: Lagos Summit', 'Day 2: Masterclasses', 'Venue & travel'].map(
-              (item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl bg-[#0B1220]/5 border border-[#0B1220]/10 p-4 min-h-[120px] flex flex-col justify-between"
+                {/* Day number, oversized, decorative */}
+                <span
+                  className="text-[3.5rem] leading-none text-[#ede9e4] group-hover:text-[#ddd8d2] transition-colors select-none"
+                  style={serif}
+                  aria-hidden="true"
                 >
-                  <div className="flex items-center gap-2 text-sm text-[#4b5563]">
-                    <span className="w-2 h-2 rounded-full bg-[#ff7f41]" />
-                    {item}
-                  </div>
-                  <p className="text-[#0B1220] font-semibold">
-                    {item.includes('Day') ? 'Agenda preview' : 'Curated content'}
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+
+                {/* Day + title */}
+                <div className="self-center">
+                  <p className="nav-text text-[10px] tracking-[0.25em] uppercase text-[#9ca3af]">
+                    {item.date}
+                  </p>
+                  <p
+                    className="text-lg font-semibold text-[#0d2010] mt-0.5 leading-snug"
+                    style={serif}
+                  >
+                    {item.title}
                   </p>
                 </div>
-              ),
-            )}
+
+                {/* Description */}
+                <p className="text-sm text-[#6b7280] leading-relaxed col-start-2 md:col-auto pt-1 md:pt-0 self-center">
+                  {item.desc}
+                </p>
+
+                {/* Venue */}
+                <p className="hidden lg:flex items-center gap-1.5 text-xs text-[#b0a89e] justify-end self-center">
+                  <MapPin size={10} aria-hidden="true" />
+                  {item.venue}
+                </p>
+              </div>
+            ))}
+            {/* Bottom border */}
+            <div className="border-t border-[#f0ede9]" />
           </div>
         </div>
       </section>
 
-      <section className="bg-[#0f1524] py-16">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col gap-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* ── SPEAKER TEASER ────────────────────────────────────────────────── */}
+      <section className="bg-[#f2dfd2] py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
             <div>
-              <p className="uppercase tracking-[0.2em] text-xs text-white/60">Insights</p>
-              <h2 className="text-3xl font-semibold hero-text">Blog & Static Posts</h2>
-              <p className="text-white/70 mt-2">
-                Read recaps, announcements, and evergreen guides while live flows move to the app.
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#7a5e52] mb-5">
+                The Voices
               </p>
+              <h2
+                className="text-5xl md:text-6xl leading-tight text-[#2b1f1a]"
+                style={serif}
+              >
+                Who&apos;s speaking<br />in Mauritius.
+              </h2>
             </div>
+            <div className="flex flex-col gap-1.5 md:text-right shrink-0">
+              <p className="text-sm text-[#7a6458]">
+                {totalSpeakers} confirmed · More to be announced
+              </p>
+              <Link
+                href="/speakers"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2b1f1a] group md:justify-end"
+              >
+                Meet all speakers
+                <ArrowRight
+                  size={13}
+                  className="group-hover:translate-x-1 transition-transform"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
+          </div>
+
+          {/* Speaker grid – staggered portrait cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-5 items-start">
+            {featuredSpeakers.map((speaker, i) => (
+              <Link
+                key={speaker.id}
+                href="/speakers"
+                className={`group block bg-[#f5f0eb] rounded-3xl overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300${i % 2 === 1 ? ' lg:mt-10' : ''}`}
+                aria-label={`${speaker.name}, view all speakers`}
+              >
+                {/* Photo */}
+                <div className="relative aspect-[3/4]">
+                  <Image
+                    src={`/assets/images/speakers/${speaker.photoAssetKey}`}
+                    alt={speaker.name}
+                    fill
+                    className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 16vw"
+                  />
+                  {/* Arrow – appears on hover */}
+                  <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <ArrowRight size={11} className="text-[#0d2010] -rotate-45" aria-hidden="true" />
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-3.5 pt-3">
+                  <p className="nav-text text-[9px] tracking-[0.22em] uppercase text-[#a09080] mb-1.5">
+                    {speaker.track}
+                  </p>
+                  <p className="text-sm font-semibold text-[#2b1f1a] leading-snug" style={serif}>
+                    {speaker.name}
+                  </p>
+                  {speaker.title !== '[TITLE]' && (
+                    <p className="text-xs text-[#8c7060] mt-0.5 leading-snug">{speaker.title}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-14 pt-8 border-t border-[#c9b8ab] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <p className="text-sm text-[#7a6458]">
+              Full lineup, session topics, and bios on the speakers page.
+            </p>
             <Link
-              href="#"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 rounded-full border border-white/20 hover:bg-white/10 transition"
+              href="/speakers"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#0d2010] text-white text-sm font-semibold hover:bg-[#1a3d1e] transition-colors whitespace-nowrap"
             >
-              Visit all posts
-              <ArrowRight size={16} />
+              View all {totalSpeakers} speakers
+              <ArrowRight size={13} aria-hidden="true" />
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {statics.posts.map((post) => (
-              <div key={post.title} className="rounded-2xl bg-white/5 border border-white/10 p-5">
-                <div className="text-xs uppercase tracking-[0.15em] text-white/60">{post.tag}</div>
-                <h3 className="text-xl font-semibold mt-2">{post.title}</h3>
-                <p className="text-sm text-white/70 mt-2">{post.desc}</p>
-                <div className="mt-5 inline-flex items-center gap-2 text-sm text-white/80">
-                  <ArrowRight size={16} />
-                  <span>Read more</span>
+        </div>
+      </section>
+
+      {/* ── DIFFERENTIATORS ───────────────────────────────────────────────── */}
+      <section className="bg-[#0d2010] py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid lg:grid-cols-[1fr_2fr] gap-16 items-start mb-16 lg:mb-20">
+            <div>
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-white/30 mb-5">
+                Why Atinuda
+              </p>
+              <h2
+                className="text-5xl md:text-6xl leading-tight text-white"
+                style={serif}
+              >
+                A different<br />kind of retreat.
+              </h2>
+            </div>
+            <div className="lg:pt-16">
+              <p className="text-white/50 text-lg leading-relaxed max-w-lg">
+                Every detail of the experience is considered, from who is in the room
+                to what happens after they leave it.
+              </p>
+            </div>
+          </div>
+
+          {/* Editorial numbered rows */}
+          <div>
+            {differentiators.map(({ title, desc }, idx) => (
+              <div
+                key={title}
+                className="grid md:grid-cols-[64px_1fr_1.4fr] gap-x-10 gap-y-2 py-8 border-t border-white/8 items-baseline group"
+              >
+                <span className="nav-text text-xs tracking-[0.2em] text-white/20 pt-1">
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <p className="text-white font-semibold text-lg leading-snug">
+                  {title}
+                </p>
+                <p className="text-white/50 text-sm leading-relaxed col-start-2 md:col-auto">
+                  {desc}
+                </p>
+              </div>
+            ))}
+            <div className="border-t border-white/8" />
+          </div>
+
+          <div className="mt-14">
+            <Link
+              href={RETREAT_TICKET_URL}
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white text-[#0d2010] text-sm font-semibold hover:bg-white/90 transition-colors"
+            >
+              Join the 2026 cohort
+              <ArrowRight size={13} aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRACK RECORD ──────────────────────────────────────────────────── */}
+      <section className="bg-white py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+            <div>
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#9ca3af] mb-5">
+                Track Record
+              </p>
+              <h2
+                className="text-5xl md:text-6xl text-[#0d2010]"
+                style={serif}
+              >
+                Atinuda<br />in the world.
+              </h2>
+            </div>
+            <p className="text-sm text-[#9ca3af] max-w-xs md:text-right leading-relaxed">
+              Past summits, retreats, and community events that set the standard for what this room creates.
+            </p>
+          </div>
+
+          {/* Photo cards with real event images */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {pastEvents.map((evt, idx) => (
+              <div
+                key={evt.title}
+                className="relative rounded-2xl overflow-hidden aspect-[3/4] group"
+              >
+                <Image
+                  src={`/assets/images/azizi${idx * 2 + 1}.jpeg`}
+                  alt={evt.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <span className="nav-text text-[9px] tracking-[0.2em] uppercase text-white/45">
+                    {evt.tag}
+                  </span>
+                  <h3 className="text-white font-semibold mt-1.5 leading-snug" style={serif}>
+                    {evt.title}
+                  </h3>
+                  <p className="text-white/60 text-xs mt-1.5 leading-relaxed">
+                    {evt.blurb}
+                  </p>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* [TESTIMONIALS placeholder] */}
+
+          <div className="mt-12">
+            <Link
+              href="/press"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0d2010] group"
+            >
+              View press & media kit
+              <ArrowRight
+                size={13}
+                className="group-hover:translate-x-1 transition-transform"
+                aria-hidden="true"
+              />
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="bg-white text-[#0B1220] py-14">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row gap-10 md:items-center">
-          <div className="flex-1 space-y-4">
-            <p className="uppercase tracking-[0.2em] text-xs text-[#7a7a7a]">Community</p>
-            <h2 className="text-3xl font-semibold hero-text">Join the Atinuda circle</h2>
-            <p className="text-[#4b5563]">
-              Tap into announcements, drops, and event updates. Join the WhatsApp community or get
-              our newsletter via Flodesk.
+      {/* ── INVESTMENT ────────────────────────────────────────────────────── */}
+      <section id="investment" className="bg-[#f2dfd2] py-28 lg:py-40">
+        <div className="max-w-6xl mx-auto px-6">
+
+          {/* Price statement, centred, commanding */}
+          <div className="text-center border-b border-[#c9b8ab] pb-16 mb-16">
+            <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#7a5e52] mb-8">
+              The Investment
             </p>
-            <div className="flex flex-wrap gap-3">
+            <h2
+              className="text-4xl md:text-5xl text-[#2b1f1a] mb-12 max-w-xl mx-auto leading-tight"
+              style={serif}
+            >
+              What it costs to be in this room.
+            </h2>
+            <p className="nav-text text-xs tracking-[0.3em] uppercase text-[#9c8070] mb-3">
+              Retreat pass from
+            </p>
+            {/* [BUSINESS DATA] Replace [PRICE RANGE] with real pricing */}
+            <p
+              className="text-7xl md:text-8xl lg:text-9xl text-[#0d2010] leading-none"
+              style={serif}
+            >
+              [PRICE RANGE]
+            </p>
+            {/* [BUSINESS DATA] Replace with real seat count when confirmed */}
+            <p className="text-sm text-[#9c8070] mt-5">
+              Limited places · By application only
+            </p>
+            <div className="mt-8">
               <Link
-                href="#"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#0B1220] text-white text-sm font-semibold hover:bg-[#131b2f] transition"
+                href={RETREAT_TICKET_URL}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#0d2010] text-white text-sm font-semibold hover:bg-[#1a3d1e] transition-colors"
               >
-                <MessageCircle size={16} />
-                Join WhatsApp community
-              </Link>
-              <Link
-                href="#"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#0B1220]/15 text-sm font-semibold hover:bg-[#0B1220]/5 transition"
-              >
-                <Sparkles size={16} />
-                Subscribe on Flodesk
+                Apply for your retreat pass
+                <ArrowRight size={13} aria-hidden="true" />
               </Link>
             </div>
           </div>
-          <div className="flex-1">
-            <div className="rounded-3xl border border-[#0B1220]/10 bg-gradient-to-br from-[#f8fafc] to-[#eef2ff] p-6 shadow-xl">
-              <p className="text-sm text-[#4b5563]">Resource hub</p>
-              <h3 className="text-2xl font-semibold mt-2">Everything happens in the app</h3>
-              <p className="text-[#4b5563] mt-3">
-                Tickets, RSVPs, itineraries, speakers, venue guides, and photos—all from the Atinuda app.
-                This site is your static home for recaps, press, and resource links.
+
+          {/* What's included */}
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            <div>
+              <h3 className="nav-text text-[10px] tracking-[0.3em] uppercase text-[#7a5e52] mb-6">
+                What&apos;s included
+              </h3>
+              <ul className="space-y-3" role="list">
+                {included.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-[#4b5563]">
+                    <span
+                      className="mt-2 w-1 h-1 rounded-full bg-[#0d2010] flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="nav-text text-[10px] tracking-[0.3em] uppercase text-[#7a5e52] mb-6">
+                Not included
+              </h3>
+              <ul className="space-y-3" role="list">
+                {notIncluded.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-[#9c8070]">
+                    <span
+                      className="mt-2 w-1 h-1 rounded-full bg-[#c9b8ab] flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+      <section id="faq" className="bg-[#081008] py-28 lg:py-40">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="mb-14">
+            <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-white/30 mb-5">
+              Questions
+            </p>
+            <h2
+              className="text-5xl md:text-6xl text-white"
+              style={serif}
+            >
+              Common questions.
+            </h2>
+          </div>
+
+          <FAQAccordion items={faqs} />
+
+          <div className="mt-12 pt-10 border-t border-white/8">
+            <p className="text-white/40 text-sm">
+              Something not covered here?{' '}
+              <Link
+                href="/our-story"
+                className="text-white/70 hover:text-white underline underline-offset-4 transition-colors"
+              >
+                Get in touch with the team.
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden py-36 lg:py-52">
+        <div className="absolute inset-0" aria-hidden="true">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/assets/images/Mauritius2.png')" }}
+          />
+          <div className="absolute inset-0 bg-[#0d2010]/85" />
+        </div>
+
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center space-y-7">
+          <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-white/35">
+            March 8–14, 2026 · Mauritius
+          </p>
+
+          <h2
+            className="text-6xl md:text-7xl lg:text-8xl leading-[0.93] text-white"
+            style={serif}
+          >
+            Mauritius<br />is calling.
+          </h2>
+
+          <p className="text-white/55 text-lg leading-relaxed max-w-md mx-auto">
+            The 2026 cohort is forming now.{' '}
+            {/* [BUSINESS DATA] Activate scarcity copy once seat count is confirmed */}
+            The window to apply is open, for now.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <Link
+              href={RETREAT_TICKET_URL}
+              className="px-8 py-4 bg-white text-[#0d2010] text-sm font-semibold rounded-full hover:bg-white/90 transition-colors shadow-xl shadow-black/30"
+            >
+              Claim your retreat pass
+            </Link>
+            <Link
+              href="/our-story"
+              className="text-sm text-white/45 hover:text-white transition-colors"
+            >
+              Learn about Atinuda
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── APP + COMMUNITY ───────────────────────────────────────────────── */}
+      <section className="bg-[#faf9f7] py-24 lg:py-32" aria-label="App and community">
+        <div className="max-w-6xl mx-auto px-6">
+
+          {/* Section header */}
+          <div className="mb-14">
+            <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#9ca3af] mb-5">
+              Stay Connected
+            </p>
+            <h2
+              className="text-4xl md:text-5xl text-[#0d2010]"
+              style={serif}
+            >
+              The retreat continues.
+            </h2>
+          </div>
+
+          <div className="grid gap-px bg-[#e5e0da] md:grid-cols-3 rounded-2xl overflow-hidden">
+
+            {/* The App */}
+            <div className="bg-[#faf9f7] p-8 lg:p-10 flex flex-col gap-5">
+              <p className="nav-text text-[10px] tracking-[0.3em] uppercase text-[#9ca3af]">
+                The App
               </p>
-              <div className="mt-6 inline-flex items-center gap-2 text-sm text-[#0B1220] font-semibold">
-                <ArrowRight size={16} />
-                View FAQs & support
+              <h3 className="text-2xl text-[#0d2010] leading-snug" style={serif}>
+                Everything in one place.
+              </h3>
+              <p className="text-sm text-[#6b7280] leading-relaxed flex-1">
+                Tickets, live schedules, speaker profiles, venue guides, and your
+                QR pass, all in the Atinuda app.
+              </p>
+              <div className="space-y-3">
+                <Link
+                  href="https://apps.apple.com/us/app/atinuda/id6755419370"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0d2010] text-white text-sm font-semibold hover:bg-[#1a3d1e] transition-colors"
+                >
+                  <Download size={13} aria-hidden="true" />
+                  Download on iOS
+                </Link>
+                <p className="text-xs text-[#b0a8a0] pl-1">Android, coming soon</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-[#b0a8a0]">
+                <ShieldCheck size={11} aria-hidden="true" />
+                Secure payments via Flutterwave
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="bg-[#0f1524] text-white py-16">
-        <div className="max-w-6xl mx-auto px-6 space-y-6">
-          <div>
-            <p className="uppercase tracking-[0.2em] text-xs text-white/60">FAQ</p>
-            <h2 className="text-3xl font-semibold hero-text">Answers at a glance</h2>
-          </div>
-          <div className="space-y-4">
-            {statics.faqs.map((faq) => (
-              <details
-                key={faq.q}
-                className="rounded-2xl border border-dashed border-white/30 bg-white/5 px-4 py-3"
+            {/* The Community */}
+            <div className="bg-[#faf9f7] p-8 lg:p-10 flex flex-col gap-5">
+              <p className="nav-text text-[10px] tracking-[0.3em] uppercase text-[#9ca3af]">
+                The Circle
+              </p>
+              <h3 className="text-2xl text-[#0d2010] leading-snug" style={serif}>
+                Stay in the room.
+              </h3>
+              <p className="text-sm text-[#6b7280] leading-relaxed flex-1">
+                The Atinuda circle stays connected between events, for
+                announcements, early access, and drops.
+              </p>
+              {/* [TODO: Replace href with real WhatsApp community link] */}
+              <Link
+                href="/join-the-waitlist"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0d2010]/25 text-[#0d2010] text-sm font-semibold hover:bg-[#0d2010] hover:text-white transition-all w-fit"
               >
-                <summary className="cursor-pointer text-lg font-semibold hero-text list-none flex items-center justify-between">
-                  {faq.q}
-                  <span className="text-sm text-white/60">+</span>
-                </summary>
-                <p className="text-white/70 mt-2">{faq.a}</p>
-              </details>
-            ))}
+                <MessageCircle size={13} aria-hidden="true" />
+                Join the community
+              </Link>
+            </div>
+
+            {/* The Newsletter */}
+            <div className="bg-[#faf9f7] p-8 lg:p-10 flex flex-col gap-5">
+              <p className="nav-text text-[10px] tracking-[0.3em] uppercase text-[#9ca3af]">
+                The Editorial
+              </p>
+              <h3 className="text-2xl text-[#0d2010] leading-snug" style={serif}>
+                Ideas worth your inbox.
+              </h3>
+              <p className="text-sm text-[#6b7280] leading-relaxed flex-1">
+                Recaps, insights, speaker previews, and event access , 
+                only for the Atinuda circle.
+              </p>
+              {/* [TODO: Replace href with real Flodesk newsletter link] */}
+              <Link
+                href="/join-the-waitlist"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-[#0d2010]/25 text-[#0d2010] text-sm font-semibold hover:bg-[#0d2010] hover:text-white transition-all w-fit"
+              >
+                <Sparkles size={13} aria-hidden="true" />
+                Subscribe to the editorial
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 }
