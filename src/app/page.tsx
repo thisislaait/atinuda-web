@@ -441,9 +441,9 @@ export default function HomePage() {
               </h2>
             </div>
             <div className="flex flex-col gap-1.5 md:text-right shrink-0">
-              <p className="text-sm text-[#7a6458]">
+              {/* <p className="text-sm text-[#7a6458]">
                 {totalSpeakers} confirmed · More to be announced
-              </p>
+              </p> */}
               <Link
                 href="/speakers"
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#2b1f1a] group md:justify-end"
@@ -835,12 +835,19 @@ export default function HomePage() {
                   <Download size={13} aria-hidden="true" />
                   Download on iOS
                 </Link>
-                <p className="text-xs text-[#b0a8a0] pl-1">Android, coming soon</p>
+                <Link
+                  href="https://apps.apple.com/us/app/atinuda/id6755419370"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#0d2010] text-white text-sm font-semibold hover:bg-[#1a3d1e] transition-colors"
+                >
+                  <Download size={13} aria-hidden="true" />
+                  Download on Android
+                </Link>
+                {/* <p className="text-xs text-[#b0a8a0] pl-1">Android, coming soon</p> */}
               </div>
-              <div className="flex items-center gap-2 text-xs text-[#b0a8a0]">
+              {/* <div className="flex items-center gap-2 text-xs text-[#b0a8a0]">
                 <ShieldCheck size={11} aria-hidden="true" />
                 Secure payments via Flutterwave
-              </div>
+              </div> */}
             </div>
 
             {/* The Community */}

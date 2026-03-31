@@ -1,32 +1,17 @@
-'use client';
+import type { Metadata } from 'next';
+import LocalToGlobalSummitPage from '@/components/summit/LocalToGlobalSummitPage';
 
-import React from 'react';
-
-import ExpectSection from '../../sections/home/ExpectSection';
-import SummitSpeakers from '../../sections/home/SummitSpeakers';
-import SummitSponsors from '../../sections/home/SummitSponsors';
-import BecomeSponsor from '../../sections/home/BecomeSponsor';
-// import SummitNews from './summit/components/SummitNews';
-import BottomNav from '../../components/layout/Nav/BottomNav';
-import SummitHero from '../../sections/home/SummitHero';
-import AboutSummit from '../../sections/home/AboutSummit';
-
-const SummitPage = () => {
-  return (
-    <div>
-      <div className="relative">
-        <SummitHero />
-        <BottomNav />
-      </div>
-
-      <ExpectSection />
-      <AboutSummit />
-      <SummitSpeakers />
-      <SummitSponsors />
-      <BecomeSponsor />
-      {/* <SummitNews /> */}
-    </div>
-  );
+export const metadata: Metadata = {
+  title: 'Local To Global Summit 2025 | Atinuda',
+  description:
+    "Atinuda's annual conference for African founders, executives, and creative leaders. Main-stage keynotes, workshop tracks, Spark the Future pitch finals, and the Executive Dinner Gala. Lagos, Nigeria.",
+  openGraph: {
+    title: 'Local To Global Summit 2025 | Atinuda',
+    description: 'One day a year. The right room. 400+ delegates, 25+ speakers, Lagos Nigeria.',
+    images: [{ url: '/assets/images/summit/ATINUDA DAY 2_487.jpg' }],
+  },
 };
 
-export default SummitPage;
+export default function LocalToGlobalSummit2025Page() {
+  return <LocalToGlobalSummitPage />;
+}
