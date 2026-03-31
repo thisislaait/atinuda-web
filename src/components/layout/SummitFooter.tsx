@@ -10,7 +10,7 @@ const NAV_COLUMNS = [
     heading: 'The Platform',
     links: [
       { name: 'Our Story', path: '/our-story' },
-      { name: 'Local To Global Summit', path: '/summit' },
+      { name: 'Local To Global Summit', path: '/local-to-global-summit-2025' },
       { name: 'Elevation Retreat', path: '/' },
       { name: 'Spark the Future', path: '/spark-the-future' },
     ],
