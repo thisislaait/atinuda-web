@@ -6,9 +6,10 @@ import { ArrowRight } from 'lucide-react';
 export const metadata: Metadata = {
   title: 'Our Story | Atinuda',
   description:
-    'Atinuda builds the rooms that change what is possible for African leadership. The story behind the community, the retreats, and the people who show up.',
+    'Atinuda builds the rooms that change what is possible for African leadership. The story behind the community, the summits, and the people who show up.',
 };
 
+const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const } as const;
 const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' } as const;
 
 // Edition history — update dates/locations for editions 1 and 2 when confirmed
@@ -18,7 +19,7 @@ const EDITIONS = [
     name: 'The First Gathering',
     location: 'Africa',          // TODO: replace with real location
     year: '2024',                // TODO: replace with real year
-    note: 'The idea became real. A small, curated cohort. The proof of concept that the room itself was the product.',
+    note: 'The idea became real. A small, selected cohort. Proof that the right room with the right people was a product in itself.',
     image: '/assets/images/azizi1.jpeg',
   },
   {
@@ -26,7 +27,7 @@ const EDITIONS = [
     name: 'The Expansion',
     location: 'Africa',          // TODO: replace with real location
     year: '2025',                // TODO: replace with real year
-    note: 'A second edition. A bigger room. The same standard. More leaders, more depth, more clarity about what Atinuda is building.',
+    note: 'A second edition. A bigger room. The same standard. More leaders, deeper sessions, more clarity about what Atinuda is building.',
     image: '/assets/images/azizi5.jpeg',
   },
   {
@@ -47,23 +48,23 @@ const BELIEFS = [
   },
   {
     n: '02',
-    title: 'Ambition and wellness are not opposites.',
-    body: "The world's most effective leaders are not those who push hardest. They are those who have learned that restoration is infrastructure. We design for both.",
+    title: 'Depth over breadth, always.',
+    body: "We are not building a conference. We are building a room where the right people can go further together than they could alone. That requires fewer people, more intention, and no shortcuts.",
   },
   {
     n: '03',
     title: 'Africa-centred, globally executed.',
-    body: "Built for and by Africa's most ambitious, then taken to the world. Not a local gathering with global aspirations. A global gathering with African roots.",
+    body: "Created by Africans, attended by Africans, then taken to the world. The roots are not the story — the work and the people doing it are.",
   },
   {
     n: '04',
     title: 'Curation over scale.',
-    body: 'We will never choose a bigger room over a better one. Every delegate is selected for what they bring, not just what they have achieved. That standard does not change.',
+    body: 'We will never choose a bigger room over a better one. Every delegate is selected for what they bring to the group, not solely for their title or résumé. That standard does not change.',
   },
   {
     n: '05',
     title: 'The relationships outlast the week.',
-    body: 'We measure success by what happens after the retreat ends. The collaborations, the calls, the partnerships, the accountability. That is the actual product.',
+    body: 'We measure success by what happens after the programme ends. The collaborations, the calls, the partnerships, the accountability. That is the actual product.',
   },
 ];
 
@@ -83,7 +84,7 @@ export default function OurStoryPage() {
               </p>
               <h1
                 className="text-[3rem] md:text-[4.5rem] lg:text-[5.5rem] xl:text-[6.5rem] leading-[0.9] tracking-tight text-[#0d2010]"
-                style={serif}
+                style={serifDisplay}
               >
                 We build the<br />rooms that<br />change what&apos;s<br />possible.
               </h1>
@@ -139,9 +140,9 @@ export default function OurStoryPage() {
               style={serif}
             >
               {/* TODO: Fill in founding year and founder name */}
-              Atinuda was built on a single, stubborn belief: that the most intentional leaders
-              in Africa and the diaspora deserve a gathering that matches their ambition,
-              not a conference, not a holiday, something entirely its own.
+              Atinuda was built on a single, stubborn belief: that the most ambitious leaders
+              in Africa and the diaspora deserve a gathering that matches what they are doing,
+              not a standard conference, not a holiday, something that earns its own category.
             </p>
           </div>
         </div>
@@ -172,21 +173,21 @@ export default function OurStoryPage() {
             <div className="flex flex-col justify-center max-w-2xl">
               <h2
                 className="text-3xl md:text-4xl lg:text-5xl leading-[1.1] text-[#0d2010] mb-10"
-                style={serif}
+                style={serifDisplay}
               >
-                Not an event company.<br />A community builder.
+                An event company that<br />is really a community.
               </h2>
               <div className="space-y-6 text-[#3a3230] text-[1.05rem] leading-[1.9]">
                 <p>
-                  Atinuda creates intentional, high-calibre experiences at the intersection
-                  of leadership, culture, wellness, and commerce. From summits to retreats,
-                  private dinners to workshops, every experience is designed with one purpose:
-                  to put the right people in the right room at the right moment.
+                  Atinuda produces high-calibre gatherings across summits, retreats,
+                  private dinners, and workshops. The format varies. The standard does not.
+                  Every event is organised around one outcome: the right people in the same
+                  room, with sufficient time and structure to make it count.
                 </p>
                 <p>
-                  We are pan-African in identity, global in ambition, and obsessive about
-                  quality. We do not compete on scale. We compete on curation, depth, and
-                  the quality of what happens in the room, and after it.
+                  The identity is pan-African. The ambition is global. Quality is
+                  non-negotiable. We do not grow by increasing headcount. We grow by
+                  raising what the room is worth.
                 </p>
                 <p>
                   {/* TODO: Add founder personal note / origin story here */}
@@ -216,7 +217,7 @@ export default function OurStoryPage() {
           </p>
           <h2
             className="text-4xl md:text-5xl leading-[1.05] text-white mb-16 max-w-lg"
-            style={serif}
+            style={serifDisplay}
           >
             The principles that<br />shape every room we build.
           </h2>
@@ -251,7 +252,7 @@ export default function OurStoryPage() {
           </p>
           <h2
             className="text-4xl md:text-5xl leading-[1.05] text-[#0d2010] mb-16 max-w-md"
-            style={serif}
+            style={serifDisplay}
           >
             Three editions.<br />One standard.
           </h2>
@@ -273,13 +274,13 @@ export default function OurStoryPage() {
                     <p className="nav-text text-[9px] tracking-[0.3em] uppercase text-white/50 mb-0.5">
                       Edition {number}
                     </p>
-                    <p className="text-white text-sm font-medium" style={serif}>{year} · {location}</p>
+                    <p className="text-white text-sm font-medium">{year} · {location}</p>
                   </div>
                 </div>
 
                 {/* Edition text */}
                 <div className="p-6 lg:p-7 flex-1">
-                  <h3 className="text-lg text-[#0d2010] mb-3" style={serif}>{name}</h3>
+                  <h3 className="text-lg text-[#0d2010] mb-3">{name}</h3>
                   <p className="text-sm text-[#7a6458] leading-relaxed">{note}</p>
                 </div>
               </div>
@@ -298,7 +299,7 @@ export default function OurStoryPage() {
               </p>
               <h2
                 className="text-4xl md:text-5xl leading-[1.05] text-[#0d2010] max-w-sm"
-                style={serif}
+                style={serifDisplay}
               >
                 Who you will find in the room.
               </h2>
@@ -306,7 +307,7 @@ export default function OurStoryPage() {
             <p className="text-sm text-[#7a6458] leading-relaxed max-w-sm lg:text-right">
               Founders, executives, creative directors, investors, and cultural leaders
               from across Africa and the diaspora. Selected for what they bring,
-              not just what they have achieved.
+              selected for what they bring to the group, not solely their titles.
             </p>
           </div>
 
@@ -352,7 +353,7 @@ export default function OurStoryPage() {
               <div key={label} className="bg-white px-8 py-10">
                 <p
                   className="text-5xl md:text-6xl text-[#0d2010] leading-none mb-3"
-                  style={serif}
+                  style={serifDisplay}
                 >
                   {value}
                 </p>
@@ -384,7 +385,7 @@ export default function OurStoryPage() {
               </p>
               <h2
                 className="text-4xl md:text-5xl lg:text-6xl leading-[0.95] text-white"
-                style={serif}
+                style={serifDisplay}
               >
                 The next room<br />is being built.<br />Your seat is waiting.
               </h2>
@@ -393,7 +394,7 @@ export default function OurStoryPage() {
             <div className="space-y-5">
               <p className="text-white/40 text-base leading-relaxed max-w-sm">
                 Applications for the next edition of the Atinuda Elevation Retreat are open.
-                The cohort is curated. Places are limited. If you feel the pull, follow it.
+                The cohort is selected. Places are limited. If this is the room you have been looking for, the application is the next step.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Link

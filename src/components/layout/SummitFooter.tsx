@@ -2,98 +2,121 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
 
+const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
+const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' };
+
+const NAV_COLUMNS = [
+  {
+    heading: 'The Platform',
+    links: [
+      { name: 'Our Story', path: '/our-story' },
+      { name: 'Local To Global Summit', path: '/summit' },
+      { name: 'Elevation Retreat', path: '/' },
+      { name: 'Spark the Future', path: '/spark-the-future' },
+    ],
+  },
+  {
+    heading: 'Community',
+    links: [
+      { name: 'Membership', path: '/membership' },
+      { name: 'Join the Waitlist', path: '/join-the-waitlist' },
+      { name: 'Corporate Responsibility', path: '/corporate-responsibility' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { name: 'Careers', path: '/careers' },
+      { name: 'Press', path: '/press' },
+      { name: 'Privacy Policy', path: '/privacy' },
+      { name: 'Legal', path: '/legal' },
+    ],
+  },
+];
+
+const SOCIAL = [
+  { Icon: Instagram, href: 'https://instagram.com/atinuda_', label: 'Instagram' },
+  { Icon: Linkedin, href: 'https://linkedin.com/company/atinuda', label: 'LinkedIn' },
+  { Icon: Twitter, href: 'https://twitter.com/atinuda_', label: 'Twitter / X' },
+];
+
 const SummitFooter = () => {
-  // Navigation Links
-  const navLinks = [
-    { name: 'Membership', path: '/membership' },
-    { name: 'Careers', path: '/careers' },
-    { name: 'Corporate Responsibility', path: '/corporate-responsibility' },
-    { name: 'Press', path: '/press' },
-    { name: 'Spark the Future', path: '/spark-the-future-2025' },
-  ];
-
-  // Social Links with ARIA labels
-  const socialLinks = [
-    { icon: <Instagram size={24} />, url: 'https://instagram.com/atinuda_', label: 'Instagram' },
-    { icon: <Linkedin size={24} />, url: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: <Twitter size={24} />, url: 'https://twitter.com', label: 'Twitter' },
-  ];
-
-  // Legal Links
-  const legalLinks = [
-    { name: 'Privacy Policy', path: '/privacy' },
-    { name: 'Legal', path: '/legal' },
-  ];
-
   return (
-    <footer className="w-full text-black py-8 bg-gray-100">
-      <div className="relative w-full h-[400px]">
+    <footer className="relative w-full overflow-hidden bg-[#0d2010] text-white">
+
+      {/* Background image with dark overlay */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="/assets/images/elementthree.png"
-          alt="Footer"
+          alt=""
           fill
-          className="object-cover"
+          className="object-cover opacity-10"
         />
-        <div className="absolute inset-0 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-[#0d2010]/80" />
+      </div>
 
-        {/* 👉 Content wrapper with high z-index */}
-        <div className="container mx-auto px-6 relative z-20">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 md:px-16 lg:px-20">
 
-          {/* Logo Section */}
-          <section className="flex flex-col items-center">
-            <Link href="/">
-              <Image 
-                src="/assets/images/blacklogo.png" 
-                alt="Logo" 
-                width={120} 
-                height={40} 
-                priority 
-                className="object-contain transition-all duration-300 cursor-pointer"
-              />
-            </Link>
-            <hr className="w-full border-black my-3" />
-          </section>
-
-          {/* Navigation Links */}
-          <nav className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center text-xs font-medium my-8 mx-3 uppercase">
-            {navLinks.map((link, index) => (
-              <Link key={index} href={link.path} className="hover:underline transition duration-200">
-                {link.name}
-              </Link>
-            ))}
-          </nav>
-
-          <hr className="w-full border-black my-3" />
-
-          {/* Social & Legal Section */}
-          <section className="flex flex-col md:flex-row items-center justify-between space-y-4 pb-16 px-8">
-            {/* Social Icons */}
-            <div className="flex space-x-4">
-              {socialLinks.map(({ icon, url, label }, index) => (
-                <a key={index} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="hover:text-gray-500 transition">
-                  {icon}
-                </a>
-              ))}
-            </div>
-
-            {/* Copyright */}
-            <p className="text-xs text-gray-600">© {new Date().getFullYear()} Atinuda. All rights reserved.</p>
-
-            {/* Legal Links */}
-            <div className="text-xs flex space-x-4">
-              {legalLinks.map((link, index) => (
-                <Link key={index} href={link.path} className="hover:underline transition duration-200">
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </section>
+        {/* ── Top rule + wordmark ─────────────────────────── */}
+        <div className="pt-20 pb-16 border-b border-white/10">
+          <Link href="/" className="inline-block">
+            <Image
+              src="/assets/images/whitelogo.png"
+              alt="Atinuda"
+              width={140}
+              height={44}
+              className="object-contain"
+            />
+          </Link>
         </div>
+
+        {/* ── Nav columns ─────────────────────────────────── */}
+        <div className="grid md:grid-cols-3 gap-12 py-16 border-b border-white/10">
+          {NAV_COLUMNS.map((col) => (
+            <div key={col.heading}>
+              <p className="nav-text text-[9px] tracking-[0.25em] text-white/30 mb-6 uppercase">
+                {col.heading}
+              </p>
+              <ul className="space-y-4">
+                {col.links.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.path}
+                      className="text-white/70 hover:text-white transition-colors text-sm leading-none"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Bottom bar ──────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-10">
+          <p className="nav-text text-[10px] tracking-[0.15em] text-white/30">
+            © {new Date().getFullYear()} ATINUDA. PRODUCED BY OAKEN EVENTS. ALL RIGHTS RESERVED.
+          </p>
+          <div className="flex items-center gap-6">
+            {SOCIAL.map(({ Icon, href, label }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="text-white/40 hover:text-white transition-colors"
+              >
+                <Icon size={18} />
+              </a>
+            ))}
+          </div>
+        </div>
+
       </div>
     </footer>
   );
 };
 
 export default SummitFooter;
-
-

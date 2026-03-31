@@ -2,234 +2,183 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { db } from '@/firebase/config'; // adjust the import path
-import { collection, addDoc} from "firebase/firestore";
+import { db } from '@/firebase/config';
+import { collection, addDoc } from 'firebase/firestore';
 
-const JoinWaitlist = () => {
-  type FormDataType = {
-    name: string;
-    company: string;
-    email: string;
-    goals: string;
-    activities: string[];
-    dietary: string;
-    accommodation: string;
-    location: string;
-    earlybird: string;
-  };
+const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
+const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' };
 
-  const [formData, setFormData] = useState<FormDataType>({
-    name: '',
-    company: '',
-    email: '',
-    goals: '',
-    activities: [],
-    dietary: '',
-    accommodation: '',
-    location: '',
-    earlybird: '',
-  });
+type FormData = {
+  name: string;
+  company: string;
+  role: string;
+  email: string;
+  location: string;
+  howHeard: string;
+};
 
-  const inputClass =
-    'w-full p-2 border-b border-white/40 bg-transparent text-white placeholder-white/60 focus:outline-none focus:border-white transition duration-300';
+const EMPTY: FormData = {
+  name: '',
+  company: '',
+  role: '',
+  email: '',
+  location: '',
+  howHeard: '',
+};
 
-  const selectClass =
-    'w-full p-2 bg-white text-black border-b border-white/40 focus:outline-none focus:border-white transition duration-300 rounded-md';
+const inputClass =
+  'w-full py-3 border-b border-white/25 bg-transparent text-white placeholder-white/40 focus:outline-none focus:border-white/70 transition-colors text-sm';
+
+const selectClass =
+  'w-full py-3 border-b border-white/25 bg-transparent text-white/70 focus:outline-none focus:border-white/70 transition-colors text-sm appearance-none cursor-pointer';
+
+export default function JoinWaitlist() {
+  const [formData, setFormData] = useState<FormData>(EMPTY);
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
     try {
-      // Send to Firebase
-      await addDoc(collection(db, 'mauritius_waitlist'), formData);
+      await addDoc(collection(db, 'atinuda_2027_waitlist'), {
+        ...formData,
+        submittedAt: new Date().toISOString(),
+      });
 
-      // Send to FormSubmit as backup/confirmation
-      await fetch('https://formsubmit.co/ajax/resort@atinuda.com', {
+      await fetch('https://formsubmit.co/ajax/hello@atinuda.com', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ ...formData, _subject: 'Atinuda 2027 — Waitlist' }),
       });
 
-      toast.success('Thank you for joining the waitlist!');
-      setFormData({
-        name: '',
-        company: '',
-        email: '',
-        goals: '',
-        activities: [],
-        dietary: '',
-        accommodation: '',
-        location: '',
-        earlybird: '',
-      });
-    } catch (error) {
-      console.error('Error submitting form:', error);
+      setDone(true);
+    } catch (err) {
+      console.error(err);
       toast.error('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-center items-start text-left p-6 sm:p-8">
-      <div className="absolute inset-0 -z-10">
+    <main className="relative min-h-screen flex items-center justify-center overflow-hidden">
+
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
         <Image
-          src="/assets/images/Mauritius2.png"
-          alt="Hero Background"
+          src="/assets/images/Retreat/Finale/ATINUDA6_DAY6_22.JPG"
+          alt=""
           fill
-          className="w-full h-full object-cover"
+          className="object-cover"
+          priority
         />
-        <div className="absolute inset-0 bg-[#1f2340]/40" />
+        <div className="absolute inset-0 bg-[#0d2010]/75" />
       </div>
 
-      <div className="max-w-xl w-full mt-36 bg-white/10 backdrop-blur-md border border-white/30 shadow-lg text-black p-6 sm:p-8 rounded-xl">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 hero-text">Mauritius 2026</h1>
-        <p className="text-sm mb-6 text-white">Join the waitlist. Be the first to know when we launch.</p>
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-xl mx-auto px-6 py-32">
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-white">
-          <input
-            type="text"
-            placeholder="Full Name"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="text"
-            placeholder="Company Name"
-            value={formData.company}
-            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="email"
-            placeholder="Email Address"
-            required
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className={inputClass}
-          />
+        {done ? (
+          /* ── Success state ────────────────────────── */
+          <div className="text-center text-white">
+            <p className="nav-text text-[10px] tracking-[0.25em] text-white/40 mb-8">
+              ATINUDA 2027
+            </p>
+            <h1 style={serifDisplay} className="text-5xl md:text-6xl leading-tight mb-8">
+              You&apos;re on the list.
+            </h1>
+            <p className="text-white/60 leading-relaxed max-w-sm mx-auto">
+              We&apos;ll be in touch when the seventh edition is announced. In the meantime, the room is already building.
+            </p>
+          </div>
+        ) : (
+          /* ── Form ─────────────────────────────────── */
+          <>
+            <p className="nav-text text-[10px] tracking-[0.25em] text-white/40 mb-8">
+              ATINUDA 2027 — SEVENTH EDITION
+            </p>
+            <h1 style={serifDisplay} className="text-4xl md:text-5xl text-white leading-[1.1] mb-4">
+              The seventh edition<br />is coming.
+            </h1>
+            <p className="text-white/55 text-sm leading-relaxed mb-12 max-w-sm">
+              Destination and dates to be announced. Register your interest to be first in line when we open applications.
+            </p>
 
-          <select
-            required
-            value={formData.goals}
-            onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
-            className={selectClass}
-          >
-            <option value="">What do you hope to gain?</option>
-            <option value="Relaxation">Relaxation</option>
-            <option value="Networking">Networking</option>
-            <option value="Business Growth">Business Growth</option>
-            <option value="Wellness">Wellness</option>
-          </select>
-
-          <div>
-            <p className="mb-1">Preferred Activities:</p>
-            {['Yoga', 'Adventure Tours', 'Workshops', 'Fireside Chats', 'Spa Treatments'].map((activity) => (
-              <label key={activity} className="block text-sm">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <input
+                type="text"
+                placeholder="Full name"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className={inputClass}
+              />
+              <div className="grid grid-cols-2 gap-6">
                 <input
-                  type="checkbox"
-                  value={activity}
-                  checked={formData.activities.includes(activity)}
-                  onChange={(e) => {
-                    const updated = e.target.checked
-                      ? [...formData.activities, activity]
-                      : formData.activities.filter((a) => a !== activity);
-                    setFormData({ ...formData, activities: updated });
-                  }}
-                  className="mr-2"
+                  type="text"
+                  placeholder="Company"
+                  value={formData.company}
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  className={inputClass}
                 />
-                {activity}
-              </label>
-            ))}
-          </div>
-
-          <select
-            required
-            value={formData.dietary}
-            onChange={(e) => setFormData({ ...formData, dietary: e.target.value })}
-            className={selectClass}
-          >
-            <option value="">Dietary Preferences</option>
-            <option value="None">None</option>
-            <option value="Vegan">Vegan</option>
-            <option value="Vegetarian">Vegetarian</option>
-            <option value="Halal">Halal</option>
-            <option value="Gluten-Free">Gluten-Free</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <div>
-            <p className="mb-1">Accommodation Preference:</p>
-            {['Private Room', 'Shared Room', 'No Preference'].map((opt) => (
-              <label key={opt} className="block text-sm">
                 <input
-                  type="radio"
-                  name="accommodation"
-                  value={opt}
-                  checked={formData.accommodation === opt}
-                  onChange={(e) => setFormData({ ...formData, accommodation: e.target.value })}
-                  className="mr-2"
+                  type="text"
+                  placeholder="Role / title"
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className={inputClass}
                 />
-                {opt}
-              </label>
-            ))}
-          </div>
+              </div>
+              <input
+                type="email"
+                placeholder="Email address"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className={inputClass}
+              />
+              <input
+                type="text"
+                placeholder="Where are you based?"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className={inputClass}
+              />
+              <select
+                value={formData.howHeard}
+                onChange={(e) => setFormData({ ...formData, howHeard: e.target.value })}
+                className={selectClass}
+              >
+                <option value="" disabled>How did you hear about Atinuda?</option>
+                <option value="Alumni referral">Alumni referral</option>
+                <option value="Social media">Social media</option>
+                <option value="Press / media">Press / media</option>
+                <option value="Previous attendee">I attended a previous edition</option>
+                <option value="Other">Other</option>
+              </select>
 
-          <input
-            type="text"
-            placeholder="Where are you traveling from?"
-            required
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            className={inputClass}
-          />
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-3 bg-white text-[#0d2010] text-sm tracking-wide px-8 py-4 hover:bg-white/90 transition-colors disabled:opacity-50"
+                >
+                  {submitting ? 'Registering…' : 'Register my interest'}
+                  {!submitting && <ArrowRight size={14} />}
+                </button>
+              </div>
 
-          <div>
-            <p className="mb-1">Interested in early bird or referral rewards?</p>
-            {['Yes', 'No'].map((opt) => (
-              <label key={opt} className="inline-block mr-4 text-sm">
-                <input
-                  type="radio"
-                  name="earlybird"
-                  value={opt}
-                  checked={formData.earlybird === opt}
-                  onChange={(e) => setFormData({ ...formData, earlybird: e.target.value })}
-                  className="mr-2"
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4 mt-4">
-            <button
-              type="submit"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-[#ff7f41] text-white"
-            >
-              <ArrowRight size={20} />
-            </button>
-
-            <motion.button
-              type="submit"
-              whileHover={{ backgroundColor: '#ff7f41' }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
-              className="relative px-6 py-2 border border-gray-500 text-white font-medium nav-text uppercase cursor overflow-hidden group"
-            >
-              <span className="relative z-10">Join Now</span>
-              <span className="absolute inset-0 w-0 bg-[#ff7f41] transition-all duration-300 group-hover:w-full"></span>
-            </motion.button>
-          </div>
-        </form>
+              <p className="text-[10px] nav-text tracking-[0.12em] text-white/25 pt-2">
+                YOUR DETAILS ARE HELD PRIVATELY AND NEVER SHARED.
+              </p>
+            </form>
+          </>
+        )}
       </div>
-    </section>
+    </main>
   );
-};
-
-export default JoinWaitlist;
-
+}

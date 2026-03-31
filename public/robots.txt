@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Admin and internal routes
+Disallow: /admin/
+Disallow: /checkin/
+Disallow: /api/
+Disallow: /attendee-sheets/
+Disallow: /attendee-ticket/
+Disallow: /azizi-attendees/
+Disallow: /azizi-rsvp/
+Disallow: /breakout-selection-form/
+Disallow: /dinner-walimer/
+Disallow: /elevation-feedback/
+Disallow: /elevation-retreat-feedback/
+Disallow: /menu-options/
+Disallow: /offline-registration/
+Disallow: /pre-signup/
+Disallow: /login/
+Disallow: /luxury-persona/
+Disallow: /retreat-workshop-sessions/
+Disallow: /ticket-payment/
+Disallow: /tickets-table/
+
+Sitemap: https://atinuda.com/sitemap.xml

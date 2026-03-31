@@ -26,11 +26,11 @@ import RotatingHeading from '@/components/home/RotatingHeading';
 export const metadata: Metadata = {
   title: 'Atinuda Retreat 2026, The Elevation | Mauritius',
   description:
-    "A seven-day leadership immersion in Mauritius for Africa's most intentional founders, executives, and creators. March 8–14, 2026.",
+    "Seven days in Mauritius for Africa's leading founders, executives, and creative leaders. Keynotes, workshops, wellness, and the Elevation Gala. March 8–14, 2026.",
   openGraph: {
     title: 'Atinuda Retreat 2026, The Elevation',
     description:
-      "Seven days in Mauritius. For the most intentional leaders in Africa and the diaspora.",
+      "Seven days in Mauritius. Keynotes, workshops, a château dinner, and the Elevation Gala.",
     images: [{ url: '/assets/images/Mauritius2.png' }],
   },
 };
@@ -44,26 +44,26 @@ const proofStats = [
   { value: '6th', label: 'Edition' },
   { value: '742+', label: 'Leaders' },
   { value: '53', label: 'Sessions' },
-  { value: 'Curated', label: 'By Application' },
+  { value: 'Selected', label: 'By Application' },
 ];
 
 
 const differentiators = [
   {
     title: 'Africa-centred, globally executed',
-    desc: "Built for and by Africa's most ambitious, then taken to the world.",
+    desc: "Created by Africans for African leaders, then taken abroad. The global stage is the context, not the aspiration.",
   },
   {
-    title: 'Wellness and leadership, woven together',
-    desc: "Not a break from work. An elevation of self that makes the work better.",
+    title: 'Wellness and leadership together',
+    desc: "The week includes rest, physical experience, and proper downtime. That is part of the programme, not a break from it.",
   },
   {
-    title: 'Immersive, not instructional',
-    desc: "Every moment is designed. Every venue is deliberate. Nothing is accidental.",
+    title: 'Experience over instruction',
+    desc: "Every venue earns its place. Every session has a reason. The week is structured so each day builds on the one before.",
   },
   {
-    title: 'High-level access with intention',
-    desc: "The people in this room are selected for what they bring, not just what they've achieved.",
+    title: 'The room is selected',
+    desc: "Each delegate is chosen for what they bring to the group — their work, their stage, their presence in the room.",
   },
   {
     title: 'A community that outlasts the week',
@@ -128,7 +128,7 @@ const departureProgramme = {
 const pastEvents = [
   {
     title: 'Azizi Mixer 2025',
-    blurb: 'Afrofuturist soirée with curated networking and live sets.',
+    blurb: 'Afrofuturist soirée with live sets and structured connection.',
     tag: 'Lagos',
     gradient: 'from-[#0d2010] to-[#1f3622]',
   },
@@ -178,11 +178,11 @@ const faqs = [
   },
   {
     q: 'What is the investment?',
-    a: "Retreat passes start from [PRICE RANGE]. Your pass covers all programming, curated hospitality, hosted meals, and experiences listed in the programme. Flights and accommodation are not included.",
+    a: "Investment details are shared privately with approved applicants. Your pass covers all programming, hospitality, hosted meals, and experiences listed in the programme. Flights and accommodation are not included.",
   },
   {
     q: 'Is accommodation included?',
-    a: "No. Your retreat pass covers all programming and curated experiences. Preferred hotel rates and booking links are shared in the Atinuda app after your pass is confirmed.",
+    a: "No. Your pass covers all programming and hosted experiences. Preferred hotel rates and booking links are shared in the Atinuda app after your pass is confirmed.",
   },
   {
     q: 'Are there visa requirements for Mauritius?',
@@ -203,6 +203,7 @@ const faqs = [
 ];
 
 // ── Shared style shorthand ────────────────────────────────────────────────────
+const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const } as const;
 const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' } as const;
 
 // ── Page Component ─────────────────────────────────────────────────────────────
@@ -234,7 +235,7 @@ export default function HomePage() {
           <div className="space-y-4">
             <h1
               className="text-6xl md:text-7xl lg:text-8xl uppercase text-white leading-none tracking-tight"
-              style={{ ...serif, textShadow: '0 4px 60px rgba(0,0,0,0.4)' }}
+              style={{ ...serifDisplay, textShadow: '0 4px 60px rgba(0,0,0,0.4)' }}
             >
               The Elevation
             </h1>
@@ -244,8 +245,9 @@ export default function HomePage() {
           </div>
 
           <p className="text-white/70 text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-            A seven-day leadership immersion in Mauritius for Africa&apos;s most
-            intentional founders, executives, and creators.
+            Seven days in Mauritius. Keynotes, workshops, deep-dive sessions, and a week
+            that Africa&apos;s best founders, executives, and creative leaders have not
+            stopped talking about.
           </p>
 
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/8 backdrop-blur-sm border border-white/15 text-sm text-white/60">
@@ -286,7 +288,7 @@ export default function HomePage() {
               <div key={stat.label} className="flex flex-col items-center text-center px-6">
                 <span
                   className="text-4xl md:text-5xl text-[#0d2010]"
-                  style={serif}
+                  style={serifDisplay}
                 >
                   {stat.value}
                 </span>
@@ -309,7 +311,7 @@ export default function HomePage() {
               </p>
               <h2
                 className="text-5xl md:text-6xl lg:text-7xl leading-[0.93] text-[#0d2010]"
-                style={serif}
+                style={serifDisplay}
               >
                 Not a<br /><RotatingHeading />
               </h2>
@@ -317,14 +319,14 @@ export default function HomePage() {
 
             <div className="space-y-8 pt-1 lg:pt-16">
               <p className="text-[#3a3a3a] text-xl leading-relaxed">
-                The Elevation is a curated seven-day immersion in Mauritius, a nation
-                that rose from the ocean floor, designed for Africa&apos;s most intentional
-                leaders. A week that weaves luxury hospitality with real programming,
-                deep wellness, and the kind of relationships that redefine what is possible.
+                The Elevation is a seven-day programme in Mauritius — a nation that built
+                itself from the ocean floor. The week runs luxury hospitality alongside
+                real leadership sessions, structured wellness, and the kind of
+                peer-to-peer access that takes years to build any other way.
               </p>
               <p className="text-[#3a3a3a] text-xl leading-relaxed">
-                Every moment is designed. Every venue is deliberate. Every person in the
-                room belongs there.
+                The venues are chosen with purpose. The cohort is selected. The programme
+                has been running since 2015 and the standard has not dropped.
               </p>
 
               <div className="flex items-start gap-2.5 text-sm text-[#9ca3af] pt-2">
@@ -363,7 +365,7 @@ export default function HomePage() {
               </p>
               <h2
                 className="text-5xl md:text-6xl leading-tight text-[#0d2010]"
-                style={serif}
+                style={serifDisplay}
               >
                 Seven days.<br />Seven chapters.
               </h2>
@@ -400,7 +402,6 @@ export default function HomePage() {
                   </p>
                   <p
                     className="text-lg font-semibold text-[#0d2010] mt-0.5 leading-snug"
-                    style={serif}
                   >
                     {item.title}
                   </p>
@@ -434,7 +435,7 @@ export default function HomePage() {
               </p>
               <h2
                 className="text-5xl md:text-6xl leading-tight text-[#2b1f1a]"
-                style={serif}
+                style={serifDisplay}
               >
                 Who&apos;s speaking<br />in Mauritius.
               </h2>
@@ -486,7 +487,7 @@ export default function HomePage() {
                   <p className="nav-text text-[9px] tracking-[0.22em] uppercase text-[#a09080] mb-1.5">
                     {speaker.track}
                   </p>
-                  <p className="text-sm font-semibold text-[#2b1f1a] leading-snug" style={serif}>
+                  <p className="text-sm font-semibold text-[#2b1f1a] leading-snug">
                     {speaker.name}
                   </p>
                   {speaker.title !== '[TITLE]' && (
@@ -522,7 +523,7 @@ export default function HomePage() {
               </p>
               <h2
                 className="text-5xl md:text-6xl leading-tight text-white"
-                style={serif}
+                style={serifDisplay}
               >
                 A different<br />kind of retreat.
               </h2>
@@ -578,7 +579,7 @@ export default function HomePage() {
               </p>
               <h2
                 className="text-5xl md:text-6xl text-[#0d2010]"
-                style={serif}
+                style={serifDisplay}
               >
                 Atinuda<br />in the world.
               </h2>
@@ -607,7 +608,7 @@ export default function HomePage() {
                   <span className="nav-text text-[9px] tracking-[0.2em] uppercase text-white/45">
                     {evt.tag}
                   </span>
-                  <h3 className="text-white font-semibold mt-1.5 leading-snug" style={serif}>
+                  <h3 className="text-white font-semibold mt-1.5 leading-snug">
                     {evt.title}
                   </h3>
                   <p className="text-white/60 text-xs mt-1.5 leading-relaxed">
@@ -640,39 +641,44 @@ export default function HomePage() {
       <section id="investment" className="bg-[#f2dfd2] py-28 lg:py-40">
         <div className="max-w-6xl mx-auto px-6">
 
-          {/* Price statement, centred, commanding */}
-          <div className="text-center border-b border-[#c9b8ab] pb-16 mb-16">
-            <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#7a5e52] mb-8">
-              The Investment
-            </p>
-            <h2
-              className="text-4xl md:text-5xl text-[#2b1f1a] mb-12 max-w-xl mx-auto leading-tight"
-              style={serif}
-            >
-              What it costs to be in this room.
-            </h2>
-            <p className="nav-text text-xs tracking-[0.3em] uppercase text-[#9c8070] mb-3">
-              Retreat pass from
-            </p>
-            {/* [BUSINESS DATA] Replace [PRICE RANGE] with real pricing */}
-            <p
-              className="text-7xl md:text-8xl lg:text-9xl text-[#0d2010] leading-none"
-              style={serif}
-            >
-              [PRICE RANGE]
-            </p>
-            {/* [BUSINESS DATA] Replace with real seat count when confirmed */}
-            <p className="text-sm text-[#9c8070] mt-5">
-              Limited places · By application only
-            </p>
-            <div className="mt-8">
-              <Link
-                href={RETREAT_TICKET_URL}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#0d2010] text-white text-sm font-semibold hover:bg-[#1a3d1e] transition-colors"
+          {/* Headline + enquiry statement */}
+          <div className="grid lg:grid-cols-2 gap-16 items-end border-b border-[#c9b8ab] pb-20 mb-20">
+            <div>
+              <p className="nav-text text-[10px] tracking-[0.35em] uppercase text-[#7a5e52] mb-8">
+                The Investment
+              </p>
+              <h2
+                className="text-5xl md:text-6xl lg:text-7xl text-[#2b1f1a] leading-[1.05]"
+                style={serifDisplay}
               >
-                Apply for your retreat pass
-                <ArrowRight size={13} aria-hidden="true" />
-              </Link>
+                The right room<br />has no price<br />on the door.
+              </h2>
+            </div>
+            <div>
+              <p className="text-[#5c4a3f] leading-relaxed mb-6 text-lg">
+                Investment details are shared privately with approved applicants. The full breakdown covers what is included, how the week is structured, and what to expect from the programme.
+              </p>
+              <p className="text-[#7a5e52] leading-relaxed mb-10 text-sm">
+                To receive the programme deck, apply for your place or request it directly. The team will follow up promptly.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href={RETREAT_TICKET_URL}
+                  className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
+                >
+                  Apply for your place
+                  <ArrowRight size={13} aria-hidden="true" />
+                </Link>
+                <a
+                  href="mailto:hello@atinuda.com?subject=Programme Deck Request"
+                  className="inline-flex items-center gap-3 border border-[#2b1f1a] text-[#2b1f1a] text-sm tracking-wide px-8 py-4 hover:bg-[#2b1f1a] hover:text-white transition-colors"
+                >
+                  Request the programme deck
+                </a>
+              </div>
+              <p className="text-[10px] tracking-[0.15em] nav-text text-[#9c8070] mt-6">
+                LIMITED PLACES · BY APPLICATION ONLY
+              </p>
             </div>
           </div>
 
@@ -723,7 +729,7 @@ export default function HomePage() {
             </p>
             <h2
               className="text-5xl md:text-6xl text-white"
-              style={serif}
+              style={serifDisplay}
             >
               Common questions.
             </h2>
@@ -762,7 +768,7 @@ export default function HomePage() {
 
           <h2
             className="text-6xl md:text-7xl lg:text-8xl leading-[0.93] text-white"
-            style={serif}
+            style={serifDisplay}
           >
             Mauritius<br />is calling.
           </h2>
@@ -801,7 +807,7 @@ export default function HomePage() {
             </p>
             <h2
               className="text-4xl md:text-5xl text-[#0d2010]"
-              style={serif}
+              style={serifDisplay}
             >
               The retreat continues.
             </h2>
