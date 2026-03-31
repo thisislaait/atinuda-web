@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, X, Check } from 'lucide-react';
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
 const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' };
@@ -149,6 +149,16 @@ function ProgrammeBadge({ type }: { type: string }) {
 
 export default function LocalToGlobalSummitPage() {
   const [activeSpeaker, setActiveSpeaker] = useState<Speaker | null>(null);
+  const speakerTrackRef = useRef<HTMLDivElement>(null);
+
+  function scrollSpeakers(dir: 'prev' | 'next') {
+    const track = speakerTrackRef.current;
+    if (!track) return;
+    const cardWidth = track.firstElementChild
+      ? (track.firstElementChild as HTMLElement).offsetWidth + 1 // +1 for gap-px
+      : 280;
+    track.scrollBy({ left: dir === 'next' ? cardWidth : -cardWidth, behavior: 'smooth' });
+  }
   const [partnerImg, setPartnerImg] = useState(0);
   const [partnerFade, setPartnerFade] = useState(false);
 
@@ -267,7 +277,7 @@ export default function LocalToGlobalSummitPage() {
             <Reveal delay={0.1}>
               <div className="grid md:grid-cols-2 gap-8 border-t border-[#e5e0da] pt-8">
                 <p className="text-[#0d1e2c]/65 leading-relaxed">
-                  The Local To Global Summit runs across two days each year in Lagos. Founders, executives, investors, and creative leaders come to hear from people who have built real businesses and can say something worth the room's time.
+                  The Local To Global Summit runs across two days each year in Lagos. Founders, executives, investors, and creative leaders come to hear from people who have built real businesses and can say something worth the room&apos;s time.
                 </p>
                 <p className="text-[#0d1e2c]/45 leading-relaxed text-sm">
                   Since 2015, six editions have drawn 400+ delegates each year. The format holds: main-stage keynotes in the morning, workshop breakout tracks in the afternoon, the Spark the Future pitch finals, and the Executive Dinner Gala in the evening.
@@ -462,12 +472,28 @@ export default function LocalToGlobalSummitPage() {
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-[#e5e0da]">
-            {SPEAKERS.map((s, i) => (
-              <Reveal key={s.name} delay={i * 0.04}>
+          {/* Carousel row */}
+          <div className="relative">
+            {/* Prev */}
+            <button
+              onClick={() => scrollSpeakers('prev')}
+              className="absolute -left-6 top-1/3 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center bg-white border border-[#e5e0da] shadow-sm hover:border-[#ff7f41] hover:text-[#ff7f41] transition-colors duration-200"
+              aria-label="Previous speaker"
+            >
+              <ArrowLeft size={16} />
+            </button>
+
+            {/* Track */}
+            <div
+              ref={speakerTrackRef}
+              className="flex gap-px overflow-x-auto scroll-smooth scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {SPEAKERS.map((s) => (
                 <motion.button
+                  key={s.name}
                   onClick={() => setActiveSpeaker(s)}
-                  className="group text-left w-full bg-white/90 hover:bg-white transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7f41]"
+                  className="group text-left flex-none w-[220px] md:w-[260px] bg-white/90 hover:bg-white transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff7f41]"
                   whileHover={{ y: -1 }}
                   transition={{ duration: 0.2, ease: EASE }}
                 >
@@ -477,9 +503,8 @@ export default function LocalToGlobalSummitPage() {
                       alt={s.name}
                       fill
                       className="object-cover object-top group-hover:scale-[1.04] transition-transform duration-600"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      sizes="260px"
                     />
-                    {/* Hover reveal strip */}
                     <motion.div
                       className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#ff7f41] origin-left"
                       initial={{ scaleX: 0 }}
@@ -496,8 +521,17 @@ export default function LocalToGlobalSummitPage() {
                     </p>
                   </div>
                 </motion.button>
-              </Reveal>
-            ))}
+              ))}
+            </div>
+
+            {/* Next */}
+            <button
+              onClick={() => scrollSpeakers('next')}
+              className="absolute -right-6 top-1/3 -translate-y-1/2 z-10 w-11 h-11 flex items-center justify-center bg-white border border-[#e5e0da] shadow-sm hover:border-[#ff7f41] hover:text-[#ff7f41] transition-colors duration-200"
+              aria-label="Next speaker"
+            >
+              <ArrowRight size={16} />
+            </button>
           </div>
         </div>
       </section>
