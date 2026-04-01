@@ -129,32 +129,30 @@ const HeaderNav = () => {
 
           <nav className="flex flex-col space-y-6 text-white text-4xl header-text h-full justify-center">
             {[
-              "Our Story",
-              "Membership",
-              "Brands Activation",
-              "Spark The Future",
-              "Regional Events",
-            ].map((item, index) => {
-              const path = `/${item.toLowerCase().replace(/\s+/g, "-")}`;
-              return (
-                <motion.span
-                  key={index}
-                  initial={{ backgroundSize: "0% 1px" }}
-                  whileHover={{ backgroundSize: "100% 1px" }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  style={{
-                    backgroundImage: "linear-gradient(to right, white, white)",
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "0 100%",
-                    backgroundSize: "0% 1px",
-                  }}
-                >
-                  <span className="block cursor-pointer" onClick={() => handleNavClick(path)}>
-                    {item}
-                  </span>
-                </motion.span>
-              );
-            })}
+              ["Our Story", "/our-story"],
+              ["Membership", "/membership"],
+              ["Brands Activation", "/brands-activation"],
+              ["Spark The Future", "/spark-the-future"],
+              ["Regional Events", "/regional-events"],
+              ["Press & Media", "/press"],
+            ].map(([label, path], index) => (
+              <motion.span
+                key={index}
+                initial={{ backgroundSize: "0% 1px" }}
+                whileHover={{ backgroundSize: "100% 1px" }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                style={{
+                  backgroundImage: "linear-gradient(to right, white, white)",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "0 100%",
+                  backgroundSize: "0% 1px",
+                }}
+              >
+                <span className="block cursor-pointer" onClick={() => handleNavClick(path)}>
+                  {label}
+                </span>
+              </motion.span>
+            ))}
           </nav>
         </motion.div>
       )}
