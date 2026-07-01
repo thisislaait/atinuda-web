@@ -46,7 +46,7 @@ const HeaderNav = () => {
     router.push(path);
   };
 
-  const isAtinuda7 = pathname === '/atinuda-7';
+  const isAtinuda7 = pathname === '/7.0-waitlist';
   const transparentMenuColor = isAtinuda7 ? '#b5622a' : 'white';
   const menuColor = isSolid ? 'black' : transparentMenuColor;
 

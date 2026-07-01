@@ -45,7 +45,7 @@ const SOCIAL = [
 
 const SummitFooter = () => {
   const pathname = usePathname();
-  const bg = pathname === '/atinuda-7' ? '#b5622a' : '#0d2010';
+  const bg = pathname === '/7.0-waitlist' ? '#b5622a' : '#0d2010';
 
   return (
     <footer className="relative w-full overflow-hidden text-white" style={{ background: bg }}>
