@@ -85,7 +85,7 @@ export default function Atinuda7() {
         </div>
 
         {/* Right: editorial copy */}
-        <div style={{
+        <div className="hero-copy" style={{
           flex: 1,
           background: '#faf9fe',
           display: 'flex',
@@ -121,7 +121,7 @@ export default function Atinuda7() {
       </section>
 
       {/* ── IMAGE STRIP ─────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 2fr 3fr', height: '300px', gap: '2px', background: '#e4e0f2' }}>
+      <div className="strip-grid" style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 2fr 3fr', height: '300px', gap: '2px', background: '#e4e0f2' }}>
         {[
           { src: '/assets/images/Retreat/Within/ATINUDA6_DAY2_5.JPG',        pos: 'center' },
           { src: '/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_17.JPG',   pos: 'center' },
@@ -172,12 +172,12 @@ export default function Atinuda7() {
                 <InputField label="Full name" value={form.name} onChange={set('name')} required />
                 <InputField label="Email address" type="email" value={form.email} onChange={set('email')} required />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                   <InputField label="Phone number" type="tel" value={form.phone} onChange={set('phone')} />
                   <InputField label="Date of birth" type="text" placeholder="DD / MM / YYYY" value={form.dob} onChange={set('dob')} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                   <InputField label="Company" value={form.company} onChange={set('company')} />
                   <InputField label="Role / title" value={form.role} onChange={set('role')} />
                 </div>
@@ -249,11 +249,20 @@ export default function Atinuda7() {
       </section>
 
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 767px) {
           .hero-spread { flex-direction: column !important; min-height: unset !important; }
-          .hero-images { width: 100% !important; height: 70vw !important; }
+          .hero-images { width: 100% !important; height: 72vw !important; }
+          .hero-copy { padding: 40px 28px 48px !important; }
+          .strip-grid { grid-template-columns: 1fr 1fr !important; height: 480px !important; }
+          .form-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (min-width: 768px) and (max-width: 899px) {
+          .hero-spread { flex-direction: column !important; min-height: unset !important; }
+          .hero-images { width: 100% !important; height: 56vw !important; }
+          .hero-copy { padding: 48px 48px 56px !important; }
         }
         select option { background: #faf9fe; color: #1a1040; }
+        input::placeholder { color: rgba(26,16,64,0.28); }
       `}</style>
     </div>
   );
