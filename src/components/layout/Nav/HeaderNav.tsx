@@ -46,6 +46,10 @@ const HeaderNav = () => {
     router.push(path);
   };
 
+  const isAtinuda7 = pathname === '/atinuda-7';
+  const transparentMenuColor = isAtinuda7 ? '#b5622a' : 'white';
+  const menuColor = isSolid ? 'black' : transparentMenuColor;
+
   const logoSrc = isSolid
     ? "/assets/images/blacklogo.png"
     : "/assets/images/whitelogo.png";
@@ -94,13 +98,13 @@ const HeaderNav = () => {
             whileHover={{ backgroundSize: "100% 1px" }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             style={{
-              color: isSolid ? "black" : "white",
-              backgroundImage: `linear-gradient(to right, ${isSolid ? "black" : "white"}, ${isSolid ? "black" : "white"})`,
+              color: menuColor,
+              backgroundImage: `linear-gradient(to right, ${menuColor}, ${menuColor})`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "0 100%",
               backgroundSize: "0% 2px",
               letterSpacing: "0.15em",
-              textShadow: !isSolid ? "0 0 8px rgba(0,0,0,0.35)" : "none",
+              textShadow: !isSolid && !isAtinuda7 ? "0 0 8px rgba(0,0,0,0.35)" : "none",
             }}
           >
             Menu

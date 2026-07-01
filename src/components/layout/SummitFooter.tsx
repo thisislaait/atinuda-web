@@ -1,6 +1,9 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
 const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' };
@@ -41,8 +44,11 @@ const SOCIAL = [
 ];
 
 const SummitFooter = () => {
+  const pathname = usePathname();
+  const bg = pathname === '/atinuda-7' ? '#b5622a' : '#0d2010';
+
   return (
-    <footer className="relative w-full overflow-hidden bg-[#0d2010] text-white">
+    <footer className="relative w-full overflow-hidden text-white" style={{ background: bg }}>
 
       {/* Background image with dark overlay */}
       <div className="absolute inset-0 z-0">
@@ -52,7 +58,7 @@ const SummitFooter = () => {
           fill
           className="object-cover opacity-10"
         />
-        <div className="absolute inset-0 bg-[#0d2010]/80" />
+        <div className="absolute inset-0" style={{ background: `${bg}cc` }} />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 md:px-16 lg:px-20">
