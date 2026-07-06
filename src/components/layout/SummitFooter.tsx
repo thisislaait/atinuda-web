@@ -14,7 +14,7 @@ const NAV_COLUMNS = [
     links: [
       { name: 'Our Story', path: '/our-story' },
       { name: 'Local To Global Summit', path: '/local-to-global-summit-2025' },
-      { name: 'Elevation Retreat', path: '/' },
+      { name: 'Elevation Retreat', path: '/elevation-2026' },
       { name: 'Spark the Future', path: '/spark-the-future' },
     ],
   },

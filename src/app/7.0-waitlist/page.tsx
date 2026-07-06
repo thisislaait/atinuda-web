@@ -31,7 +31,7 @@ export default function Atinuda7() {
       await fetch('https://formsubmit.co/ajax/hello@atinuda.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ ...form, _subject: 'Atinuda 7.0 — Interest Registration' }),
+        body: JSON.stringify({ ...form, _subject: 'Atinuda 7.0 Interest Registration' }),
       });
       setDone(true);
     } catch (err) {
@@ -53,7 +53,7 @@ export default function Atinuda7() {
 
           <div style={{ flex: '1 1 0', position: 'relative', minHeight: 0, overflow: 'hidden' }}>
             <Image
-              src="/assets/images/Retreat/Together/ATINUDA6_DAY3_35.JPG"
+              src="/07hero1.jpg"
               alt="Atinuda 6.0, Mauritius"
               fill
               sizes="52vw"
@@ -65,7 +65,7 @@ export default function Atinuda7() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', height: '34%', flexShrink: 0 }}>
             <div style={{ position: 'relative', overflow: 'hidden' }}>
               <Image
-                src="/assets/images/Retreat/Finale/ATINUDA6_DAY6_45.JPG"
+                src="/07hero2.jpg"
                 alt=""
                 fill
                 sizes="26vw"
@@ -74,7 +74,7 @@ export default function Atinuda7() {
             </div>
             <div style={{ position: 'relative', overflow: 'hidden' }}>
               <Image
-                src="/assets/images/Retreat/Skill/ATINUDA6_DAY4_425.JPG"
+                src="/07hero3.jpg"
                 alt=""
                 fill
                 sizes="26vw"
@@ -93,16 +93,16 @@ export default function Atinuda7() {
           justifyContent: 'space-between',
           padding: '52px 64px 52px 72px',
         }}>
-          <p style={{ fontSize: '10px', letterSpacing: '0.24em', color: 'rgba(26,16,64,0.38)' }}>
-            ATINUDA VII &nbsp;<span style={{ color: '#b5622a' }}>7.0</span>&nbsp; LAGOS — 2027
+          <p style={{ fontSize: '10px', letterSpacing: '0.24em', fontWeight: 600, color: 'rgba(26,16,64,0.72)' }}>
+            ATINUDA VII &nbsp;<span style={{ color: '#b5622a' }}>7.0</span>&nbsp; LAGOS 2027
           </p>
 
           <div>
             <h1 style={{ ...sd, fontSize: 'clamp(44px,5.5vw,78px)', color: '#1a1040', lineHeight: 0.94, letterSpacing: '-1px', marginBottom: '28px' }}>
               The room<br />you&apos;ve been<br />looking for.
             </h1>
-            <p style={{ fontSize: '14px', color: 'rgba(26,16,64,0.50)', lineHeight: 1.85, maxWidth: '280px', marginBottom: '48px' }}>
-              Three days of immersive programming, private dialogue, and unexpected connection — for Africa&apos;s most intentional builders, creatives, and leaders.
+            <p style={{ fontSize: '15px', color: 'rgba(26,16,64,0.88)', lineHeight: 1.85, maxWidth: '300px', marginBottom: '48px' }}>
+              Three days of immersive programming, private dialogue, and unexpected connection, for Africa&apos;s most intentional builders, creatives, and leaders.
             </p>
             <a
               href="#register"
@@ -113,7 +113,7 @@ export default function Atinuda7() {
           </div>
 
           <div style={{ borderTop: '1px solid rgba(26,16,64,0.09)', paddingTop: '24px' }}>
-            <p style={{ fontSize: '11px', letterSpacing: '0.12em', color: 'rgba(26,16,64,0.32)' }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.12em', fontWeight: 500, color: 'rgba(26,16,64,0.6)' }}>
               EST. 2015 &nbsp;·&nbsp; SEVENTH EDITION
             </p>
           </div>
@@ -136,8 +136,8 @@ export default function Atinuda7() {
 
       {/* Strip caption */}
       <div style={{ background: '#faf9fe', padding: '14px 48px', borderBottom: '1px solid rgba(26,16,64,0.07)' }}>
-        <p style={{ fontSize: '10px', letterSpacing: '0.14em', color: 'rgba(26,16,64,0.30)', fontStyle: 'italic' }}>
-          Atinuda 6.0 &mdash; Oberoi Beach Resort, Mauritius. March 2026.
+        <p style={{ fontSize: '10px', letterSpacing: '0.14em', color: 'rgba(26,16,64,0.6)', fontStyle: 'italic' }}>
+          Atinuda 6.0, Oberoi Beach Resort, Mauritius. March 2026.
         </p>
       </div>
 
@@ -147,11 +147,11 @@ export default function Atinuda7() {
 
           {done ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
-              <p style={{ fontSize: '10px', letterSpacing: '0.22em', color: 'rgba(26,16,64,0.32)', marginBottom: '24px' }}>ATINUDA 7.0</p>
+              <p style={{ fontSize: '10px', letterSpacing: '0.22em', fontWeight: 600, color: 'rgba(26,16,64,0.65)', marginBottom: '24px' }}>ATINUDA 7.0</p>
               <h2 style={{ ...sd, fontSize: '60px', color: '#1a1040', lineHeight: 0.94, marginBottom: '24px' }}>
                 You&apos;re on<br />the list.
               </h2>
-              <p style={{ fontSize: '14px', color: 'rgba(26,16,64,0.46)', lineHeight: 1.85 }}>
+              <p style={{ fontSize: '15px', color: 'rgba(26,16,64,0.88)', lineHeight: 1.85 }}>
                 We&apos;ll be in touch before applications open publicly. The room is already building.
               </p>
             </div>
@@ -161,10 +161,10 @@ export default function Atinuda7() {
                 REGISTER INTEREST
               </p>
               <h2 style={{ ...sd, fontSize: 'clamp(40px,4.5vw,56px)', color: '#1a1040', lineHeight: 0.96, marginBottom: '20px' }}>
-                Be in the room.
+                Want to be considered?
               </h2>
-              <p style={{ fontSize: '14px', color: 'rgba(26,16,64,0.46)', lineHeight: 1.85, marginBottom: '52px' }}>
-                Tell us you want to be considered. Registrants hear first when applications open — before any public announcement.
+              <p style={{ fontSize: '15px', color: 'rgba(26,16,64,0.88)', lineHeight: 1.85, marginBottom: '52px' }}>
+                Registrants hear first when applications open, before any public announcement.
               </p>
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -185,10 +185,10 @@ export default function Atinuda7() {
                 <InputField label="Where are you based?" value={form.location} onChange={set('location')} />
 
                 <div>
-                  <p style={{ fontSize: '10px', letterSpacing: '0.14em', color: 'rgba(26,16,64,0.38)', marginBottom: '10px' }}>
+                  <p style={{ fontSize: '11px', letterSpacing: '0.14em', fontWeight: 700, color: '#1a1040', marginBottom: '10px' }}>
                     HOW DID YOU HEAR ABOUT ATINUDA
                   </p>
-                  <div style={{ borderBottom: '1px solid rgba(26,16,64,0.16)', paddingBottom: '6px' }}>
+                  <div style={{ borderBottom: '1px solid rgba(26,16,64,0.35)', paddingBottom: '6px' }}>
                     <select
                       value={form.howHeard}
                       onChange={set('howHeard')}
@@ -196,8 +196,8 @@ export default function Atinuda7() {
                         width: '100%',
                         background: 'transparent',
                         border: 'none',
-                        fontSize: '14px',
-                        color: form.howHeard ? '#1a1040' : 'rgba(26,16,64,0.32)',
+                        fontSize: '15px',
+                        color: form.howHeard ? '#1a1040' : 'rgba(26,16,64,0.55)',
                         outline: 'none',
                         appearance: 'none',
                         cursor: 'pointer',
@@ -239,7 +239,7 @@ export default function Atinuda7() {
                   </button>
                 </div>
 
-                <p style={{ fontSize: '10px', letterSpacing: '0.10em', color: 'rgba(26,16,64,0.22)' }}>
+                <p style={{ fontSize: '10px', letterSpacing: '0.10em', fontWeight: 500, color: 'rgba(26,16,64,0.55)' }}>
                   YOUR DETAILS ARE HELD PRIVATELY AND NEVER SHARED.
                 </p>
               </form>
@@ -262,7 +262,7 @@ export default function Atinuda7() {
           .hero-copy { padding: 48px 48px 56px !important; }
         }
         select option { background: #faf9fe; color: #1a1040; }
-        input::placeholder { color: rgba(26,16,64,0.28); }
+        input::placeholder { color: rgba(26,16,64,0.5); }
       `}</style>
     </div>
   );
@@ -280,10 +280,10 @@ function InputField({
 }) {
   return (
     <div>
-      <p style={{ fontSize: '10px', letterSpacing: '0.14em', color: 'rgba(26,16,64,0.38)', marginBottom: '10px' }}>
+      <p style={{ fontSize: '11px', letterSpacing: '0.14em', fontWeight: 700, color: '#1a1040', marginBottom: '10px' }}>
         {label.toUpperCase()}
       </p>
-      <div style={{ borderBottom: '1px solid rgba(26,16,64,0.16)', paddingBottom: '6px' }}>
+      <div style={{ borderBottom: '1px solid rgba(26,16,64,0.35)', paddingBottom: '6px' }}>
         <input
           type={type}
           value={value}
@@ -294,7 +294,8 @@ function InputField({
             width: '100%',
             background: 'transparent',
             border: 'none',
-            fontSize: '14px',
+            fontSize: '15px',
+            fontWeight: 500,
             color: '#1a1040',
             outline: 'none',
             padding: 0,
