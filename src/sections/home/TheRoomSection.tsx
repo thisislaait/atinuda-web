@@ -10,12 +10,12 @@ const INK  = '#1B1E1C';
 const BG   = '#F4F5F3';
 
 const PHOTOS = [
-  { src: '/assets/images/summit/RBS13419.jpg',               w: 220, h: 290, x: 6,  y: 8,  from: { x: -180, y: -60  } },
-  { src: '/assets/images/summit/H1C10404.jpg',               w: 170, h: 220, x: 68, y: 5,  from: { x: 140,  y: -80  } },
-  { src: '/assets/images/summit/GM5_1315.JPG',               w: 200, h: 260, x: 3,  y: 52, from: { x: -160, y: 100  } },
-  { src: '/assets/images/summit/ATINUDA%20DAY%202_130.jpg',  w: 180, h: 230, x: 74, y: 44, from: { x: 160,  y: 80   } },
-  { src: '/assets/images/summit/IMG_0733L.jpg',              w: 150, h: 195, x: 38, y: 62, from: { x: 0,    y: 160  } },
-  { src: '/assets/images/summit/ATINUDA%20DAY%202_507.jpg',  w: 160, h: 210, x: 56, y: 14, from: { x: 100, y: -120 } },
+  { src: '/assets/images/summit/ATINUDA%20DAY%202_487.jpg', w: 220, h: 290, x: 6,  y: 8,  from: { x: -180, y: -60  } },
+  { src: '/assets/images/summit/H1C10415.jpg',              w: 170, h: 220, x: 68, y: 5,  from: { x: 140,  y: -80  } },
+  { src: '/assets/images/summit/GM5_1341.JPG',              w: 200, h: 260, x: 3,  y: 52, from: { x: -160, y: 100  } },
+  { src: '/assets/images/summit/ATINUDA%20DAY%202_560.jpg', w: 180, h: 230, x: 74, y: 44, from: { x: 160,  y: 80   } },
+  { src: '/assets/images/summit/dinner.JPG',                w: 150, h: 195, x: 38, y: 62, from: { x: 0,    y: 160  } },
+  { src: '/assets/images/summit/stf.jpg',                   w: 160, h: 210, x: 56, y: 14, from: { x: 100, y: -120 } },
 ];
 
 type Persona = { role: string; desc: string } | null;
@@ -266,7 +266,7 @@ export function TheRoomSection() {
               }}
             >
               <Link
-                href="/7.0-waitlist"
+                href="https://www.atinuda.africa/membership/apply"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

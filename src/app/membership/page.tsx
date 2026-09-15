@@ -3,10 +3,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'The Elevation Circle — Membership',
+  title: 'The Inner Circle — Membership',
   description:
-    'Year-round access to Africa\'s most consequential leadership community. The Elevation Circle gives permanent members priority access, exclusive programming, and the connections built in the room.',
-  openGraph: { title: 'The Elevation Circle | Atinuda', description: 'Year-round access to Africa\'s most consequential leadership community.' },
+    'Year-round access to Africa\'s most consequential leadership community. The Inner Circle gives permanent members priority access, exclusive programming, and the connections built in the room.',
+  openGraph: { title: 'The Inner Circle | Atinuda', description: 'Year-round access to Africa\'s most consequential leadership community.' },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
@@ -46,7 +46,7 @@ export default function MembershipPage() {
       {/* ── HERO ─────────────────────────────────────────────────────── */}
       <section className="min-h-screen flex flex-col lg:flex-row">
         <div className="lg:w-[55%] flex flex-col justify-center px-8 md:px-16 lg:px-20 pt-32 pb-20">
-          <p className="nav-text text-[10px] tracking-[0.2em] text-[#8a7e72] mb-8">THE ELEVATION CIRCLE</p>
+          <p className="nav-text text-[10px] tracking-[0.2em] text-[#8a7e72] mb-8">THE INNER CIRCLE</p>
           <h1 style={serifDisplay} className="text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-8">
             The week<br />ends.<br />The room<br />stays open.
           </h1>
@@ -77,7 +77,7 @@ export default function MembershipPage() {
           &ldquo;The most valuable thing we build isn&apos;t the programme. It&apos;s the room.&rdquo;
         </p>
         <p className="text-sm text-white/60 md:max-w-xs leading-relaxed">
-          The Elevation Circle gives you permanent access to a room that gets more valuable every year.
+          The Inner Circle gives you permanent access to a room that gets more valuable every year.
         </p>
       </div>
 
@@ -90,7 +90,7 @@ export default function MembershipPage() {
               A standing<br />in the room.
             </h2>
             <p className="text-[#4a4a4a] leading-relaxed mb-6">
-              The Elevation Circle is not a points programme or a digital newsletter. You become a permanent member of a community that is, by structure, closed to the public.
+              The Inner Circle is not a points programme or a digital newsletter. You become a permanent member of a community that is, by structure, closed to the public.
             </p>
             <p className="text-[#4a4a4a] leading-relaxed mb-6">
               Every person in the Circle has been in the room. They&apos;ve sat through sessions that ran long because no one wanted to stop, built relationships in three-minute connection windows, and understood — firsthand — what it means when a gathering is designed with genuine intention. Membership is the recognition of that shared experience, and the infrastructure to keep building on it.
@@ -196,7 +196,7 @@ export default function MembershipPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/10" />
         <div className="relative z-10 px-8 md:px-16 lg:px-20 py-20 text-white max-w-3xl">
-          <p className="nav-text text-[10px] tracking-[0.2em] text-white/50 mb-6">THE ELEVATION CIRCLE</p>
+          <p className="nav-text text-[10px] tracking-[0.2em] text-white/50 mb-6">THE INNER CIRCLE</p>
           <h2 style={serifDisplay} className="text-4xl md:text-6xl leading-tight mb-8">
             Your place in the<br />room is waiting.
           </h2>

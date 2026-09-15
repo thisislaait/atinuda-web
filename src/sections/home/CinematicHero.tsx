@@ -329,7 +329,7 @@ export function CinematicHero() {
                       letterSpacing: '0.04em',
                       lineHeight: 1,
                     }}>
-                      October 6 – 8
+                      October 6 – 8, 2027
                     </p>
                     <p style={{ ...sans, fontSize: '12px', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.35)', marginTop: '8px' }}>
                       Registration opens soon

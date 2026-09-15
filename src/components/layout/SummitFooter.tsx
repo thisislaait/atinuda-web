@@ -47,6 +47,9 @@ const SummitFooter = () => {
   const pathname = usePathname();
   const bg = pathname === '/7.0-waitlist' ? '#b5622a' : '#0d2010';
 
+  // Homepage has its own combined CTA + footer section
+  if (pathname === '/') return null;
+
   return (
     <footer className="relative w-full overflow-hidden text-white" style={{ background: bg }}>
 

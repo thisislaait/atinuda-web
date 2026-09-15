@@ -64,7 +64,7 @@ export default function MembershipApplyPage() {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           ...formData,
-          _subject: 'Elevation Circle — Membership Application',
+          _subject: 'Inner Circle — Membership Application',
         }),
       });
 
@@ -96,7 +96,7 @@ export default function MembershipApplyPage() {
             <div className="absolute inset-0 bg-[#0d2010]/40" />
             <div className="absolute bottom-12 left-10 right-10 text-white">
               <p className="nav-text text-[9px] tracking-[0.25em] text-white/40 mb-4">
-                THE ELEVATION CIRCLE
+                THE INNER CIRCLE
               </p>
               <p style={serif} className="text-2xl leading-snug">
                 &ldquo;The most valuable thing we build isn&apos;t the programme. It&apos;s the room.&rdquo;
@@ -134,7 +134,7 @@ export default function MembershipApplyPage() {
             /* ── Form ─────────────────────────────────── */
             <>
               <p className="nav-text text-[10px] tracking-[0.25em] text-[#8a7e72] mb-8">
-                THE ELEVATION CIRCLE
+                THE INNER CIRCLE
               </p>
               <h1 style={serifDisplay} className="text-4xl md:text-5xl leading-tight mb-4">
                 Apply for<br />membership.

@@ -13,19 +13,19 @@ const CHAPTERS = [
     number: '01',
     title: 'Creativity',
     body: 'Culture is the currency of the next decade. Atinuda centres the African creative economy: music, film, fashion, design, and the leaders building it at scale.',
-    image: '/assets/images/Retreat/Creativity/ATINUDA6_DAY5_629.JPG',
+    image: '/assets/images/summit/GM5_1315.JPG',
   },
   {
     number: '02',
     title: 'Leadership',
     body: 'Executive panels, keynotes, and peer access designed for founders, C-suite, and the emerging voices shaping sectors across the continent and diaspora.',
-    image: '/assets/images/Retreat/Together/ATINUDA6_DAY3_1.JPG',
+    image: '/assets/images/summit/ATINUDA%20DAY%202_507.jpg',
   },
   {
     number: '03',
     title: 'Enterprise',
     body: 'Trade, investment, and brand activation opportunities that turn relationships forged in the room into commercial partnerships that outlast the moment.',
-    image: '/assets/images/azizi1.jpeg',
+    image: '/assets/images/summit/H1C10404.jpg',
   },
 ];
 
@@ -84,11 +84,11 @@ export function PillarsSection() {
           maxWidth: '1100px',
         }}>
           Where
-          <InlineImg src="/assets/images/Retreat/Creativity/ATINUDA6_DAY5_629.JPG" wide />
+          <InlineImg src="/assets/images/summit/RBS13419.jpg" wide />
           culture meets capital. Where
-          <InlineImg src="/assets/images/Retreat/Together/ATINUDA6_DAY3_1.JPG" wide />
+          <InlineImg src="/assets/images/summit/ATINUDA%20DAY%202_130.jpg" wide />
           founders share tables with executives. Where
-          <InlineImg src="/assets/images/azizi1.jpeg" />
+          <InlineImg src="/assets/images/summit/IMG_0733L.jpg" />
           ambition becomes architecture.
         </p>
       </div>
