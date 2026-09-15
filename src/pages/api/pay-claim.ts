@@ -49,37 +49,6 @@ async function getProduct(slug: string, productKey: string): Promise<TicketProdu
   return { price: data.price, currency: currency as Currency, title: data.title };
 }
 
-async function issueTicket(opts: {
-  eventSlug: string;
-  productKey: string;
-  userId: string;
-  email: string | null;
-  name: string | null;
-  product: TicketProduct;
-}) {
-  const { eventSlug, productKey, userId, email, name, product } = opts;
-  const ticketNumber = generateTicketNumber(eventSlug, productKey);
-  const payload = {
-    userId,
-    email: email ?? null,
-    issuedToName: name ?? email ?? 'Guest',
-    ticketNumber,
-    ticketType: product.title ?? productKey,
-    productKey,
-    currency: product.currency,
-    amount: product.price,
-    quantity: 1,
-    unitAmount: product.price,
-    lastTxRef: `claim-${ticketNumber}`,
-    lastTransactionId: `claim-${ticketNumber}`,
-    status: 'active',
-    purchasedAt: FieldValue.serverTimestamp(),
-    eventSlug,
-  };
-  await db.collection('events').doc(eventSlug).collection('attendees').doc(userId).set(payload, { merge: true });
-  return payload;
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (req.method !== 'POST') return res.status(405).json({ ok: false, message: 'Method not allowed' });
@@ -98,34 +67,77 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ ok: false, message: 'claimCode, eventSlug, productKey required' });
 
     const claimRef = db.collection('claimTickets').doc(claimCode);
-    const snap = await claimRef.get();
-    if (!snap.exists) return res.status(404).json({ ok: false, message: 'Invalid claim code' });
-
-    const claim = snap.data() as ClaimDoc;
-    if ((claim.eventSlug || eventSlug) !== eventSlug)
-      return res.status(400).json({ ok: false, message: 'Claim code not valid for this event' });
-    if (claim.redeemed && claim.redeemedBy && claim.redeemedBy !== userId)
-      return res.status(400).json({ ok: false, message: 'Claim code already used' });
 
     const product = await getProduct(eventSlug, productKey);
     if (!product) return res.status(400).json({ ok: false, message: 'Unknown ticket product' });
 
-    const ticket = await issueTicket({ eventSlug, productKey, userId, email: userEmail, name: userName, product });
+    // Transactional redeem: the claim check and the redeem write happen
+    // atomically, so a code can never be redeemed twice — even under
+    // concurrent requests (PRD-platform-uplift R1.3).
+    type RedeemResult =
+      | { status: 'ok'; ticketNumber: string }
+      | { status: 'error'; code: number; message: string };
 
-    await claimRef.set(
-      {
-        redeemed: true,
-        redeemedBy: userId,
-        redeemedEmail: userEmail ?? null,
-        redeemedAt: FieldValue.serverTimestamp(),
-        ticketNumber: ticket.ticketNumber,
-        eventSlug,
-        productKey,
-      },
-      { merge: true },
-    );
+    const result = await db.runTransaction<RedeemResult>(async (tx) => {
+      const snap = await tx.get(claimRef);
+      if (!snap.exists) {
+        return { status: 'error', code: 404, message: 'Invalid claim code' };
+      }
+      const claim = snap.data() as ClaimDoc & { ticketNumber?: string };
+      if ((claim.eventSlug || eventSlug) !== eventSlug) {
+        return { status: 'error', code: 400, message: 'Claim code not valid for this event' };
+      }
+      if (claim.redeemed) {
+        // Same user retrying is idempotent; anyone else is rejected.
+        if (claim.redeemedBy === userId && claim.ticketNumber) {
+          return { status: 'ok', ticketNumber: claim.ticketNumber };
+        }
+        return { status: 'error', code: 400, message: 'Claim code already used' };
+      }
 
-    return res.status(200).json({ ok: true, ticketNumber: ticket.ticketNumber });
+      const ticketNumber = generateTicketNumber(eventSlug, productKey);
+      const attendeeRef = db.collection('events').doc(eventSlug).collection('attendees').doc(userId);
+      tx.set(
+        attendeeRef,
+        {
+          userId,
+          email: userEmail ?? null,
+          issuedToName: userName ?? userEmail ?? 'Guest',
+          ticketNumber,
+          ticketType: product.title ?? productKey,
+          productKey,
+          currency: product.currency,
+          amount: product.price,
+          quantity: 1,
+          unitAmount: product.price,
+          lastTxRef: `claim-${ticketNumber}`,
+          lastTransactionId: `claim-${ticketNumber}`,
+          status: 'active',
+          purchasedAt: FieldValue.serverTimestamp(),
+          eventSlug,
+        },
+        { merge: true },
+      );
+      tx.set(
+        claimRef,
+        {
+          redeemed: true,
+          redeemedBy: userId,
+          redeemedEmail: userEmail ?? null,
+          redeemedAt: FieldValue.serverTimestamp(),
+          ticketNumber,
+          eventSlug,
+          productKey,
+        },
+        { merge: true },
+      );
+      return { status: 'ok', ticketNumber };
+    });
+
+    if (result.status === 'error') {
+      return res.status(result.code).json({ ok: false, message: result.message });
+    }
+    return res.status(200).json({ ok: true, ticketNumber: result.ticketNumber });
   } catch (err: unknown) {
     console.error('pay-claim api error', err);
     const message = err instanceof Error ? err.message : 'Server error';

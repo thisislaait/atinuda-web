@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/v2/firestore";
+import {onDocumentCreated, onDocumentUpdated} from "firebase-functions/v2/firestore";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -45,11 +45,11 @@ export const syncPaymentToAttendee = onDocumentCreated(
         data.emoji ||
         (userDoc?.get("emoji") as string) ||
         "👤",
-      categories: Array.isArray(data.categories)
-        ? data.categories
-        : Array.isArray(data.interests)
-        ? data.interests
-        : (userDoc?.get("categories") as string[]) || [],
+      categories: Array.isArray(data.categories) ?
+        data.categories :
+        Array.isArray(data.interests) ?
+          data.interests :
+          (userDoc?.get("categories") as string[]) || [],
       emailLower,
       createdAt: data.createdAt || admin.firestore.FieldValue.serverTimestamp(),
     };
@@ -57,7 +57,7 @@ export const syncPaymentToAttendee = onDocumentCreated(
     await db
       .collection("attendees_public")
       .doc(event.params.paymentId)
-      .set(attendeeDoc, { merge: true });
+      .set(attendeeDoc, {merge: true});
 
     console.log(`✅ Synced attendee from payment: ${emailLower}`);
   }
@@ -89,16 +89,16 @@ export const syncUserToAttendee = onDocumentUpdated("users/{userId}", async (eve
     company: after.company || "",
     position: after.position || after.title || "",
     image: after.avatarEmoji || after.emoji || "👤",
-    categories: Array.isArray(after.categories)
-      ? after.categories
-      : Array.isArray(after.interests)
-      ? after.interests
-      : [],
+    categories: Array.isArray(after.categories) ?
+      after.categories :
+      Array.isArray(after.interests) ?
+        after.interests :
+        [],
   };
 
   const batch = db.batch();
   attendeeSnap.forEach((doc) => {
-    batch.set(doc.ref, updates, { merge: true });
+    batch.set(doc.ref, updates, {merge: true});
   });
   await batch.commit();
 
@@ -114,7 +114,8 @@ export const syncUserToAttendee = onDocumentUpdated("users/{userId}", async (eve
 // try { admin.app(); } catch { admin.initializeApp(); }
 // const db = admin.firestore();
 
-// export const seedSessions = onRequest({ region: 'us-central1', cors: true }, async (_req, res) => {
+// export const seedSessions = onRequest(
+//   { region: 'us-central1', cors: true }, async (_req, res) => {
 //   try {
 //     const batch = db.batch();
 //     let upserts = 0;
@@ -136,7 +137,8 @@ export const syncUserToAttendee = onDocumentUpdated("users/{userId}", async (eve
 //           batch.set(ref, { ...base, registeredCount: 0 }, { merge: true });
 //         } else {
 //           const existing = snap.data() || {};
-//           batch.set(ref, { ...base, registeredCount: existing.registeredCount ?? 0 }, { merge: true });
+//           batch.set(ref, { ...base,
+//             registeredCount: existing.registeredCount ?? 0 }, { merge: true });
 //         }
 //         upserts++;
 //       }
@@ -149,3 +151,15 @@ export const syncUserToAttendee = onDocumentUpdated("users/{userId}", async (eve
 //     res.status(500).json({ ok: false, error: e?.message || 'seed failed' });
 //   }
 // });
+
+// ── Platform uplift (PRD §5): server-authoritative loyalty, broadcast,
+// ── and ticket callables. See loyalty.ts / broadcast.ts / tickets.ts.
+export {
+  loyaltyDailySweep,
+  runLoyaltySweep,
+  onLoyaltyAccountWritten,
+  onUserProfileWritten,
+  onAttendeeTicketWritten,
+} from "./loyalty";
+export {sendBroadcast} from "./broadcast";
+export {attachTicketByEmail, issueComplimentaryTicket} from "./tickets";

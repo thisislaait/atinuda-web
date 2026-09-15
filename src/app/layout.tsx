@@ -8,6 +8,7 @@ import { FlutterwaveScript } from "@/components/FlutterwaveScript";
 // 👇 import your context provider
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
+import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -45,12 +46,14 @@ export default function RootLayout({
       <body>
         {/* 👇 Now your entire site has access to auth context */}
         <AuthProvider>
-          <FlutterwaveScript />
-          <Navbar />
-          <AuthModal />
-          {children}
-          <SummitFooter />
-          <Toaster position="top-right" />
+          <SmoothScrollProvider>
+            <FlutterwaveScript />
+            <Navbar />
+            <AuthModal />
+            {children}
+            <SummitFooter />
+            <Toaster position="top-right" />
+          </SmoothScrollProvider>
         </AuthProvider>
       </body>
     </html>
