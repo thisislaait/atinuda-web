@@ -9,6 +9,7 @@ import { FlutterwaveScript } from "@/components/FlutterwaveScript";
 import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
+import { CookieConsent } from "@/components/CookieConsent";
 
 export const metadata: Metadata = {
   title: {
@@ -53,6 +54,7 @@ export default function RootLayout({
             {children}
             <SummitFooter />
             <Toaster position="top-right" />
+            <CookieConsent />
           </SmoothScrollProvider>
         </AuthProvider>
       </body>

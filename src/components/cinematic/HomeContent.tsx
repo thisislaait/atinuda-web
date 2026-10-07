@@ -214,7 +214,7 @@ export function HomeContent() {
               }}
             >
               The platform that connects Africa&apos;s most influential creators, founders,
-              and executives — on the continent, in the diaspora, and across the world.
+              and executives, on the continent, in the diaspora, and across the world.
             </p>
             <Link
               href="/7.0-waitlist"
@@ -272,7 +272,7 @@ export function HomeContent() {
                   fontFamily: 'Hanken Grotesk, system-ui, sans-serif',
                 }}
               >
-                <em style={{ fontStyle: 'italic', color: INK, fontFamily: 'SaolDisplay, Georgia, serif' }}>Átinúdá</em> — to rise, to ascend, to be lifted by the work
+                <em style={{ fontStyle: 'italic', color: INK, fontFamily: 'SaolDisplay, Georgia, serif' }}>Átinúdá</em>: to rise, to ascend, to be lifted by the work
                 and the room you keep. Seven editions in, the name still says everything.
               </p>
               <p
@@ -536,7 +536,7 @@ export function HomeContent() {
               }}
             >
               The room is forming. The names are being placed.
-              Register your interest now — and be the first to know
+              Register your interest now and be the first to know
               when doors open.
             </p>
             <Link
