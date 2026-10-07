@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { TracksSection } from './TracksSection';
 
@@ -24,22 +24,52 @@ const SPEAKERS = [
 ];
 
 const PORTRAIT_H = 360;
+const LERP = 0.1;
 
 export function SpeakersSection() {
   const [hovered, setHovered] = useState<number | null>(null);
-  const [portraitY, setPortraitY] = useState(0);
-  const listRef  = useRef<HTMLDivElement>(null);
-  const rowRefs  = useRef<(HTMLDivElement | null)[]>([]);
+  const listRef      = useRef<HTMLDivElement>(null);
+  const rowRefs      = useRef<(HTMLDivElement | null)[]>([]);
+  const portraitRef  = useRef<HTMLDivElement>(null);
+  const targetY      = useRef(0);
+  const currentY     = useRef(0);
+  const hoveredIdx   = useRef<number | null>(null);
+  const rafRef       = useRef<number | undefined>(undefined);
 
-  const handleEnter = (i: number) => {
-    setHovered(i);
+  const getTargetY = (i: number) => {
     const row     = rowRefs.current[i];
     const section = listRef.current;
-    if (!row || !section) return;
+    if (!row || !section) return targetY.current;
     const rowRect     = row.getBoundingClientRect();
     const sectionRect = section.getBoundingClientRect();
     const rowCenter   = rowRect.top - sectionRect.top + rowRect.height / 2;
-    setPortraitY(Math.max(rowCenter - PORTRAIT_H / 2, 0));
+    return Math.max(rowCenter - PORTRAIT_H / 2, 0);
+  };
+
+  useEffect(() => {
+    const loop = () => {
+      if (hoveredIdx.current !== null) {
+        targetY.current = getTargetY(hoveredIdx.current);
+      }
+      currentY.current += (targetY.current - currentY.current) * LERP;
+      if (portraitRef.current) {
+        portraitRef.current.style.transform = `translateY(${currentY.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
+  const handleEnter = (i: number) => {
+    hoveredIdx.current = i;
+    if (hovered === null) currentY.current = getTargetY(i);
+    setHovered(i);
+  };
+
+  const handleLeave = () => {
+    hoveredIdx.current = null;
+    setHovered(null);
   };
 
   return (
@@ -140,7 +170,7 @@ export function SpeakersSection() {
             key={s.name}
             ref={el => { rowRefs.current[i] = el; }}
             onMouseEnter={() => handleEnter(i)}
-            onMouseLeave={() => setHovered(null)}
+            onMouseLeave={() => handleLeave()}
             style={{
               padding: '0 clamp(28px, 5.5vw, 80px)',
               borderBottom: `1px solid rgba(27,30,28,0.06)`,
@@ -178,19 +208,21 @@ export function SpeakersSection() {
           </div>
         ))}
 
-        {/* Portrait — snaps to hovered row center */}
-        <div style={{
-          position: 'absolute',
-          right: 'clamp(28px, 5.5vw, 80px)',
-          top: 0,
-          width: '280px',
-          height: `${PORTRAIT_H}px`,
-          pointerEvents: 'none',
-          zIndex: 10,
-          opacity: hovered !== null ? 1 : 0,
-          transform: `translateY(${portraitY}px)`,
-          transition: 'opacity 0.25s ease, transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        }}>
+        {/* Portrait — lerp-driven, no CSS transition on transform */}
+        <div
+          ref={portraitRef}
+          style={{
+            position: 'absolute',
+            right: 'clamp(28px, 5.5vw, 80px)',
+            top: 0,
+            width: '280px',
+            height: `${PORTRAIT_H}px`,
+            pointerEvents: 'none',
+            zIndex: 10,
+            opacity: hovered !== null ? 1 : 0,
+            transition: 'opacity 0.2s ease',
+            willChange: 'transform',
+          }}>
           {hovered !== null && (
             <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
               <Image
