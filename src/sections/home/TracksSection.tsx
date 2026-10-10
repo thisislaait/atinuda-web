@@ -3,47 +3,57 @@
 import Image from 'next/image';
 
 const DARK   = '#0F0F0F';
+const BG     = '#F4F5F3';
+const INK    = '#1B1E1C';
 const COPPER = '#b5622a';
-const BORDER = 'rgba(255,255,255,0.08)';
 const sd     = { fontFamily: 'Cormorant Garamond, Georgia, serif', fontStyle: 'italic' as const };
 const sans   = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 
-const overlay = {
-  position: 'absolute' as const,
-  inset: 0,
-  background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.22) 100%)',
-};
-
-const caption = {
-  position: 'absolute' as const,
-  bottom: 40,
-  left: 40,
-  right: 40,
-};
-
-const label = (text: string) => (
-  <p style={{ ...sans, fontSize: '10px', letterSpacing: '0.4em', textTransform: 'uppercase' as const, color: COPPER, marginBottom: '12px' }}>
-    {text}
-  </p>
-);
-
-const title = (text: string) => (
-  <p style={{ ...sd, fontSize: 'clamp(1.7rem, 2.4vw, 3rem)', color: '#fff', lineHeight: 1.1, maxWidth: '360px' }}>
-    {text}
-  </p>
-);
+const TRACKS = [
+  {
+    label: 'Sustainability',
+    heading: 'Building in a way that lasts.',
+    body: 'The sector cannot grow by consuming itself. This track examines the structures, supply chains, and leadership decisions that make creative businesses durable across generations.',
+    image: '/assets/images/summit/new-images/IMG_0964L.jpg',
+  },
+  {
+    label: 'Business of Design',
+    heading: 'The economics of what we create.',
+    body: 'Talent is not the constraint. Commercial infrastructure is. These sessions explore how African creative businesses price, scale, and build margin without sacrificing the work.',
+    image: '/assets/images/summit/new-images/IMG_1181L.jpg',
+  },
+  {
+    label: 'What We Discuss',
+    heading: 'Growth mechanics within regional and global scales.',
+    body: 'The pathways between Lagos, Nairobi, London, and New York are not theoretical. This track is a practical examination of how the sector crosses borders and what makes that expansion stick.',
+    image: '/assets/images/summit/new-images/IMG_1282L.jpg',
+  },
+  {
+    label: 'M.I.C.E',
+    heading: 'Top executives across major sectors.',
+    body: 'The most consequential meetings in African business happen at events. This track examines how the MICE economy works, who controls it, and where the next decade of investment is going.',
+    image: '/assets/images/summit/new-images/IMG_1451L.jpg',
+  },
+  {
+    label: 'Spark the Future',
+    heading: 'Where ideas meet capital.',
+    body: 'Ten early-stage ventures. One live pitch stage. The Atinuda audience is not passive — it is the room that can change what happens next for a business.',
+    image: '/assets/images/summit/new-images/IMG_1459L.jpg',
+  },
+];
 
 export function TracksSection() {
   return (
-    <section style={{ background: DARK }}>
+    <section>
 
-      {/* ── Editorial header ──────────────────────────────────── */}
+      {/* ── Dark editorial header ─────────────────────────────────── */}
       <div style={{
+        background: DARK,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
-        padding: '112px clamp(28px, 5.5vw, 80px) 80px',
+        padding: '112px clamp(28px, 5.5vw, 80px) 96px',
       }}>
         <div style={{ width: '1px', height: '48px', background: 'rgba(255,255,255,0.2)', marginBottom: '40px' }} />
 
@@ -67,68 +77,99 @@ export function TracksSection() {
           color: 'rgba(255,255,255,0.38)',
           maxWidth: '440px',
         }}>
-          Five editorial tracks define each edition — the conversations that move the sector, not the ones that merely describe it.
+          Five editorial tracks define each edition. The conversations that move the sector, not the ones that merely describe it.
         </p>
       </div>
 
-      {/* ── Photo grid ────────────────────────────────────────── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: '400px 400px',
-      }}>
+      {/* ── Alternating track rows ────────────────────────────────── */}
+      <div style={{ background: BG }}>
+        {TRACKS.map((track, i) => {
+          const imageLeft = i % 2 === 0;
+          return (
+            <div
+              key={track.label}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: imageLeft ? '42fr 58fr' : '58fr 42fr',
+                minHeight: '560px',
+                borderBottom: '1px solid rgba(27,30,28,0.07)',
+              }}
+              className="track-row"
+            >
+              {/* Image */}
+              <div style={{
+                order: imageLeft ? 0 : 1,
+                position: 'relative',
+                overflow: 'hidden',
+                minHeight: '440px',
+              }}>
+                <Image
+                  src={track.image}
+                  alt={track.label}
+                  fill
+                  sizes="42vw"
+                  style={{ objectFit: 'cover', objectPosition: 'center' }}
+                />
+              </div>
 
-        {/* Col 1 — spans both rows */}
-        <div style={{ gridColumn: '1', gridRow: '1 / 3', position: 'relative', borderRight: `1px solid ${BORDER}`, overflow: 'hidden' }}>
-          <Image src="/assets/images/summit/new-images/IMG_0964L.jpg" alt="Sustainability" fill sizes="33vw" style={{ objectFit: 'cover' }} />
-          <div style={overlay} />
-          <div style={caption}>
-            {label('Sustainability')}
-            {title('Building in a way that lasts.')}
-          </div>
-        </div>
+              {/* Text */}
+              <div style={{
+                order: imageLeft ? 1 : 0,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                padding: 'clamp(48px, 6vw, 96px) clamp(32px, 5vw, 80px)',
+              }}>
+                <p style={{
+                  ...sans,
+                  fontSize: '10px',
+                  letterSpacing: '0.42em',
+                  textTransform: 'uppercase',
+                  color: COPPER,
+                  marginBottom: '28px',
+                }}>
+                  {track.label}
+                </p>
 
-        {/* Col 2, Row 1 */}
-        <div style={{ gridColumn: '2', gridRow: '1', position: 'relative', borderRight: `1px solid ${BORDER}`, borderBottom: `1px solid ${BORDER}`, overflow: 'hidden' }}>
-          <Image src="/assets/images/summit/new-images/IMG_1181L.jpg" alt="Business of Design" fill sizes="33vw" style={{ objectFit: 'cover', objectPosition: 'center' }} />
-          <div style={overlay} />
-          <div style={caption}>
-            {label('Business of Design')}
-            {title('The economics of what we create.')}
-          </div>
-        </div>
+                <h3 style={{
+                  ...sd,
+                  fontSize: 'clamp(2.2rem, 3.5vw, 4.4rem)',
+                  fontWeight: 400,
+                  color: INK,
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.01em',
+                  marginBottom: '28px',
+                  maxWidth: '480px',
+                }}>
+                  {track.heading}
+                </h3>
 
-        {/* Col 3, Row 1 */}
-        <div style={{ gridColumn: '3', gridRow: '1', position: 'relative', borderBottom: `1px solid ${BORDER}`, overflow: 'hidden' }}>
-          <Image src="/assets/images/summit/new-images/IMG_1282L.jpg" alt="What We Discuss" fill sizes="33vw" style={{ objectFit: 'cover' }} />
-          <div style={overlay} />
-          <div style={caption}>
-            {label('What We Discuss')}
-            {title('Growth mechanics within regional and global scales.')}
-          </div>
-        </div>
-
-        {/* Col 2, Row 2 */}
-        <div style={{ gridColumn: '2', gridRow: '2', position: 'relative', borderRight: `1px solid ${BORDER}`, overflow: 'hidden' }}>
-          <Image src="/assets/images/summit/new-images/IMG_1451L.jpg" alt="MICE" fill sizes="33vw" style={{ objectFit: 'cover', objectPosition: 'center top' }} />
-          <div style={overlay} />
-          <div style={caption}>
-            {label('M.I.C.E')}
-            {title('Top executives across major sectors.')}
-          </div>
-        </div>
-
-        {/* Col 3, Row 2 */}
-        <div style={{ gridColumn: '3', gridRow: '2', position: 'relative', overflow: 'hidden' }}>
-          <Image src="/assets/images/summit/new-images/IMG_1459L.jpg" alt="Spark the Future" fill sizes="33vw" style={{ objectFit: 'cover' }} />
-          <div style={overlay} />
-          <div style={caption}>
-            {label('Spark the Future')}
-            {title('Where ideas meet capital.')}
-          </div>
-        </div>
-
+                <p style={{
+                  ...sans,
+                  fontSize: '14px',
+                  lineHeight: 1.85,
+                  color: 'rgba(27,30,28,0.5)',
+                  maxWidth: '400px',
+                }}>
+                  {track.body}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .track-row {
+            grid-template-columns: 1fr !important;
+          }
+          .track-row > div {
+            order: unset !important;
+          }
+        }
+      `}</style>
+
     </section>
   );
 }
