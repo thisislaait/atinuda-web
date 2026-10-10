@@ -28,7 +28,7 @@ const label = (text: string) => (
 );
 
 const title = (text: string) => (
-  <p style={{ ...sd, fontSize: 'clamp(1.7rem, 2.4vw, 3rem)', color: '#fff', lineHeight: 1.1, maxWidth: '280px' }}>
+  <p style={{ ...sd, fontSize: 'clamp(1.7rem, 2.4vw, 3rem)', color: '#fff', lineHeight: 1.1, maxWidth: '360px' }}>
     {text}
   </p>
 );
@@ -104,7 +104,7 @@ export function TracksSection() {
           <div style={overlay} />
           <div style={caption}>
             {label('What We Discuss')}
-            {title('The room that sets the agenda.')}
+            {title('Growth mechanics within regional and global scales.')}
           </div>
         </div>
 
@@ -114,7 +114,7 @@ export function TracksSection() {
           <div style={overlay} />
           <div style={caption}>
             {label('M.I.C.E')}
-            {title('Where people gather with purpose.')}
+            {title('Top executives across major sectors.')}
           </div>
         </div>
 
