@@ -40,7 +40,7 @@ export function CinematicHero() {
           objectPosition: 'center',
         }}
       >
-        <source src="/assets/images/summit/new-images/ATINUDA 1-1.MP4" type="video/mp4" />
+        <source src="/assets/motion/hero-video.mp4" type="video/mp4" />
       </video>
 
       {/* ── Subtle right-side darkening so left panel blends in ── */}
