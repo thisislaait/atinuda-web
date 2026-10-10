@@ -40,7 +40,7 @@ export function CinematicHero() {
           objectPosition: 'center',
         }}
       >
-        <source src="/assets/motion/hero-video.mp4" type="video/mp4" />
+        <source src="/assets/motion/hero-video-new.mp4" type="video/mp4" />
       </video>
 
       {/* ── Subtle right-side darkening so left panel blends in ── */}
