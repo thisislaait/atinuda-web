@@ -95,7 +95,7 @@ export function TheRoomSection() {
       </div>
 
       {/* ── Attendee rows ─────────────────────────────────────── */}
-      <div style={{ borderTop: '1px solid rgba(27,30,28,0.08)' }}>
+      {/* <div style={{ borderTop: '1px solid rgba(27,30,28,0.08)' }}>
         {ATTENDEES.map((a) => (
           <div
             key={a.role}
@@ -113,7 +113,7 @@ export function TheRoomSection() {
             <p style={{ ...sans, fontSize: '14px', lineHeight: 1.8, color: 'rgba(27,30,28,0.5)' }}>{a.desc}</p>
           </div>
         ))}
-      </div>
+      </div> */}
 
       <style>{`
         @media (max-width: 768px) {
