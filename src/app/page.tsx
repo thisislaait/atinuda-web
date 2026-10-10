@@ -127,7 +127,7 @@ export default function HomePage() {
             marginBottom: '48px',
             maxWidth: '860px',
           }}>
-            The room is in Lagos.
+            {/* The room is in Lagos. */}
           </h2>
 
           <p style={{
