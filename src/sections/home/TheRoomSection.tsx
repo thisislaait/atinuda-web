@@ -1,15 +1,15 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 const sd   = { fontFamily: 'Cormorant Garamond, Georgia, serif', fontStyle: 'italic' as const };
 const sans = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 const INK  = '#1B1E1C';
 const BG   = '#F4F5F3';
-const COPPER = '#b5622a';
 
 const ATTENDEES = [
-  { role: 'Fashion Founders',       desc: 'Designers and creative directors building Pan-African labels, studios and retail ecosystems.' },
+  { role: 'Design Founders',        desc: 'Designers and creative directors building Pan-African labels, studios and retail ecosystems.' },
   { role: 'Hospitality Executives', desc: 'Operators scaling hotels, restaurants and experience venues across African cities and diaspora markets.' },
   { role: 'Event Architects',       desc: "Producers and experience designers behind the continent's most influential gatherings and cultural productions." },
   { role: 'Capital Operators',      desc: "Fund managers and investors actively deploying into Africa's creative and experiential sectors." },
@@ -17,72 +17,84 @@ const ATTENDEES = [
 
 export function TheRoomSection() {
   return (
-    <section style={{ background: BG, borderTop: `1px solid rgba(27,30,28,0.07)` }}>
+    <section style={{ background: BG }}>
 
-      {/* ── Centered header ─────────────────────────────────── */}
+      {/* ── Split: editorial text + image ────────────────────── */}
       <div style={{
-        padding: '120px clamp(28px, 5.5vw, 80px) 80px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-      }}>
-        <p style={{
-          ...sans,
-          fontSize: '10px',
-          letterSpacing: '0.42em',
-          textTransform: 'uppercase',
-          color: COPPER,
-          marginBottom: '40px',
-        }}>
-          The Room
-        </p>
+        display: 'grid',
+        gridTemplateColumns: '42fr 58fr',
+        minHeight: '640px',
+      }}
+        className="room-split"
+      >
 
-        <h2 style={{
-          ...sd,
-          fontSize: 'clamp(2.6rem, 4.5vw, 5rem)',
-          lineHeight: 1.06,
-          color: INK,
-          maxWidth: '720px',
-          marginBottom: '28px',
+        {/* Left — text */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '80px clamp(28px, 4vw, 64px)',
+          borderRight: '1px solid rgba(27,30,28,0.07)',
         }}>
-          Who is in the room.
-        </h2>
+          <div style={{ width: '1px', height: '48px', background: 'rgba(27,30,28,0.2)', marginBottom: '40px' }} />
 
-        <p style={{
-          ...sans,
-          fontSize: '16px',
-          lineHeight: '1.8',
-          color: 'rgba(27,30,28,0.52)',
-          maxWidth: '560px',
-          marginBottom: '52px',
-        }}>
-          The sector&apos;s founders, creative directors and investors. Three days. One city. No casual agenda.
-        </p>
-
-        <Link
-          href="https://www.atinuda.africa/membership/apply"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '14px',
-            border: `1px solid ${INK}`,
-            background: 'transparent',
+          <h2 style={{
+            ...sd,
+            fontSize: 'clamp(2.6rem, 4vw, 5.4rem)',
+            lineHeight: 1.04,
             color: INK,
-            padding: '15px 52px',
+            maxWidth: '520px',
+            marginBottom: '28px',
+          }}>
+            Four kinds of people build this sector.
+          </h2>
+
+          <p style={{
             ...sans,
-            fontSize: '10px',
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            fontWeight: 500,
-            textDecoration: 'none',
-          }}
-        >
-          Become a Member
-        </Link>
+            fontSize: '14px',
+            lineHeight: 1.85,
+            color: 'rgba(27,30,28,0.5)',
+            maxWidth: '380px',
+            marginBottom: '48px',
+          }}>
+            Design founders, hospitality executives, creative directors and sector investors. The same room, three days.
+          </p>
+
+          <Link
+            href="https://www.atinuda.africa/membership/apply"
+            style={{
+              display: 'inline-block',
+              border: `1px solid ${INK}`,
+              background: 'transparent',
+              color: INK,
+              padding: '15px 48px',
+              ...sans,
+              fontSize: '10px',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+              textDecoration: 'none',
+              alignSelf: 'flex-start',
+            }}
+          >
+            Become a Member
+          </Link>
+        </div>
+
+        {/* Right — image */}
+        <div style={{ position: 'relative', overflow: 'hidden', minHeight: '480px' }}>
+          <Image
+            src="/assets/images/summit/new-images/IMG_7600L.jpg"
+            alt="Atinuda Summit"
+            fill
+            sizes="58vw"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
+          />
+        </div>
+
       </div>
 
-      {/* ── Attendee types ──────────────────────────────────── */}
+      {/* ── Attendee rows ─────────────────────────────────────── */}
       <div style={{ borderTop: '1px solid rgba(27,30,28,0.08)' }}>
         {ATTENDEES.map((a) => (
           <div
@@ -105,7 +117,7 @@ export function TheRoomSection() {
 
       <style>{`
         @media (max-width: 768px) {
-          .room-grid { grid-template-columns: 1fr !important; }
+          .room-split { grid-template-columns: 1fr !important; }
           .attendee-row { grid-template-columns: 1fr !important; gap: 12px !important; }
         }
       `}</style>

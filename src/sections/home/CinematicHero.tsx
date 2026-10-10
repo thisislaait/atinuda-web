@@ -40,7 +40,7 @@ export function CinematicHero() {
           objectPosition: 'center',
         }}
       >
-        <source src="/assets/motion/hero-video.mp4" type="video/mp4" />
+        <source src="/assets/images/summit/new-images/ATINUDA 1-1.MP4" type="video/mp4" />
       </video>
 
       {/* ── Subtle right-side darkening so left panel blends in ── */}
@@ -109,7 +109,7 @@ export function CinematicHero() {
             marginBottom: '20px',
             maxWidth: '340px',
           }}>
-            Atinuda 7.0 takes place on 6–8 October 2027 in Lagos, bringing together the continent&apos;s most active fashion founders, hospitality executives, creative directors and sector investors for three days of closed roundtables, private dinners and capital conversations.
+            Atinuda 7.0 takes place on 6–8 October 2027 in Lagos, bringing together the continent&apos;s most active design founders, hospitality executives, creative directors and sector investors for three days of closed roundtables, private dinners and capital conversations.
           </p>
 
           <p style={{

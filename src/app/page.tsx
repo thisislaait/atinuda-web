@@ -7,6 +7,7 @@ import { CinematicHero } from '@/sections/home/CinematicHero';
 import { TheRoomSection } from '@/sections/home/TheRoomSection';
 import { SpeakersSection } from '@/sections/home/SpeakersSection';
 import { TracksSection } from '@/sections/home/TracksSection';
+import { StatsSection } from '@/sections/home/StatsSection';
 import { ParallaxBreak } from '@/components/ParallaxBreak';
 
 const FOOTER_NAV = [
@@ -52,17 +53,7 @@ export const metadata: Metadata = {
 const sd     = { fontFamily: 'Cormorant Garamond, Georgia, serif', fontStyle: 'italic' as const };
 const sans   = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 const INK    = '#1B1E1C';
-const INK08  = 'rgba(27,30,28,0.08)';
 const COPPER = '#b5622a';
-const BG     = '#F4F5F3';
-const BGALT  = '#ECEEED';
-
-const STATS = [
-  { n: '7',    label: 'Editions'  },
-  { n: '6+',   label: 'Cities'    },
-  { n: '20+',  label: 'Countries' },
-  { n: '2027', label: 'Next Edition' },
-];
 
 export default function HomePage() {
   return (
@@ -73,73 +64,27 @@ export default function HomePage() {
       {/* ── SPEAKERS ──────────────────────────────────────────── */}
       <SpeakersSection />
 
-      {/* ── STATS STRIP ───────────────────────────────────────── */}
-      <section style={{
-        background: BGALT,
-        borderTop: `1px solid ${INK08}`,
-        borderBottom: `1px solid ${INK08}`,
-        padding: '0 clamp(28px, 5.5vw, 80px)',
-      }}>
-        <div className="stats-grid">
-          {STATS.map(({ n, label }, i) => (
-            <div
-              key={label}
-              className="stats-cell"
-              style={{
-                borderRight: i < 3 ? `1px solid ${INK08}` : 'none',
-              }}
-            >
-              <p style={{
-                ...sd,
-                fontSize: 'clamp(3.6rem, 6vw, 9rem)',
-                lineHeight: 1,
-                color: INK,
-                letterSpacing: '-0.02em',
-                marginBottom: '16px',
-              }}>
-                {n}
-              </p>
-              <p style={{
-                ...sans,
-                fontSize: '10px',
-                letterSpacing: '0.36em',
-                textTransform: 'uppercase',
-                color: 'rgba(27,30,28,0.35)',
-              }}>
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
-        <style>{`
-          .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-          }
-          .stats-cell {
-            padding: 72px 40px 64px;
-          }
-          .stats-cell:first-child { padding-left: 0; }
-          .stats-cell:last-child  { padding-right: 0; border-right: none !important; }
-          @media (max-width: 640px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .stats-cell { padding: 48px 20px 44px; }
-            .stats-cell:nth-child(2) { border-right: none !important; }
-            .stats-cell:nth-child(3) { border-right: 1px solid rgba(27,30,28,0.08) !important; }
-            .stats-cell:first-child  { padding-left: 0; }
-            .stats-cell:last-child   { padding-right: 0; }
-          }
-        `}</style>
-      </section>
+      <div style={{ height: '96px', background: '#F4F5F3' }} />
+
+      {/* ── STATS ─────────────────────────────────────────────── */}
+      <StatsSection />
+
+      <div style={{ height: '96px', background: '#F4F5F3' }} />
 
       {/* ── THE PLATFORM ─────────────────────────────────────── */}
       <PillarsSection />
 
+      <div style={{ height: '96px', background: '#F4F5F3' }} />
+
       {/* ── TRACKS ───────────────────────────────────────────── */}
       <TracksSection />
 
+      <div style={{ height: '96px', background: '#F4F5F3' }} />
+
       {/* ── THE ROOM ──────────────────────────────────────────── */}
       <TheRoomSection />
+
+      <div style={{ height: '96px', background: '#F4F5F3' }} />
 
       {/* ── CLOSING CTA ───────────────────────────────────────── */}
       <section className="relative overflow-hidden" style={{ padding: '160px 0 140px' }}>
