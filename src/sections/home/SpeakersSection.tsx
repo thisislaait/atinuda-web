@@ -230,6 +230,7 @@ export function SpeakersSection() {
                 alt={SPEAKERS[hovered].name}
                 fill
                 sizes="280px"
+                quality={90}
                 style={{ objectFit: 'cover', objectPosition: 'center top' }}
               />
               <div style={{

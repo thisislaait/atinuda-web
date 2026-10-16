@@ -87,7 +87,8 @@ export function TheRoomSection() {
             src="/assets/images/summit/new-images/IMG_7600L.jpg"
             alt="Atinuda Summit"
             fill
-            sizes="58vw"
+            sizes="(max-width: 768px) 100vw, 58vw"
+            quality={90}
             style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
         </div>

@@ -11,34 +11,40 @@ const sans   = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 
 const TRACKS = [
   {
-    label: 'Sustainability',
-    heading: 'Building in a way that lasts.',
-    body: 'The sector cannot grow by consuming itself. This track examines the structures, supply chains, and leadership decisions that make creative businesses durable across generations.',
+    label: 'MICE & Business Events',
+    heading: 'Market growth and destination competitiveness.',
+    body: 'Conferences, exhibitions, incentive travel, destinations, associations, tourism boards and convention bureaus.',
     image: '/assets/images/summit/new-images/IMG_0964L.jpg',
   },
   {
-    label: 'Business of Design',
-    heading: 'The economics of what we create.',
-    body: 'Talent is not the constraint. Commercial infrastructure is. These sessions explore how African creative businesses price, scale, and build margin without sacrificing the work.',
+    label: 'Creative Industries & Experience Design',
+    heading: 'Creative excellence, intellectual property and monetisation.',
+    body: 'Creative directors, designers, artists, entertainers, florists, production designers and experiential agencies.',
     image: '/assets/images/summit/new-images/IMG_1181L.jpg',
   },
   {
-    label: 'What We Discuss',
-    heading: 'Growth mechanics within regional and global scales.',
-    body: 'The pathways between Lagos, Nairobi, London, and New York are not theoretical. This track is a practical examination of how the sector crosses borders and what makes that expansion stick.',
+    label: 'Social Events, Hospitality & Celebrations',
+    heading: 'Service standards, entrepreneurship and profitability.',
+    body: 'Planners, caterers, venues, hospitality operators and luxury experience providers.',
     image: '/assets/images/summit/new-images/IMG_1282L.jpg',
   },
   {
-    label: 'M.I.C.E',
-    heading: 'Top executives across major sectors.',
-    body: 'The most consequential meetings in African business happen at events. This track examines how the MICE economy works, who controls it, and where the next decade of investment is going.',
+    label: 'Leadership, Enterprise & Investment',
+    heading: 'Governance, scaling and access to capital.',
+    body: 'Founders, CEOs, investors, corporate decision-makers and strategists.',
     image: '/assets/images/summit/new-images/IMG_1451L.jpg',
   },
   {
-    label: 'Spark the Future',
-    heading: 'Where ideas meet capital.',
-    body: 'Ten early-stage ventures. One live pitch stage. The Atinuda audience is not passive — it is the room that can change what happens next for a business.',
+    label: 'Technology, Innovation & Sustainability',
+    heading: 'Future-ready practices and new revenue.',
+    body: 'Event technology, AI, digital experiences and sustainable production.',
     image: '/assets/images/summit/new-images/IMG_1459L.jpg',
+  },
+  {
+    label: 'Talent, Education & Industry Development',
+    heading: 'Skills, standards and leadership pathways.',
+    body: 'Institutions, emerging professionals, mentors and associations.',
+    image: '/assets/images/summit/new-images/IMG_0733L.jpg',
   },
 ];
 
@@ -77,7 +83,7 @@ export function TracksSection() {
           color: 'rgba(255,255,255,0.38)',
           maxWidth: '440px',
         }}>
-          Five editorial tracks define each edition. The conversations that move the sector, not the ones that merely describe it.
+          Six strategic pillars define each edition. The conversations that move the sector, not the ones that merely describe it.
         </p>
       </div>
 
@@ -107,7 +113,8 @@ export function TracksSection() {
                   src={track.image}
                   alt={track.label}
                   fill
-                  sizes="42vw"
+                  sizes="(max-width: 768px) 100vw, 42vw"
+                  quality={90}
                   style={{ objectFit: 'cover', objectPosition: 'center' }}
                 />
               </div>

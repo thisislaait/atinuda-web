@@ -40,6 +40,7 @@ export function CinematicHero() {
           objectPosition: 'center',
         }}
       >
+        <source src="https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4" type="video/mp4" />
         <source src="/assets/motion/hero-video-new.mp4" type="video/mp4" />
       </video>
 

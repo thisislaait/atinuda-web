@@ -12,19 +12,19 @@ const COPPER = '#b5622a';
 const BG     = '#F4F5F3';
 
 const IMAGES = [
-  { src: '/assets/images/summit/new-images/ATINUDA DAY 3_277.jpg', alt: 'Atinuda Day 3',  offset: 0  },
-  { src: '/assets/images/summit/new-images/ATINUDA DAY 3_355.jpg', alt: 'Atinuda Day 3',  offset: 32 },
-  { src: '/assets/images/summit/new-images/ATINUDA DAY 3_600.jpg', alt: 'Atinuda Day 3',  offset: 0  },
-  { src: '/assets/images/summit/new-images/ATINUDA DAY 3_609.jpg', alt: 'Atinuda Day 3',  offset: 44 },
-  { src: '/assets/images/summit/new-images/IMG_0523L.jpg',         alt: 'Atinuda Summit', offset: 16 },
-  { src: '/assets/images/summit/new-images/IMG_0544L.jpg',         alt: 'Atinuda Summit', offset: 0  },
-  { src: '/assets/images/summit/new-images/IMG_0741L.jpg',         alt: 'Atinuda Summit', offset: 28 },
+  { src: '/assets/images/summit/new-images/IMG_0523L.jpg',  alt: 'Atinuda Summit', offset: 0  },
+  { src: '/assets/images/summit/new-images/IMG_0544L.jpg',  alt: 'Atinuda Summit', offset: 32 },
+  { src: '/assets/images/summit/new-images/IMG_0733L.jpg',  alt: 'Atinuda Summit', offset: 0  },
+  { src: '/assets/images/summit/new-images/IMG_0741L.jpg',  alt: 'Atinuda Summit', offset: 44 },
+  { src: '/assets/images/summit/new-images/IMG_0964L.jpg',  alt: 'Atinuda Summit', offset: 16 },
+  { src: '/assets/images/summit/new-images/IMG_7378L.jpg',  alt: 'Atinuda Summit', offset: 0  },
+  { src: '/assets/images/summit/new-images/IMG_7600L.jpg',  alt: 'Atinuda Summit', offset: 28 },
 ];
 
-const IMG_W = 280;
-const IMG_H = 380;
-const GAP   = 12;
-const VISIBLE = 4;
+const IMG_W = 480;
+const IMG_H = 600;
+const GAP   = 10;
+const VISIBLE = 2;
 const MAX_IDX = IMAGES.length - VISIBLE;
 
 export function PillarsSection() {
@@ -102,7 +102,8 @@ export function PillarsSection() {
                 src={img.src}
                 alt={img.alt}
                 fill
-                sizes="280px"
+                sizes="(max-width: 768px) 90vw, 480px"
+                quality={90}
                 style={{ objectFit: 'cover', objectPosition: 'center top' }}
               />
             </div>
