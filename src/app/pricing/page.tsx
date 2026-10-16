@@ -284,7 +284,7 @@ export default function PricingPage() {
           padding: 'clamp(32px, 4vw, 56px) clamp(28px, 5.5vw, 80px)',
         }}>
           <p style={{ ...cg, fontSize: 'clamp(1.8rem, 3.5vw, 4rem)', color: WHITE, lineHeight: 1.1, maxWidth: '680px' }}>
-            "From selected conference conversations to a fully hosted executive experience — each pass offers a distinct level of participation."
+            &ldquo;From selected conference conversations to a fully hosted executive experience — each pass offers a distinct level of participation.&rdquo;
           </p>
         </div>
       </div>
