@@ -6,44 +6,44 @@ const DARK   = '#0F0F0F';
 const BG     = '#F4F5F3';
 const INK    = '#1B1E1C';
 const COPPER = '#b5622a';
-const sd     = { fontFamily: 'Cormorant Garamond, Georgia, serif', fontStyle: 'italic' as const };
+const sd     = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
 const sans   = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 
 const TRACKS = [
   {
     label: 'MICE & Business Events',
-    heading: 'Market growth and destination competitiveness.',
-    body: 'Conferences, exhibitions, incentive travel, destinations, associations, tourism boards and convention bureaus.',
+    heading: 'New markets and destination competitiveness.',
+    body: 'Connecting the people and organisations shaping the business events landscape — from conferences and exhibitions to incentive travel, destinations and convention bureaus. Explore new markets, strengthen destination competitiveness and unlock opportunities for growth across the global events economy.',
     image: '/assets/images/summit/new-images/IMG_0964L.jpg',
   },
   {
     label: 'Creative Industries & Experience Design',
-    heading: 'Creative excellence, intellectual property and monetisation.',
-    body: 'Creative directors, designers, artists, entertainers, florists, production designers and experiential agencies.',
+    heading: 'Creative excellence and commercial thinking.',
+    body: 'Celebrating the creative minds who transform ideas into memorable experiences. From creative direction and design to entertainment, floristry, production and experiential agencies — exploring how creative excellence, intellectual property and commercial thinking can build distinctive experiences and sustainable creative businesses.',
     image: '/assets/images/summit/new-images/IMG_1181L.jpg',
   },
   {
     label: 'Social Events, Hospitality & Celebrations',
-    heading: 'Service standards, entrepreneurship and profitability.',
-    body: 'Planners, caterers, venues, hospitality operators and luxury experience providers.',
+    heading: 'Service excellence and lasting value.',
+    body: 'Bringing together the professionals who shape exceptional celebrations and hospitality experiences. Through conversations on service excellence, entrepreneurship and profitability, this pillar explores how planners, venues, caterers and luxury experience providers can raise standards, build stronger businesses and deliver lasting value.',
     image: '/assets/images/summit/new-images/IMG_1282L.jpg',
   },
   {
     label: 'Leadership, Enterprise & Investment',
-    heading: 'Governance, scaling and access to capital.',
-    body: 'Founders, CEOs, investors, corporate decision-makers and strategists.',
+    heading: 'Strategies to scale and attract capital.',
+    body: 'Where industry leadership meets enterprise ambition and investment opportunity. Bringing together founders, executives, investors and corporate decision-makers — examining the strategies, governance structures and partnerships that enable businesses to scale, attract capital and compete in a changing global marketplace.',
     image: '/assets/images/summit/new-images/IMG_1451L.jpg',
   },
   {
     label: 'Technology, Innovation & Sustainability',
-    heading: 'Future-ready practices and new revenue.',
-    body: 'Event technology, AI, digital experiences and sustainable production.',
+    heading: 'Future-ready businesses and new efficiencies.',
+    body: 'Exploring the ideas, technologies and practices redefining how events are designed, produced and experienced. From AI and event technology to digital experiences and sustainable production — discover new ways to improve efficiency, create value and build more resilient, future-ready businesses.',
     image: '/assets/images/summit/new-images/IMG_1459L.jpg',
   },
   {
     label: 'Talent, Education & Industry Development',
-    heading: 'Skills, standards and leadership pathways.',
-    body: 'Institutions, emerging professionals, mentors and associations.',
+    heading: 'Skills and pathways for the industry\'s future.',
+    body: 'Investing in the people and institutions shaping the industry\'s future. Bringing together educators, emerging professionals, mentors and industry associations — focusing on practical skills, professional standards and leadership pathways that support talent development and strengthen the industry for generations to come.',
     image: '/assets/images/summit/new-images/IMG_0733L.jpg',
   },
 ];
