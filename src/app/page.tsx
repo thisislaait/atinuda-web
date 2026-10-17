@@ -24,7 +24,7 @@ const FOOTER_NAV = [
     heading: 'Community',
     links: [
       { name: 'Membership',             path: '/membership' },
-      { name: 'Join the Waitlist',      path: '/join-the-waitlist' },
+      { name: 'Passes & Pricing', path: '/pricing' },
       { name: 'Corp. Responsibility',   path: '/corporate-responsibility' },
     ],
   },
@@ -142,7 +142,7 @@ export default function HomePage() {
           </p>
 
           <Link
-            href="/7.0-waitlist"
+            href="/pricing"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -160,7 +160,7 @@ export default function HomePage() {
               marginBottom: '120px',
             }}
           >
-            Become a Member
+            View Passes
           </Link>
 
           <div style={{ width: '100%', maxWidth: '900px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '64px' }}>

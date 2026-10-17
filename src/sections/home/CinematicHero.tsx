@@ -125,7 +125,7 @@ export function CinematicHero() {
           </p>
 
           <Link
-            href="/7.0-waitlist"
+            href="/pricing"
             style={{
               ...sans,
               alignSelf: 'flex-start',
@@ -141,7 +141,7 @@ export function CinematicHero() {
               marginBottom: '44px',
             }}
           >
-            Join the Waitlist
+            View Passes
           </Link>
 
           {/* Slide dots */}

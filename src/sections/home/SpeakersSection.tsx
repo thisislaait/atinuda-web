@@ -260,7 +260,7 @@ export function SpeakersSection() {
             7.0 Speakers · Announced Soon
           </p>
           <a
-            href="/7.0-waitlist"
+            href="/pricing"
             style={{
               ...sans,
               fontSize: '10px',
@@ -272,7 +272,7 @@ export function SpeakersSection() {
               paddingBottom: '2px',
             }}
           >
-            Join the Waitlist
+            View Passes
           </a>
         </div>
       </div>

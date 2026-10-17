@@ -158,7 +158,7 @@ export function PillarsSection() {
         padding: '0 clamp(28px, 5.5vw, 80px)',
       }}>
         <Link
-          href="/7.0-waitlist"
+          href="/pricing"
           style={{
             ...sans,
             display: 'inline-block',

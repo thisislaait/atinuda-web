@@ -22,7 +22,7 @@ const NAV_COLUMNS = [
     heading: 'Community',
     links: [
       { name: 'Membership', path: '/membership' },
-      { name: 'Join the Waitlist', path: '/join-the-waitlist' },
+      { name: 'Passes & Pricing', path: '/pricing' },
       { name: 'Corporate Responsibility', path: '/corporate-responsibility' },
     ],
   },

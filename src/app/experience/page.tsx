@@ -547,7 +547,7 @@ export default function ExperiencePage() {
           </div>
 
           <Link
-            href="/7.0-waitlist"
+            href="/pricing"
             className="finale-cta"
             style={{
               display: 'inline-flex',
@@ -565,7 +565,7 @@ export default function ExperiencePage() {
               flexShrink: 0,
             }}
           >
-            Join the room
+            View Passes
             <span aria-hidden="true">→</span>
           </Link>
         </div>
