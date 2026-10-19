@@ -187,7 +187,7 @@ export default function CheckoutClient() {
     : stage === 'paying' ? 'Complete payment in the window'
     : stage === 'confirming' ? 'Confirming payment…'
     : `Pay ${q ? formatNaira(q.total) : ''}`;
-  const actionLabel = step === 1 ? 'Continue — how many' : step === 2 ? 'Continue — your details' : payLabel;
+  const actionLabel = step < 3 ? 'Continue' : payLabel;
 
   const steps: { n: Step; title: string; value: string }[] = [
     { n: 1, title: 'Pass', value: product.name },
