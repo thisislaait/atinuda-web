@@ -145,13 +145,12 @@ const STANDALONE = [
 ];
 
 const ADDITIONAL = [
-  { label: 'Ubuntu — Group Access', price: 'Enquire', desc: 'Group booking for companies, associations and teams. Rates depend on the number of tickets and selected pass category. Qualifying groups receive coordinated booking support and attendee management.' },
+  { label: 'Ubuntu — Group Access', price: '10–15% off', desc: 'Five or more passes of any category in one order receive 10% off each; ten or more receive 15% off. Applied automatically at checkout, with attendee names assigned before or after payment.' },
   { label: 'Loyalty & Community', price: '10% off', desc: 'Available to returning guests who have attended Atinuda at least twice, and to verified APPOEMN members. Confirmed at checkout or via a dedicated code. Not applicable to Nuru passes.' },
   { label: 'Support Pass', price: '₦135,000', desc: 'Available at checkout with an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not grant access to experiences reserved for the primary pass holder.' },
 ];
 
-// Until checkout is live, every Reserve button goes to the waitlist with the chosen pass attached.
-const reserveHref = (pass: Pass) => `/7.0-waitlist?pass=${pass.id}`;
+const reserveHref = (pass: Pass) => `/pricing/checkout?pass=${pass.id}`;
 
 function PassNumber({ pass, dark }: { pass: Pass; dark?: boolean }) {
   const n = PASSES.indexOf(pass) + 1;
