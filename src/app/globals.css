@@ -20,6 +20,14 @@
 
 @font-face {
   font-family: 'SaolDisplay';
+  src: url('/assets/fonts/SaolDisplay-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SaolDisplay';
   src: url('/assets/fonts/SaolDisplay-MediumItalic.woff2') format('woff2');
   font-weight: 500;
   font-style: italic;
@@ -38,11 +46,12 @@
   src: url('/assets/fonts/OrpheusPro-Regular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'DIN';
-  src: url('/assets/fonts/DIN.ttf') format('truetype');
+  src: url('/assets/fonts/DIN.woff2') format('woff2'), url('/assets/fonts/DIN.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
