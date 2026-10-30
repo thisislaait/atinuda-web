@@ -63,27 +63,15 @@ const HeaderNav = () => {
     <>
       <header
         id="header"
-        className={`fixed top-0 left-0 w-full flex justify-between items-center px-8 z-50 transition-all duration-300 ${headerBg} ${
+        className={`fixed top-0 left-0 w-full grid grid-cols-3 items-center px-8 z-50 transition-all duration-300 ${headerBg} ${
           hasNoHero ? "py-4" : "py-8 md:py-6"
         }`}
       >
-        {/* Logo */}
-        <Link href="/">
-          <Image
-            src={logoSrc}
-            alt="Logo"
-            width={120}
-            height={40}
-            priority
-            className="object-contain transition-all duration-300 cursor-pointer"
-          />
-        </Link>
-
         {/* Menu Button */}
         <button
           onClick={() => setMenuOpen(true)}
           aria-label="Open menu"
-          className="relative text-lg font-medium tracking-wider flex items-center"
+          className="relative text-lg font-medium tracking-wider flex items-center justify-self-start"
         >
           {/* Hamburger (mobile) */}
           <div className="md:hidden flex flex-col space-y-1">
@@ -110,6 +98,26 @@ const HeaderNav = () => {
             Menu
           </motion.span>
         </button>
+        {/* Logo */}
+        <Link href="/" className="justify-self-center">
+          <Image
+            src={logoSrc}
+            alt="Logo"
+            width={120}
+            height={40}
+            priority
+            className="object-contain transition-all duration-300 cursor-pointer"
+          />
+        </Link>
+
+        {/* Right */}
+        <Link
+          href="/pricing"
+          className="justify-self-end nav-text uppercase"
+          style={{ color: menuColor, letterSpacing: "0.15em", textShadow: !isSolid && !isAtinuda7 ? "0 0 8px rgba(0,0,0,0.35)" : "none" }}
+        >
+          Attend
+        </Link>
       </header>
 
       {/* Fullscreen Menu */}
