@@ -250,15 +250,15 @@ export default function HomePage() {
         title="The Circle"
         link="Discover the Circle"
         href="/membership"
-        image={`${IMG}/dinner.JPG`}
-        alt="Guests at the Atinuda dinner"
+        image={`${IMG}/new-images/ATINUDA%20DAY%203_355.jpg`}
+        alt="Delegates in conversation at Atinuda"
       >
         Members receive the first invitation to every edition and meet at dinners through the year, so the conversations started in Lagos carry on long after October.
       </Split>
 
       {/* ── Closing and footer ── */}
       <section className="hm-closing">
-        <Image src={`${IMG}/GM5_1315.JPG`} alt="" fill sizes="100vw" className="hm-cover" />
+        <Image src={`${IMG}/new-images/ATINUDA%20DAY%203_277.jpg`} alt="" fill sizes="100vw" className="hm-cover" />
         <div className="hm-shade" style={{ background: 'rgba(15,15,15,0.72)' }} />
         <div className="hm-wrap" style={{ position: 'relative', textAlign: 'center' }}>
           <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.75)' }}>Atinuda 7.0 &nbsp;·&nbsp; Tomorrow, Now</p>
