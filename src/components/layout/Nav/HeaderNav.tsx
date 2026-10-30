@@ -55,8 +55,9 @@ const HeaderNav = () => {
     : "/assets/images/whitelogo.png";
 
   // Stone canvas with a hairline divider once scrolled; transparent over a hero
+  // Frosted glass once scrolled: a translucent stone tint over a strong blur, with a hairline edge
   const headerBg = isSolid
-    ? "bg-[#F4F5F3] border-b border-[#DBDFDB]"
+    ? "bg-[#F4F5F3]/55 backdrop-blur-xl backdrop-saturate-150 border-b border-white/40"
     : "bg-transparent";
 
   return (
