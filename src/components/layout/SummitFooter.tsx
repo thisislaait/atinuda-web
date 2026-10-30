@@ -28,6 +28,9 @@ const SummitFooter = () => {
 
   return (
     <footer className="sf">
+      {/* Same photograph and veil as the home page's closing section */}
+      <Image src="/assets/images/summit/new-images/ATINUDA%20DAY%203_277.jpg" alt="" fill sizes="100vw" className="sf-img" />
+      <div className="sf-veil" aria-hidden="true" />
       <div className="sf-inner">
         <div className="sf-top">
           <Link href="/" aria-label="Atinuda home">
@@ -56,8 +59,10 @@ const SummitFooter = () => {
         </div>
       </div>
       <style>{`
-        .sf { background: #0F0F0F; color: ${LIGHT}; }
-        .sf-inner { max-width: 1280px; margin: 0 auto; padding: clamp(80px, 10vw, 128px) clamp(24px, 5vw, 64px) 40px; }
+        .sf { position: relative; overflow: hidden; background: #0F0F0F; color: ${LIGHT}; }
+        .sf-img { object-fit: cover; }
+        .sf-veil { position: absolute; inset: 0; background: rgba(15,15,15,0.72); }
+        .sf-inner { position: relative; max-width: 1280px; margin: 0 auto; padding: clamp(80px, 10vw, 128px) clamp(24px, 5vw, 64px) 40px; }
         .sf-top { display: grid; grid-template-columns: auto 1fr; gap: 48px; }
         .sf-nav { display: flex; justify-content: flex-end; gap: clamp(32px, 6vw, 88px); flex-wrap: wrap; }
         .sf-caps { font-family: DIN, system-ui, sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(244,245,243,0.5); margin: 0 0 16px; }
