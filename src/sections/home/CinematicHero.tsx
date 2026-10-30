@@ -75,7 +75,7 @@ export function CinematicHero() {
 
           <p style={{
             ...sans,
-            fontSize: '9px',
+            fontSize: '11px',
             letterSpacing: '0.42em',
             textTransform: 'uppercase',
             color: COPPER,
@@ -104,22 +104,22 @@ export function CinematicHero() {
 
           <p style={{
             ...sans,
-            fontSize: '13px',
-            lineHeight: 1.82,
-            color: 'rgba(255,255,255,0.52)',
+            fontSize: '15px',
+            lineHeight: 1.7,
+            color: 'rgba(255,255,255,0.82)',
             marginBottom: '20px',
-            maxWidth: '340px',
+            maxWidth: '380px',
           }}>
             Atinuda 7.0 takes place on 6–8 October 2027 in Lagos, bringing together the continent&apos;s most active design founders, hospitality executives, creative directors and sector investors for three days of closed roundtables, private dinners and capital conversations.
           </p>
 
           <p style={{
             ...sans,
-            fontSize: '13px',
-            lineHeight: 1.82,
-            color: 'rgba(255,255,255,0.52)',
+            fontSize: '15px',
+            lineHeight: 1.7,
+            color: 'rgba(255,255,255,0.82)',
             marginBottom: '28px',
-            maxWidth: '340px',
+            maxWidth: '380px',
           }}>
             Delegates leave with the market intelligence, cross-border relationships and investment introductions that define how this sector grows, alongside the founders, operators and institutions actively building it.
           </p>

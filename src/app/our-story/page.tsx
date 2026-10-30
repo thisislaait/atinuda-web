@@ -36,7 +36,7 @@ const EDITIONS = [
     location: 'Mauritius',
     year: '2026',
     note: 'Seven days at The Oberoi, Mauritius. The most ambitious edition yet — keynotes, workshops, wellness, cultural experiences, and a cohort that raised the bar again.',
-    image: '/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_30.JPG',
+    image: '/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_30.JPG',
   },
 ];
 
@@ -105,7 +105,7 @@ export default function OurStoryPage() {
                 <div className="flex flex-col gap-3 pt-10">
                   <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#ddd8d2]">
                     <Image
-                      src="/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_41.JPG"
+                      src="/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_41.JPG"
                       alt="The Elevation Retreat, Mauritius"
                       fill
                       className="object-cover object-center"
@@ -160,7 +160,7 @@ export default function OurStoryPage() {
               </p>
               <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-[#e8e3dd]">
                 <Image
-                  src="/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_44.JPG"
+                  src="/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_44.JPG"
                   alt="Atinuda community"
                   fill
                   className="object-cover object-center"
@@ -315,12 +315,12 @@ export default function OurStoryPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { src: '/assets/images/Retreat/attendee1.JPG', aspect: 'aspect-[3/4]', offset: '' },
-              { src: '/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_38.JPG', aspect: 'aspect-[3/4]', offset: 'md:mt-10' },
+              { src: '/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_38.JPG', aspect: 'aspect-[3/4]', offset: 'md:mt-10' },
               { src: '/assets/images/Retreat/attendee3.jpg', aspect: 'aspect-[3/4]', offset: '' },
-              { src: '/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_43.JPG', aspect: 'aspect-[3/4]', offset: 'md:mt-10' },
+              { src: '/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_43.JPG', aspect: 'aspect-[3/4]', offset: 'md:mt-10' },
               { src: '/assets/images/cheers.jpeg', aspect: 'aspect-[4/3] md:aspect-[3/2]', offset: '' },
               { src: '/assets/images/Retreat/attendee5.jpg', aspect: 'aspect-[3/4]', offset: 'hidden md:block' },
-              { src: '/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_42.JPG', aspect: 'aspect-[4/3]', offset: 'hidden md:block' },
+              { src: '/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_42.JPG', aspect: 'aspect-[4/3]', offset: 'hidden md:block' },
               { src: '/assets/images/Retreat/attendee2.jpg', aspect: 'aspect-[3/4]', offset: 'hidden md:block md:mt-10' },
             ].map(({ src, aspect, offset }, i) => (
               <div
@@ -369,7 +369,7 @@ export default function OurStoryPage() {
         {/* Ghosted background texture */}
         <div className="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
           <Image
-            src="/assets/images/Mauritius/FirstLight/ATINUDA6_DAY1_17.JPG"
+            src="/assets/images/Retreat/FirstLight/ATINUDA6_DAY1_17.JPG"
             alt=""
             fill
             className="object-cover object-center"

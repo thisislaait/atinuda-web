@@ -86,7 +86,7 @@ export function SpeakersSection() {
       }}>
         <p style={{
           ...sans,
-          fontSize: '10px',
+          fontSize: '11px',
           letterSpacing: '0.44em',
           textTransform: 'uppercase',
           color: COPPER,
@@ -155,10 +155,10 @@ export function SpeakersSection() {
         }}>
           <p style={{
             ...sans,
-            fontSize: '10px',
+            fontSize: '11px',
             letterSpacing: '0.44em',
             textTransform: 'uppercase',
-            color: 'rgba(27,30,28,0.3)',
+            color: 'rgba(27,30,28,0.55)',
             paddingBottom: '48px',
           }}>
             The Room Has Included
@@ -187,7 +187,7 @@ export function SpeakersSection() {
                 fontSize: 'clamp(2.6rem, 5.5vw, 7rem)',
                 lineHeight: 1.15,
                 letterSpacing: '-0.02em',
-                color: hovered === i ? INK : 'rgba(27,30,28,0.18)',
+                color: hovered === i ? INK : 'rgba(27,30,28,0.42)',
                 transition: 'color 0.25s ease',
               }}>
                 {s.name}
@@ -195,8 +195,8 @@ export function SpeakersSection() {
               {s.role && (
                 <p style={{
                   ...sans,
-                  fontSize: '12px',
-                  color: hovered === i ? 'rgba(27,30,28,0.5)' : 'rgba(27,30,28,0.2)',
+                  fontSize: '13px',
+                  color: hovered === i ? 'rgba(27,30,28,0.62)' : 'rgba(27,30,28,0.5)',
                   transition: 'color 0.25s ease',
                   marginTop: '2px',
                   letterSpacing: '0.01em',
@@ -252,10 +252,10 @@ export function SpeakersSection() {
         }}>
           <p style={{
             ...sans,
-            fontSize: '10px',
+            fontSize: '11px',
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
-            color: 'rgba(27,30,28,0.3)',
+            color: 'rgba(27,30,28,0.55)',
           }}>
             7.0 Speakers · Announced Soon
           </p>
@@ -263,7 +263,7 @@ export function SpeakersSection() {
             href="/pricing"
             style={{
               ...sans,
-              fontSize: '10px',
+              fontSize: '11px',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: INK,
