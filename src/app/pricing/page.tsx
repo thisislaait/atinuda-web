@@ -80,7 +80,6 @@ const PASSES: Pass[] = [
     features: [
       ...SAFI_BENEFITS,
       'Full workshop programme and curated breakout groups',
-      'Future Lab and African Room',
       'Pamper Lounge',
       'Azizi Welcome Cocktail and concierge registration',
       'Atinuda Gift Package',
@@ -132,6 +131,8 @@ const FEATURES = [
   'Private Executive Leadership',
   'Executive networking',
   'Extended private Q&A',
+  'Standard Conference Package',
+  'Atinuda Gift Package',
 ];
 
 type Cell = 'yes' | 'no' | 'partial';
@@ -150,6 +151,8 @@ const MATRIX: Cell[][] = [
   ['no', 'no', 'no', 'yes', 'yes'],
   ['no', 'no', 'no', 'no', 'yes'],
   ['no', 'no', 'no', 'no', 'yes'],
+  ['yes', 'no', 'no', 'no', 'no'],
+  ['no', 'yes', 'yes', 'no', 'no'],
 ];
 
 // Everything beyond the five passes, grouped by what the buyer is trying to do.
