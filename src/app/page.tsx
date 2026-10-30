@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
 import { BigWord, PillarStack, type PillarPanel } from '@/components/home/Parallax';
 import { parallaxStyles } from '@/components/home/parallaxStyles';
+import { HeroVideo } from '@/components/home/HeroVideo';
 
 export const metadata: Metadata = {
   title: 'Atinuda 7.0 | Tomorrow, Now: The Architecture of Scale',
@@ -140,10 +141,10 @@ export default function HomePage() {
 
       {/* ── Hero ── */}
       <section className="hm-hero">
-        <video className="hm-cover" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
-          <source src="https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4" type="video/mp4" />
-          <source src="/assets/motion/hero-video-new.mp4" type="video/mp4" />
-        </video>
+        <HeroVideo
+          className="hm-cover"
+          sources={['https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4', '/assets/motion/hero-video-new.mp4']}
+        />
         <div className="hm-shade" />
         <div className="hm-hero-inner">
           <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.85)' }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 6–8 October 2027</p>
