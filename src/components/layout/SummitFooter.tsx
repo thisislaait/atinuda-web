@@ -5,36 +5,15 @@ import Link from 'next/link';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
-const serif = { fontFamily: 'Orpheus Pro, "Playfair Display", serif' };
+// Site-wide footer for every page except the home page, which closes with its own section.
+// Matches the home page footer: dark neutral, DIN, the same three link columns.
+
+const LIGHT = '#F4F5F3';
 
 const NAV_COLUMNS = [
-  {
-    heading: 'The Platform',
-    links: [
-      { name: 'Our Story', path: '/our-story' },
-      { name: 'Local To Global Summit', path: '/local-to-global-summit-2025' },
-      { name: 'Elevation Retreat', path: '/elevation-2026' },
-      { name: 'Spark the Future', path: '/spark-the-future' },
-    ],
-  },
-  {
-    heading: 'Community',
-    links: [
-      { name: 'Membership', path: '/membership' },
-      { name: 'Passes & Pricing', path: '/pricing' },
-      { name: 'Corporate Responsibility', path: '/corporate-responsibility' },
-    ],
-  },
-  {
-    heading: 'Company',
-    links: [
-      { name: 'Careers', path: '/careers' },
-      { name: 'Press', path: '/press' },
-      { name: 'Privacy Policy', path: '/privacy' },
-      { name: 'Legal', path: '/legal' },
-    ],
-  },
+  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/#theme' }, { name: 'The pillars', path: '/#pillars' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
+  { heading: 'Take part', links: [{ name: 'Sponsor', path: '/become-a-sponsor' }, { name: 'Partner', path: '/become-a-sponsor' }, { name: 'The Circle', path: '/membership' }] },
+  { heading: 'Atinuda', links: [{ name: 'Our Story', path: '/our-story' }, { name: 'Local to Global 2025', path: '/local-to-global-summit-2025' }, { name: 'Spark the Future', path: '/spark-the-future' }, { name: 'Press', path: '/press' }, { name: 'Careers', path: '/careers' }, { name: 'Privacy', path: '/privacy' }] },
 ];
 
 const SOCIAL = [
@@ -45,85 +24,55 @@ const SOCIAL = [
 
 const SummitFooter = () => {
   const pathname = usePathname();
-  const bg = pathname === '/7.0-waitlist' ? '#b5622a' : '#0d2010';
-
-  // Homepage has its own combined CTA + footer section
   if (pathname === '/') return null;
 
   return (
-    <footer className="relative w-full overflow-hidden text-white" style={{ background: bg }}>
-
-      {/* Background image with dark overlay */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/assets/images/elementthree.png"
-          alt=""
-          fill
-          className="object-cover opacity-10"
-        />
-        <div className="absolute inset-0" style={{ background: `${bg}cc` }} />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-8 md:px-16 lg:px-20">
-
-        {/* ── Top rule + wordmark ─────────────────────────── */}
-        <div className="pt-20 pb-16 border-b border-white/10">
-          <Link href="/" className="inline-block">
-            <Image
-              src="/assets/images/whitelogo.png"
-              alt="Atinuda"
-              width={140}
-              height={44}
-              className="object-contain"
-            />
+    <footer className="sf">
+      <div className="sf-inner">
+        <div className="sf-top">
+          <Link href="/" aria-label="Atinuda home">
+            <Image src="/assets/images/whitelogo.png" alt="Atinuda" width={110} height={34} style={{ objectFit: 'contain' }} />
           </Link>
+          <nav className="sf-nav" aria-label="Footer">
+            {NAV_COLUMNS.map((col) => (
+              <div key={col.heading}>
+                <p className="sf-caps">{col.heading}</p>
+                <ul>
+                  {col.links.map((l) => <li key={l.name}><Link href={l.path}>{l.name}</Link></li>)}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
-
-        {/* ── Nav columns ─────────────────────────────────── */}
-        <div className="grid md:grid-cols-3 gap-12 py-16 border-b border-white/10">
-          {NAV_COLUMNS.map((col) => (
-            <div key={col.heading}>
-              <p className="nav-text text-[9px] tracking-[0.25em] text-white/30 mb-6 uppercase">
-                {col.heading}
-              </p>
-              <ul className="space-y-4">
-                {col.links.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.path}
-                      className="text-white/70 hover:text-white transition-colors text-sm leading-none"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Bottom bar ──────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-10">
-          <p className="nav-text text-[10px] tracking-[0.15em] text-white/30">
-            © {new Date().getFullYear()} ATINUDA. PRODUCED BY OAKEN EVENTS. ALL RIGHTS RESERVED.
-          </p>
-          <div className="flex items-center gap-6">
+        <div className="sf-base">
+          <p>© {new Date().getFullYear()} Atinuda. Produced by Oaken Events.</p>
+          <div style={{ display: 'flex', gap: '18px' }}>
             {SOCIAL.map(({ Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="text-white/40 hover:text-white transition-colors"
-              >
-                <Icon size={18} />
+              <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+                <Icon size={16} />
               </a>
             ))}
           </div>
         </div>
-
       </div>
+      <style>{`
+        .sf { background: #0F0F0F; color: ${LIGHT}; }
+        .sf-inner { max-width: 1280px; margin: 0 auto; padding: clamp(80px, 10vw, 128px) clamp(24px, 5vw, 64px) 40px; }
+        .sf-top { display: grid; grid-template-columns: auto 1fr; gap: 48px; }
+        .sf-nav { display: flex; justify-content: flex-end; gap: clamp(32px, 6vw, 88px); flex-wrap: wrap; }
+        .sf-caps { font-family: DIN, system-ui, sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: rgba(244,245,243,0.5); margin: 0 0 16px; }
+        .sf-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+        .sf-nav a { font-family: DIN, system-ui, sans-serif; font-size: 14px; color: rgba(244,245,243,0.8); text-decoration: none; }
+        .sf-nav a:hover { color: ${LIGHT}; }
+        .sf-base { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: clamp(64px, 8vw, 96px); padding-top: 24px; border-top: 1px solid rgba(244,245,243,0.12); }
+        .sf-base p { font-family: DIN, system-ui, sans-serif; font-size: 12px; color: rgba(244,245,243,0.55); margin: 0; }
+        .sf-base a { color: rgba(244,245,243,0.6); display: flex; }
+        .sf-base a:hover { color: ${LIGHT}; }
+        @media (max-width: 760px) {
+          .sf-top { grid-template-columns: 1fr; }
+          .sf-nav { justify-content: flex-start; }
+        }
+      `}</style>
     </footer>
   );
 };

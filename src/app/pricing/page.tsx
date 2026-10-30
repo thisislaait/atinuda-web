@@ -139,15 +139,34 @@ const MATRIX: Cell[][] = [
   ['no', 'no', 'no', 'no', 'yes'],
 ];
 
-const STANDALONE = [
-  { label: 'Workshop Access', price: '₦250,000', desc: 'Expert-led practical workshops and curated small-group breakouts. Excludes the full conference programme.' },
-  { label: 'Executive Dinner Gala Only', price: '₦250,000', desc: 'Dinner gala, curated dining and live entertainment. Excludes daytime conference and workshops.' },
-];
-
-const ADDITIONAL = [
-  { label: 'Ubuntu — Group Access', price: '10–15% off', desc: 'Five or more passes of any category in one order receive 10% off each; ten or more receive 15% off. Applied automatically at checkout, with attendee names assigned before or after payment.' },
-  { label: 'Loyalty & Community', price: '10% off', desc: 'Available to returning guests who have attended Atinuda at least twice, and to verified APPOEMN members. Confirmed at checkout or via a dedicated code. Not applicable to Nuru passes.' },
-  { label: 'Support Pass', price: '₦135,000', desc: 'Available at checkout with an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not grant access to experiences reserved for the primary pass holder.' },
+// Everything beyond the five passes, grouped by what the buyer is trying to do.
+const EXTRAS = [
+  {
+    id: 'single',
+    label: 'Single experiences',
+    heading: 'One part of the programme, without a full pass.',
+    items: [
+      { label: 'Workshop Access', price: '₦250,000', desc: 'Expert-led practical workshops and curated small-group breakouts. Excludes the full conference programme.' },
+      { label: 'Executive Dinner Gala Only', price: '₦250,000', desc: 'Dinner gala, curated dining and live entertainment. Excludes daytime conference and workshops.' },
+    ],
+  },
+  {
+    id: 'save',
+    label: 'Ways to save',
+    heading: 'Reduced rates for groups and returning guests.',
+    items: [
+      { label: 'Ubuntu — Group Access', price: '10–15% off', desc: 'Five or more passes of any category in one booking receive 10% off each; ten or more receive 15% off. Applied automatically when you book in the Atinuda app, with attendee names added before or after payment.' },
+      { label: 'Loyalty & Community', price: '10% off', desc: 'For returning guests who have attended Atinuda at least twice, and for verified APPOEMN members. Confirmed when you book or with a dedicated code. Not applicable to Nuru passes.' },
+    ],
+  },
+  {
+    id: 'add',
+    label: 'Add to a pass',
+    heading: 'Bring the person who works alongside you.',
+    items: [
+      { label: 'Support Pass', price: '₦135,000', desc: 'Added to an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not include experiences reserved for the primary pass holder.' },
+    ],
+  },
 ];
 
 const RESERVE_HREF = '/get-the-app';
@@ -423,36 +442,28 @@ export default function PricingPage() {
 
       {/* ── SINGLE EXPERIENCES & ADDITIONAL OPTIONS ──────────── */}
       <section style={{ background: BG_ALT }}>
-        <div className="pp-wrap pp-standalone" style={{ paddingTop: 'clamp(80px, 10vw, 128px)', paddingBottom: 'clamp(56px, 7vw, 88px)' }}>
-          <div>
-            <p className="pp-caps" style={{ color: '#8D948E', marginBottom: '24px' }}>Single experiences</p>
-            <h2 style={{ ...saol, fontSize: 'clamp(2.2rem, 3.6vw, 3.8rem)', color: INK, lineHeight: 1.06, maxWidth: '420px' }}>
-              One part of the programme, without a full pass.
-            </h2>
-          </div>
-          <div>
-            {STANDALONE.map((item) => (
-              <div key={item.label} className="pp-line-item">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', marginBottom: '10px' }}>
-                  <p style={{ ...sans, fontSize: '16px', fontWeight: 600, color: INK }}>{item.label}</p>
-                  <p style={{ ...saol, fontSize: '1.7rem', color: INK, whiteSpace: 'nowrap' }}>{item.price}</p>
-                </div>
-                <p style={{ ...sans, fontSize: '14px', lineHeight: 1.7, color: '#5A615C', maxWidth: '520px' }}>{item.desc}</p>
+        <div className="pp-wrap" style={{ paddingTop: 'clamp(80px, 10vw, 128px)', paddingBottom: 'clamp(80px, 10vw, 128px)' }}>
+          {EXTRAS.map((group) => (
+            <div key={group.id} id={group.id} className="pp-standalone pp-extra">
+              <div>
+                <p className="pp-caps" style={{ color: '#8D948E', marginBottom: '20px' }}>{group.label}</p>
+                <h2 style={{ ...saol, fontSize: 'clamp(1.9rem, 3vw, 3rem)', color: INK, lineHeight: 1.08, maxWidth: '420px' }}>
+                  {group.heading}
+                </h2>
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="pp-wrap">
-          <div className="pp-additional">
-            {ADDITIONAL.map((item) => (
-              <div key={item.label}>
-                <p className="pp-caps" style={{ color: '#8D948E', marginBottom: '20px' }}>{item.label}</p>
-                <p style={{ ...saol, fontSize: 'clamp(2rem, 2.6vw, 2.6rem)', color: INK, lineHeight: 1, marginBottom: '18px' }}>{item.price}</p>
-                <p style={{ ...sans, fontSize: '14px', lineHeight: 1.75, color: '#5A615C' }}>{item.desc}</p>
+              <div>
+                {group.items.map((item) => (
+                  <div key={item.label} className="pp-line-item">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', marginBottom: '10px' }}>
+                      <p style={{ ...sans, fontSize: '16px', fontWeight: 600, color: INK }}>{item.label}</p>
+                      <p style={{ ...saol, fontSize: '1.7rem', color: INK, whiteSpace: 'nowrap' }}>{item.price}</p>
+                    </div>
+                    <p style={{ ...sans, fontSize: '14px', lineHeight: 1.7, color: '#5A615C', maxWidth: '520px' }}>{item.desc}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -532,14 +543,10 @@ export default function PricingPage() {
         .pp-legend > span { display: inline-flex; align-items: center; gap: 10px; }
 
         .pp-standalone { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 5vw, 96px); align-items: start; }
+        .pp-extra + .pp-extra { margin-top: clamp(64px, 8vw, 112px); padding-top: clamp(64px, 8vw, 112px); border-top: 1px solid #DBDFDB; }
         .pp-line-item { padding: 28px 0; border-bottom: 1px solid #DBDFDB; }
         .pp-line-item:first-child { padding-top: 0; }
         .pp-line-item:last-child { border-bottom: none; }
-
-        .pp-additional { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #DBDFDB; padding-bottom: clamp(80px, 10vw, 128px); }
-        .pp-additional > div { padding: clamp(40px, 5vw, 64px) clamp(24px, 3vw, 48px) 0; }
-        .pp-additional > div:first-child { padding-left: 0; }
-        .pp-additional > div + div { border-left: 1px solid #DBDFDB; }
 
         @media (max-width: 900px) {
           .pp-index { grid-template-columns: 1fr; }
@@ -558,9 +565,7 @@ export default function PricingPage() {
 
           .pp-ade-body { grid-template-columns: 1fr; }
           .pp-standalone { grid-template-columns: 1fr; }
-          .pp-additional { grid-template-columns: 1fr; }
-          .pp-additional > div { padding: 40px 0 0 !important; }
-          .pp-additional > div + div { border-left: none; border-top: 1px solid #DBDFDB; margin-top: 40px; }
+          .pp-extra + .pp-extra { padding-top: 48px; margin-top: 48px; }
         }
       `}</style>
     </div>
