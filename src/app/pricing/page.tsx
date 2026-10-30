@@ -171,7 +171,7 @@ const EXTRAS = [
     label: 'Ways to save',
     heading: 'Reduced rates for groups and returning guests.',
     items: [
-      { label: 'Ubuntu — Group Access', price: '10–15% off', desc: 'Five or more passes of any category in one booking receive 10% off each; ten or more receive 15% off. Applied automatically when you book in the Atinuda app, with attendee names added before or after payment.' },
+      { label: 'Ubuntu — Group Access', price: '10–15% off', desc: 'Five or more passes of any category in one booking receive 10% off each; ten or more receive 15% off. Applied automatically when you book, with attendee names added before or after payment.' },
       { label: 'Loyalty & Community', price: '10% off', desc: 'For returning guests who have attended Atinuda at least twice, and for verified APPOEMN members. Confirmed when you book or with a dedicated code. Not applicable to Nuru passes.' },
     ],
   },
@@ -185,7 +185,10 @@ const EXTRAS = [
   },
 ];
 
-const RESERVE_HREF = '/get-the-app';
+// Passes are sold on the website while the Atinuda app is unavailable. Point back to
+// '/get-the-app' once the app sells passes again.
+const reserveHref = (pass: Pass) => `/pricing/checkout?pass=${pass.id}`;
+const RESERVE_HREF = '/pricing/checkout';
 
 function PassNumber({ pass, dark }: { pass: Pass; dark?: boolean }) {
   const n = PASSES.indexOf(pass) + 1;
@@ -232,7 +235,7 @@ function Note({ pass, dark }: { pass: Pass; dark?: boolean }) {
 
 function Reserve({ pass, variant }: { pass: Pass; variant: 'outline' | 'solid' | 'light' }) {
   return (
-    <Link href={RESERVE_HREF} className={`pp-btn pp-btn-${variant}`}>
+    <Link href={reserveHref(pass)} className={`pp-btn pp-btn-${variant}`}>
       Reserve {pass.name}
     </Link>
   );
@@ -502,7 +505,7 @@ export default function PricingPage() {
           </p>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href={RESERVE_HREF} className="pp-btn pp-btn-solid">
-              Get the app
+              Reserve your pass
             </Link>
             <a href="#compare" className="pp-text-link" style={{ color: INK }}>Compare passes ↑</a>
           </div>
