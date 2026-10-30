@@ -210,7 +210,7 @@ export default function PricingPage() {
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section style={{ position: 'relative', minHeight: '100svh', background: DARK, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
         <Image
-          src="/assets/motion/infinity-terrace.jpg"
+          src="/assets/images/summit/H1C10404.jpg"
           alt=""
           fill
           priority

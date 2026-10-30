@@ -143,7 +143,7 @@ export default function HomePage() {
       <section className="hm-hero">
         <HeroVideo
           className="hm-cover"
-          sources={['https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4', '/assets/motion/hero-video-new.mp4']}
+          sources={['https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4']}
         />
         <div className="hm-shade" />
         <div className="hm-hero-inner">

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Local To Global Summit | Atinuda',
     description:
       'A one-day conference and evening gala for the people driving African creative enterprise. Keynotes, workshops, and an executive dinner.',
-    images: [{ url: '/assets/images/202404-Wallpole-Luxury-Summit-London-0495.jpg' }],
+    images: [{ url: '/assets/images/summit/new-images/IMG_0964L.jpg' }],
   },
 };
 
