@@ -42,7 +42,7 @@ const COLLAGE = [
 
 const WAYS = [
   {
-    when: '6–8 October 2027',
+    when: '6–8.10.27',
     tag: 'Delegates',
     title: 'Five passes, from the main stage to the Private Executive Leadership Session',
     body: 'Every pass opens the main-stage programme. Higher passes add the workshops, the Roundtable, Future Lab and African Room, the Executive Dinner Gala and reserved seating.',
@@ -291,12 +291,12 @@ export default function HomePage() {
 
         .hm-collage { position: relative; min-height: 1100px; display: flex; align-items: center; justify-content: center; padding: clamp(140px, 14vw, 200px) 24px; overflow: hidden; }
         .hm-float { position: absolute; aspect-ratio: 4 / 3; overflow: hidden; }
-        .hm-collage-text { position: relative; z-index: 1; text-align: center; max-width: 820px; display: flex; flex-direction: column; align-items: center; }
-        .hm-pillar-list { list-style: none; margin: 56px 0 56px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 32px 56px; text-align: left; width: 100%; }
+        .hm-collage-text { position: relative; z-index: 1; text-align: center; max-width: 620px; display: flex; flex-direction: column; align-items: center; }
+        .hm-pillar-list { list-style: none; margin: 48px 0 52px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px; text-align: left; }
         .hm-pillar-list li { display: flex; flex-direction: column; gap: 8px; }
         .hm-pillar-list .hm-accent { font-size: 1.15rem; }
 
-        .hm-feature { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 120px); align-items: center; padding-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(64px, 7vw, 100px); }
+        .hm-feature { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 120px); align-items: center; padding-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(120px, 14vw, 200px); }
         .hm-feature-media { position: relative; }
         .hm-feature-back { aspect-ratio: 4 / 5; }
         .hm-feature-card { position: absolute; left: 18%; top: 14%; width: 62%; background: #FFFFFF; padding: clamp(24px, 4vw, 64px) clamp(24px, 4vw, 64px) 28px; }
@@ -304,7 +304,7 @@ export default function HomePage() {
         .hm-feature-text { max-width: 460px; }
         .hm-feature-text .hm-body { margin-bottom: 40px; }
 
-        .hm-news { padding-top: clamp(32px, 4vw, 56px); padding-bottom: clamp(120px, 14vw, 180px); }
+        .hm-news { padding-top: clamp(60px, 8vw, 110px); padding-bottom: clamp(120px, 14vw, 180px); }
         .hm-news-title { font-family: DIN, system-ui, sans-serif; font-weight: 400; font-size: 20px; color: ${INK}; margin: 0 0 44px; }
         .hm-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px 24px; }
         .hm-news-card { text-decoration: none; color: inherit; display: block; }
@@ -312,7 +312,7 @@ export default function HomePage() {
         .hm-news-card:hover .hm-img img { transform: scale(1.03); }
         .hm-news-meta { display: flex; gap: 10px; align-items: baseline; font-family: DIN, system-ui, sans-serif; font-size: 13px; color: ${MUTED}; margin: 20px 0 12px; }
         .hm-news-head { font-family: 'Orpheus Pro', Georgia, serif; font-weight: 400; font-size: 1.4rem; line-height: 1.3; color: ${INK}; margin: 0 0 12px; }
-        .hm-news-body { font-family: DIN, system-ui, sans-serif; font-size: 15px; line-height: 1.55; color: ${MUTED}; margin: 0; }
+        .hm-news-body { font-family: DIN, system-ui, sans-serif; font-size: 15px; line-height: 1.55; color: ${MUTED}; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
         .hm-register { position: relative; overflow: hidden; padding: clamp(140px, 18vw, 240px) 0 clamp(120px, 14vw, 200px); background: #0F0F0F; }
 
