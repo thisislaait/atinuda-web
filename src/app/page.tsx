@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
+import { PillarsJourney, type Pillar } from '@/components/home/PillarsJourney';
 
 export const metadata: Metadata = {
   title: 'Atinuda 7.0 | Tomorrow, Now: The Architecture of Scale',
@@ -26,36 +27,48 @@ const GALLERY = [
   { src: `${IMG}/H1C10404.jpg`, alt: 'Delegates meeting between sessions' },
 ];
 
-const PILLARS = [
+const PILLARS: Pillar[] = [
   {
     name: 'MICE & Business Events',
     line: 'New markets and destination competitiveness.',
-    body: 'For the people behind conferences, exhibitions, incentive travel, destinations and convention bureaus, and the markets they are opening across the global events economy.',
+    brings: ['Conferences', 'Exhibitions', 'Incentive travel', 'Destinations', 'Convention bureaus'],
+    image: `${IMG}/H1C10415.jpg`,
+    alt: 'A full hall of delegates at Atinuda',
   },
   {
     name: 'Creative Industries & Experience Design',
     line: 'Creative excellence and commercial thinking.',
-    body: 'For creative directors, designers, producers, florists and experiential agencies building lasting businesses on their ideas and intellectual property.',
+    brings: ['Creative directors', 'Designers', 'Producers', 'Florists', 'Experiential agencies'],
+    image: `${IMG}/ATINUDA%20DAY%202_130.jpg`,
+    alt: 'A delegate in front of the Atinuda patterned backdrop',
   },
   {
     name: 'Social Events, Hospitality & Celebrations',
     line: 'Service excellence and lasting value.',
-    body: 'For planners, venues, caterers and luxury providers raising the standard of celebration and hospitality, and the profitability behind it.',
+    brings: ['Planners', 'Venues', 'Caterers', 'Luxury experience providers'],
+    image: `${IMG}/GM5_1341.JPG`,
+    alt: 'Guests celebrating together at the Atinuda gala',
   },
   {
     name: 'Leadership, Enterprise & Investment',
     line: 'Strategies to scale and attract capital.',
-    body: 'For founders, executives and investors working on the governance, partnerships and capital that let a business grow and compete abroad.',
+    brings: ['Founders', 'Executives', 'Investors', 'Corporate decision-makers'],
+    image: `${IMG}/new-images/IMG_7378L.jpg`,
+    alt: 'Executives in conversation at an Atinuda roundtable',
   },
   {
     name: 'Technology, Innovation & Sustainability',
     line: 'Future-ready businesses and new efficiencies.',
-    body: 'For anyone rethinking how experiences are designed, produced and delivered, from event technology and AI to sustainable production.',
+    brings: ['Event technology', 'AI', 'Digital experiences', 'Sustainable production'],
+    image: `${IMG}/stf.jpg`,
+    alt: 'Spark the Future finalists on stage at Atinuda',
   },
   {
     name: 'Talent, Education & Industry Development',
     line: 'Skills and pathways for the industry’s future.',
-    body: 'For educators, associations, mentors and emerging professionals building the skills and standards the industry will rely on.',
+    brings: ['Educators', 'Associations', 'Mentors', 'Emerging professionals'],
+    image: `${IMG}/new-images/IMG_7600L.jpg`,
+    alt: 'A workshop roundtable at Atinuda',
   },
 ];
 
@@ -183,23 +196,9 @@ export default function HomePage() {
       </Split>
 
       {/* ── The six pillars ── */}
-      <section id="pillars" className="hm-wrap hm-section">
-        <p className="hm-label-wrap"><span className="hm-label">The conversations</span></p>
-        <h2 className="hm-display hm-h2" style={{ textAlign: 'center', margin: '18px auto 20px' }}>Six pillars</h2>
-        <p className="hm-body" style={{ textAlign: 'center', margin: '0 auto 72px' }}>
-          The programme is built around six pillars, each a part of the experience economy and the people who lead it.
-        </p>
-        <div className="hm-pillars">
-          {PILLARS.map((p, i) => (
-            <article key={p.name}>
-              <p className="hm-caps" style={{ color: '#b5622a' }}>{String(i + 1).padStart(2, '0')}</p>
-              <p className="hm-caps" style={{ marginTop: '14px', lineHeight: 1.6 }}>{p.name}</p>
-              <h3 className="hm-accent" style={{ fontSize: '1.55rem', margin: '14px 0 12px' }}>{p.line}</h3>
-              <p className="hm-body">{p.body}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <div id="pillars" style={{ marginTop: 'clamp(64px, 8vw, 120px)' }}>
+        <PillarsJourney pillars={PILLARS} />
+      </div>
 
       {/* ── Ways to take part ── */}
       <section className="hm-wrap hm-section">
@@ -324,8 +323,6 @@ export default function HomePage() {
         .hm-split-rev .hm-split-img { order: 2; }
         .hm-split-img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
         .hm-split-text { padding: 0 clamp(0px, 3vw, 48px); }
-
-        .hm-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(56px, 6vw, 88px) clamp(32px, 4vw, 64px); }
         .hm-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px clamp(20px, 3vw, 40px); }
         .hm-card-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
 
@@ -350,7 +347,6 @@ export default function HomePage() {
           .hm-split-rev .hm-split-img { order: 0; }
           .hm-split-text { padding: 0; }
           .hm-cards { grid-template-columns: 1fr; }
-          .hm-pillars { grid-template-columns: 1fr; gap: 48px; }
           .hm-gallery, .hm-voices { grid-template-columns: repeat(2, 1fr); }
           .hm-footer { grid-template-columns: 1fr; }
           .hm-footer-nav { justify-content: flex-start; }
