@@ -468,22 +468,22 @@ export default function PricingPage() {
       </section>
 
       {/* ── CLOSING ──────────────────────────────────────────── */}
-      <section style={{ background: DARK, textAlign: 'center' }}>
+      <section style={{ background: BG, textAlign: 'center', borderTop: '1px solid #DBDFDB' }}>
         <div className="pp-wrap" style={{ paddingTop: 'clamp(104px, 13vw, 176px)', paddingBottom: 'clamp(104px, 13vw, 176px)' }}>
-          <p className="pp-caps" style={{ color: 'rgba(244,245,243,0.45)', marginBottom: '40px' }}>
+          <p className="pp-caps" style={{ color: '#8D948E', marginBottom: '40px' }}>
             Atinuda 7.0 &nbsp;·&nbsp; 6–8 October 2027 &nbsp;·&nbsp; Lagos
           </p>
-          <h2 style={{ ...saol, fontSize: 'clamp(3.4rem, 8vw, 9.5rem)', color: BG, lineHeight: 0.92, letterSpacing: '-0.025em', marginBottom: '32px' }}>
+          <h2 style={{ ...saol, fontSize: 'clamp(3.4rem, 8vw, 9.5rem)', color: INK, lineHeight: 0.92, letterSpacing: '-0.025em', marginBottom: '32px' }}>
             Reserve your pass.
           </h2>
-          <p style={{ ...sans, fontSize: '16px', lineHeight: 1.7, color: 'rgba(244,245,243,0.6)', maxWidth: '460px', margin: '0 auto 56px' }}>
-            Nuru is <span style={{ color: COPPER_ON_DARK }}>₦155,000</span> until 31 December 2026. Group bookings for companies and associations are available through Ubuntu.
+          <p style={{ ...sans, fontSize: '16px', lineHeight: 1.7, color: '#5A615C', maxWidth: '460px', margin: '0 auto 56px' }}>
+            Nuru is <span style={{ color: COPPER }}>₦155,000</span> until 31 December 2026. Group bookings for companies and associations are available through Ubuntu.
           </p>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href={RESERVE_HREF} className="pp-btn pp-btn-light">
+            <Link href={RESERVE_HREF} className="pp-btn pp-btn-solid">
               Get the app
             </Link>
-            <a href="#compare" className="pp-text-link">Compare passes ↑</a>
+            <a href="#compare" className="pp-text-link" style={{ color: INK }}>Compare passes ↑</a>
           </div>
         </div>
       </section>
