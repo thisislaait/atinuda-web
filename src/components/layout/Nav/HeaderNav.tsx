@@ -134,7 +134,7 @@ const HeaderNav = () => {
 
           <nav className="flex flex-col space-y-6 text-white text-4xl header-text h-full justify-center">
             {[
-              ["Atinuda 7.0", "/#theme"],
+              ["The theme", "/theme"],
               ["Our Story", "/our-story"],
               ["The Circle", "/membership"],
               ["Spark the Future", "/spark-the-future"],

@@ -112,7 +112,7 @@ const VOICES = [
 ];
 
 const FOOTER_NAV = [
-  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/#theme' }, { name: 'The programme', path: '/#programme' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
+  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/theme' }, { name: 'The programme', path: '/#programme' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
   { heading: 'Take part', links: [{ name: 'Sponsor', path: '/become-a-sponsor' }, { name: 'Partner', path: '/become-a-sponsor' }, { name: 'The Circle', path: '/membership' }] },
   { heading: 'Atinuda', links: [{ name: 'Our Story', path: '/our-story' }, { name: 'Local to Global 2025', path: '/local-to-global-summit-2025' }, { name: 'Spark the Future', path: '/spark-the-future' }, { name: 'Press', path: '/press' }, { name: 'Careers', path: '/careers' }, { name: 'Privacy', path: '/privacy' }] },
 ];
@@ -158,7 +158,7 @@ export default function HomePage() {
         <p className="hm-accent hm-statement-text">
           Atinuda 7.0 is a leadership conference for Africa’s experience economy, bringing the founders, executives and investors who shape how the continent hosts and celebrates to Lagos for three days.
         </p>
-        <a href="#theme" className="hm-more">About the theme<span aria-hidden="true"> ›</span></a>
+        <a href="/theme" className="hm-more">About the theme<span aria-hidden="true"> ›</span></a>
       </section>
 
       {/* ── Gallery ── */}

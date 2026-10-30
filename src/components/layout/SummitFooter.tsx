@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 const LIGHT = '#F4F5F3';
 
 const NAV_COLUMNS = [
-  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/#theme' }, { name: 'The pillars', path: '/#pillars' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
+  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/theme' }, { name: 'The pillars', path: '/#pillars' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
   { heading: 'Take part', links: [{ name: 'Sponsor', path: '/become-a-sponsor' }, { name: 'Partner', path: '/become-a-sponsor' }, { name: 'The Circle', path: '/membership' }] },
   { heading: 'Atinuda', links: [{ name: 'Our Story', path: '/our-story' }, { name: 'Local to Global 2025', path: '/local-to-global-summit-2025' }, { name: 'Spark the Future', path: '/spark-the-future' }, { name: 'Press', path: '/press' }, { name: 'Careers', path: '/careers' }, { name: 'Privacy', path: '/privacy' }] },
 ];
