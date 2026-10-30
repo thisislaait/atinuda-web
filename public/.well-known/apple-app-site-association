@@ -5,8 +5,10 @@
       {
         "appID": "D2DK2A3N4N.com.laait.atinuda-conference-app",
         "paths": [
-          "/pay-redirect",
-          "/pay-redirect/*"
+          "/pay/redirect",
+          "/pay/redirect/*",
+          "/invite",
+          "/invite/*"
         ]
       }
     ]

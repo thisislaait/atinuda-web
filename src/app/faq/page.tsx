@@ -131,7 +131,7 @@ const CATEGORIES: FaqCategory[] = [
   },
 ];
 
-const BUY_TICKETS_URL = '/ticket-payment'; // update if needed
+const BUY_TICKETS_URL = '/get-the-app';
 
 export default function FaqPage() {
   const [query, setQuery] = useState('');

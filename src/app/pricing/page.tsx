@@ -150,7 +150,7 @@ const ADDITIONAL = [
   { label: 'Support Pass', price: '₦135,000', desc: 'Available at checkout with an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not grant access to experiences reserved for the primary pass holder.' },
 ];
 
-const reserveHref = (pass: Pass) => `/pricing/checkout?pass=${pass.id}`;
+const RESERVE_HREF = '/get-the-app';
 
 function PassNumber({ pass, dark }: { pass: Pass; dark?: boolean }) {
   const n = PASSES.indexOf(pass) + 1;
@@ -197,7 +197,7 @@ function Note({ pass, dark }: { pass: Pass; dark?: boolean }) {
 
 function Reserve({ pass, variant }: { pass: Pass; variant: 'outline' | 'solid' | 'light' }) {
   return (
-    <Link href={reserveHref(pass)} className={`pp-btn pp-btn-${variant}`}>
+    <Link href={RESERVE_HREF} className={`pp-btn pp-btn-${variant}`}>
       Reserve {pass.name}
     </Link>
   );
@@ -469,8 +469,8 @@ export default function PricingPage() {
             Nuru is <span style={{ color: COPPER_ON_DARK }}>₦155,000</span> until 31 December 2026. Group bookings for companies and associations are available through Ubuntu.
           </p>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link href="/7.0-waitlist" className="pp-btn pp-btn-light">
-              Join the Waitlist
+            <Link href={RESERVE_HREF} className="pp-btn pp-btn-light">
+              Get the app
             </Link>
             <a href="#compare" className="pp-text-link">Compare passes ↑</a>
           </div>

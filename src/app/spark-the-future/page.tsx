@@ -40,7 +40,7 @@ const EDITIONS = [
     venue: 'Atinuda Summit, Lagos',
     date: 'October 8, 2025',
     finalists: '10',
-    href: '/spark-the-future-2025',
+    href: '/local-to-global-summit-2025',
   },
 ];
 
@@ -69,7 +69,7 @@ export default function SparkTheFuturePage() {
               Register interest for 2026
             </a>
             <Link
-              href="/spark-the-future-2025"
+              href="/local-to-global-summit-2025"
               className="inline-flex items-center gap-3 border border-[#1a1a1a] text-sm tracking-wide px-8 py-4 hover:bg-[#1a1a1a] hover:text-white transition-colors"
             >
               View 2025 edition

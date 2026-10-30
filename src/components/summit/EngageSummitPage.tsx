@@ -362,7 +362,7 @@ export default function EngageSummitPage() {
               transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
             >
               <Link
-                href="/summit/tickets"
+                href="/pricing"
                 className="inline-flex items-center gap-3 bg-[#ff7f41] text-white nav-text text-[10px] tracking-[0.2em] px-8 py-4 hover:bg-white hover:text-[#040c14] transition-all duration-300"
               >
                 REGISTER NOW
@@ -563,7 +563,7 @@ export default function EngageSummitPage() {
 
               <Reveal delay={0.2}>
                 <Link
-                  href="/summit/tickets"
+                  href="/pricing"
                   className="inline-flex items-center gap-3 border border-[#ff7f41]/34 text-[#ff7f41] nav-text text-[10px] tracking-[0.18em] px-7 py-3.5 hover:bg-[#ff7f41] hover:text-white transition-all duration-300"
                 >
                   SECURE SUMMIT ACCESS
@@ -612,7 +612,7 @@ export default function EngageSummitPage() {
                 Ticketing is designed as an invitation, not a commodity grid. Conference and Executive passes are structured for distinct levels of access and relationship depth.
               </p>
               <Link
-                href="/summit/tickets"
+                href="/pricing"
                 className="inline-flex items-center gap-3 bg-[#0d1e2c] text-white nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:bg-[#ff7f41] transition-all duration-300"
               >
                 VIEW TICKETS
@@ -791,7 +791,7 @@ export default function EngageSummitPage() {
               </h2>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link
-                  href="/summit/tickets"
+                  href="/pricing"
                   className="inline-flex items-center gap-3 bg-[#ff7f41] text-white nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:bg-white hover:text-[#040c14] transition-all duration-300"
                 >
                   GET YOUR TICKET

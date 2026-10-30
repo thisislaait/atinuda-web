@@ -19,28 +19,28 @@ const EXPERIENCES = [
     title: 'Keynotes & panels.',
     desc: 'High-impact conversations with founders, executives, investors, and government leaders. Themes run across business strategy, creative industries, technology, and expansion from Africa.',
     img: '/assets/images/summit/ATINUDA DAY 2_507.jpg',
-    href: '/summit/tickets',
+    href: '/pricing',
   },
   {
     label: 'Five Breakout Rooms',
     title: 'Workshop tracks.',
     desc: 'Smaller groups, direct instruction, and practical tools. Choose one track for the afternoon — Finance, Events Scaling, Legal, Sustainability, or Luxury.',
     img: '/assets/images/summit/H1C10404.jpg',
-    href: '/summit/tickets',
+    href: '/pricing',
   },
   {
     label: 'By Invitation or Executive Ticket',
     title: 'The Executive Dinner Gala.',
     desc: 'Black-tie seated dinner. Live performance, curated introductions, and an evening that consistently runs past midnight.',
     img: '/assets/images/summit/dinner.JPG',
-    href: '/summit/tickets',
+    href: '/pricing',
   },
   {
     label: 'Pitch Finals',
     title: 'Spark the Future.',
     desc: 'Ten ventures on the main stage pitching to active investors. One of the highest-energy sessions of the day.',
     img: '/assets/images/summit/stf.jpg',
-    href: '/summit/tickets',
+    href: '/pricing',
   },
 ];
 
@@ -227,7 +227,7 @@ export default function LocalToGlobalSummitPage() {
             transition={{ duration: 0.65, delay: 0.8 }}
           >
             <Link
-              href="/summit/tickets"
+              href="/pricing"
               className="inline-flex items-center justify-center gap-3 bg-[#ff7f41] text-white nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:bg-white hover:text-[#0d1e2c] transition-all duration-300"
             >
               GET YOUR TICKET
@@ -309,7 +309,7 @@ export default function LocalToGlobalSummitPage() {
                 </div>
               </div>
               <Link
-                href="/summit/tickets"
+                href="/pricing"
                 className="inline-flex items-center gap-2 mt-7 nav-text text-[9px] tracking-[0.18em] text-[#ff7f41] hover:text-[#0d1e2c] transition-colors"
               >
                 SECURE YOUR PLACE <ArrowRight size={10} />
@@ -333,7 +333,7 @@ export default function LocalToGlobalSummitPage() {
                 </h2>
               </div>
               <Link
-                href="/summit/tickets"
+                href="/pricing"
                 className="nav-text text-[9px] tracking-[0.2em] text-[#0d1e2c]/35 hover:text-[#0d1e2c] transition-colors flex items-center gap-2 self-end"
               >
                 GET ACCESS <ArrowRight size={10} />
@@ -429,7 +429,7 @@ export default function LocalToGlobalSummitPage() {
           <Reveal delay={0.15}>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <Link
-                href="/summit/tickets"
+                href="/pricing"
                 className="inline-flex items-center gap-3 bg-[#ff7f41] text-white nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:bg-[#0d1e2c] transition-all duration-300"
               >
                 REGISTER TO ATTEND
