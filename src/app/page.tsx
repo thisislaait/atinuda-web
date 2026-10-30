@@ -2,8 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Instagram, Linkedin, Twitter } from 'lucide-react';
-import { FilmPlate } from '@/components/home/FilmPlate';
-import { InterestForm } from '@/components/home/InterestForm';
 
 export const metadata: Metadata = {
   title: 'Atinuda 7.0 | Tomorrow, Now: The Architecture of Scale',
@@ -21,73 +19,112 @@ const INK = '#1B1E1C';
 const MUTED = '#5A615C';
 const IMG = '/assets/images/summit';
 
-const PILLARS = [
-  { name: 'MICE & Business Events', line: 'New markets and destination competitiveness.' },
-  { name: 'Creative Industries & Experience Design', line: 'Creative excellence and commercial thinking.' },
-  { name: 'Social Events, Hospitality & Celebrations', line: 'Service excellence and lasting value.' },
-  { name: 'Leadership, Enterprise & Investment', line: 'Strategies to scale and attract capital.' },
-  { name: 'Technology, Innovation & Sustainability', line: 'Future-ready businesses and new efficiencies.' },
-  { name: 'Talent, Education & Industry Development', line: 'Skills and pathways for the industry’s future.' },
+const GALLERY = [
+  { src: `${IMG}/new-images/IMG_0544L.jpg`, alt: 'Delegates seated together at Atinuda' },
+  { src: `${IMG}/new-images/ATINUDA%20DAY%203_609.jpg`, alt: 'Delegates at an exhibitor stand' },
+  { src: `${IMG}/new-images/IMG_1451L.jpg`, alt: 'Guests in the audience at Atinuda' },
+  { src: `${IMG}/H1C10404.jpg`, alt: 'Delegates meeting between sessions' },
 ];
 
-// Photographs floating around the pillars, as in a collage. Positions are percentages of the section.
-const COLLAGE = [
-  { src: `${IMG}/H1C10415.jpg`, style: { left: '0', top: '6%', width: '17%' }, fade: false },
-  { src: `${IMG}/GM5_1341.JPG`, style: { right: '4%', top: '2%', width: '14%' }, fade: true },
-  { src: `${IMG}/new-images/IMG_7378L.jpg`, style: { right: '0', top: '34%', width: '18%' }, fade: false },
-  { src: `${IMG}/ATINUDA%20DAY%202_130.jpg`, style: { left: '6%', top: '52%', width: '14%' }, fade: true },
-  { src: `${IMG}/stf.jpg`, style: { left: '0', bottom: '4%', width: '16%' }, fade: false },
-  { src: `${IMG}/new-images/IMG_7600L.jpg`, style: { right: '6%', bottom: '2%', width: '15%' }, fade: true },
+const PILLARS = [
+  {
+    name: 'MICE & Business Events',
+    line: 'New markets and destination competitiveness.',
+    body: 'For the people behind conferences, exhibitions, incentive travel, destinations and convention bureaus, and the markets they are opening across the global events economy.',
+  },
+  {
+    name: 'Creative Industries & Experience Design',
+    line: 'Creative excellence and commercial thinking.',
+    body: 'For creative directors, designers, producers, florists and experiential agencies building lasting businesses on their ideas and intellectual property.',
+  },
+  {
+    name: 'Social Events, Hospitality & Celebrations',
+    line: 'Service excellence and lasting value.',
+    body: 'For planners, venues, caterers and luxury providers raising the standard of celebration and hospitality, and the profitability behind it.',
+  },
+  {
+    name: 'Leadership, Enterprise & Investment',
+    line: 'Strategies to scale and attract capital.',
+    body: 'For founders, executives and investors working on the governance, partnerships and capital that let a business grow and compete abroad.',
+  },
+  {
+    name: 'Technology, Innovation & Sustainability',
+    line: 'Future-ready businesses and new efficiencies.',
+    body: 'For anyone rethinking how experiences are designed, produced and delivered, from event technology and AI to sustainable production.',
+  },
+  {
+    name: 'Talent, Education & Industry Development',
+    line: 'Skills and pathways for the industry’s future.',
+    body: 'For educators, associations, mentors and emerging professionals building the skills and standards the industry will rely on.',
+  },
 ];
 
 const WAYS = [
   {
-    when: '6–8.10.27',
-    tag: 'Delegates',
-    title: 'Five passes, from the main stage to the Private Executive Leadership Session',
-    body: 'Every pass opens the main-stage programme. Higher passes add the workshops, the Roundtable, Future Lab and African Room, the Executive Dinner Gala and reserved seating.',
+    label: 'Delegates',
+    title: 'Attend Atinuda 7.0',
+    body: 'Five passes, from selected main-stage sessions to the full programme and the Private Executive Leadership Session.',
+    cta: 'Explore the passes',
     href: '/pricing',
     image: `${IMG}/new-images/IMG_0523L.jpg`,
-    alt: 'Two delegates laughing together at Atinuda',
+    alt: 'Two delegates laughing together',
   },
   {
-    when: 'Open now',
-    tag: 'Sponsors',
-    title: 'Bring your brand into the programme and its evenings',
-    body: 'Sponsorship places a brand alongside the founders, executives and investors who lead Africa’s experience economy, shaped with our team around what you want to achieve.',
+    label: 'Sponsors',
+    title: 'Sponsor the conference',
+    body: 'Bring your brand into the programme and its evenings, alongside the leaders of the sector.',
+    cta: 'Enquire',
     href: '/become-a-sponsor',
     image: `${IMG}/ATINUDA%20DAY%202_487.jpg`,
     alt: 'A fragrance bar activation at Atinuda',
   },
   {
-    when: 'Open now',
-    tag: 'Partners',
-    title: 'For the institutions, associations and media building the sector',
-    body: 'Partners bring their communities and expertise into the programme and help carry its outcomes into the year that follows.',
+    label: 'Partners',
+    title: 'Partner with Atinuda',
+    body: 'For institutions, associations and media building the sector with us.',
+    cta: 'Become a partner',
     href: '/become-a-sponsor',
     image: `${IMG}/RBS13419.jpg`,
-    alt: 'Two leaders in conversation at Atinuda',
+    alt: 'Two leaders in conversation',
   },
 ];
 
-const FOOTER_MAIN = [
-  { name: 'Home', path: '/' },
-  { name: 'Atinuda 7.0', path: '/#theme' },
-  { name: 'Attend', path: '/pricing' },
-  { name: 'The Circle', path: '/membership' },
-  { name: 'Partner with us', path: '/become-a-sponsor' },
-  { name: 'Our Story', path: '/our-story' },
+const VOICES = [
+  { name: 'Preston Bailey', image: '/assets/images/speaker_section/Preston%20Bailey.jpeg' },
+  { name: 'TY Bello', image: '/assets/images/speaker_section/TY%20Bello.png' },
+  { name: 'David Stark', image: '/assets/images/speaker_section/David%20Stark.jpg' },
+  { name: 'Georgie Ndiranga', image: '/assets/images/speaker_section/Georgie%20Ndiranga.png' },
 ];
-const FOOTER_SMALL = [
-  [{ name: 'Privacy policy', path: '/privacy' }, { name: 'FAQ', path: '/faq' }, { name: 'Careers', path: '/careers' }],
-  [{ name: 'Local to Global 2025', path: '/local-to-global-summit-2025' }, { name: 'Spark the Future', path: '/spark-the-future' }, { name: 'Press', path: '/press' }],
+
+const FOOTER_NAV = [
+  { heading: 'Atinuda 7.0', links: [{ name: 'The theme', path: '/#theme' }, { name: 'The programme', path: '/#programme' }, { name: 'Attend', path: '/pricing' }, { name: 'Voices', path: '/speakers' }] },
+  { heading: 'Take part', links: [{ name: 'Sponsor', path: '/become-a-sponsor' }, { name: 'Partner', path: '/become-a-sponsor' }, { name: 'The Circle', path: '/membership' }] },
+  { heading: 'Atinuda', links: [{ name: 'Our Story', path: '/our-story' }, { name: 'Local to Global 2025', path: '/local-to-global-summit-2025' }, { name: 'Spark the Future', path: '/spark-the-future' }, { name: 'Press', path: '/press' }, { name: 'Careers', path: '/careers' }, { name: 'Privacy', path: '/privacy' }] },
 ];
+
+function Split({ id, label, title, children, link, href, image, alt, reverse }: {
+  id?: string; label: string; title: string; children: React.ReactNode; link: string; href: string; image: string; alt: string; reverse?: boolean;
+}) {
+  return (
+    <section id={id} className={`hm-wrap hm-split${reverse ? ' hm-split-rev' : ''}`}>
+      <div className="hm-split-img">
+        <Image src={image} alt={alt} fill sizes="(max-width: 860px) 100vw, 50vw" className="hm-cover" />
+      </div>
+      <div className="hm-split-text">
+        <p className="hm-label">{label}</p>
+        <h2 className="hm-display hm-h2">{title}</h2>
+        <p className="hm-body">{children}</p>
+        <Link href={href} className="hm-more">{link}<span aria-hidden="true"> ›</span></Link>
+      </div>
+    </section>
+  );
+}
 
 export default function HomePage() {
   return (
     <div style={{ background: BG }}>
 
-      {/* ── 1. Hero ── */}
+      {/* ── Hero ── */}
       <section className="hm-hero">
         <video className="hm-cover" autoPlay muted loop playsInline preload="metadata" aria-hidden="true">
           <source src="https://res.cloudinary.com/p7gsmhew/video/upload/v1792169053/hero-video-hq.mp4" type="video/mp4" />
@@ -95,254 +132,228 @@ export default function HomePage() {
         </video>
         <div className="hm-shade" />
         <div className="hm-hero-inner">
-          <p className="hm-kicker" style={{ color: BG }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 6–8 October 2027</p>
+          <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.85)' }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 6–8 October 2027</p>
           <h1 className="hm-display hm-hero-title">Tomorrow, Now.</h1>
-          <a href="#theme" className="hm-btn hm-btn-white">Discover the 2027 theme</a>
+          <p className="hm-display hm-hero-sub">The Architecture of Scale</p>
         </div>
       </section>
 
-      {/* ── 2. The theme, staggered ── */}
-      <section id="theme" className="hm-wrap hm-stagger">
-        <div className="hm-stagger-text">
-          <p className="hm-kicker">The 2027 theme</p>
-          <h2 className="hm-display hm-h2">The Architecture of Scale</h2>
-          <p className="hm-body">
-            Africa’s experience economy has the talent. It is still building what sits beneath it: financing, routes to market, intellectual property, training and shared standards. Atinuda 7.0 brings together the founders, executives and investors who can build them, for three days in Lagos.
-          </p>
-        </div>
-        <figure className="hm-stagger-b">
-          <div className="hm-img" style={{ aspectRatio: '3 / 4' }}>
-            <Image src={`${IMG}/new-images/IMG_0964L.jpg`} alt="A keynote on the Atinuda main stage" fill sizes="(max-width: 860px) 100vw, 26vw" className="hm-cover" />
-          </div>
-          <figcaption className="hm-caption">The main stage carries the year’s conversations across six pillars, from MICE and business events to talent and education.</figcaption>
-        </figure>
-        <figure className="hm-stagger-c">
-          <div className="hm-img" style={{ aspectRatio: '4 / 5' }}>
-            <Image src={`${IMG}/new-images/ATINUDA%20DAY%203_600.jpg`} alt="A workshop session at Atinuda" fill sizes="(max-width: 860px) 100vw, 34vw" className="hm-cover" />
-          </div>
-          <figcaption className="hm-caption">Workshops and breakouts are kept small and practical, built to be used the week delegates return.</figcaption>
-        </figure>
-        <figure className="hm-stagger-d">
-          <div className="hm-img" style={{ aspectRatio: '3 / 4' }}>
-            <Image src={`${IMG}/new-images/IMG_7378L.jpg`} alt="Executives in conversation at an Atinuda roundtable" fill sizes="(max-width: 860px) 100vw, 42vw" className="hm-cover" />
-          </div>
-          <figcaption className="hm-caption">The Roundtable, Future Lab and African Room hold closed sessions for senior leaders. The Azizi Welcome Cocktail and the Executive Dinner Gala bring everyone together.</figcaption>
-        </figure>
+      {/* ── Statement ── */}
+      <section className="hm-wrap hm-statement">
+        <p className="hm-accent hm-statement-text">
+          Atinuda 7.0 is a leadership conference for Africa’s experience economy, bringing the founders, executives and investors who shape how the continent hosts and celebrates to Lagos for three days.
+        </p>
+        <a href="#theme" className="hm-more">About the theme<span aria-hidden="true"> ›</span></a>
       </section>
 
-      {/* ── 3. Motto and film ── */}
-      <section className="hm-motto">
-        <h2 className="hm-display hm-motto-title">Tomorrow is built now.</h2>
-        <p className="hm-motto-sub">The future of Africa’s experience economy is being decided today, by the people at work on it.</p>
-      </section>
-      <div className="hm-film">
-        <FilmPlate src="/assets/motion/hero-video.mp4" />
-      </div>
-
-      {/* ── 4. Six pillars, with a collage ── */}
-      <section id="pillars" className="hm-collage">
-        {COLLAGE.map((c) => (
-          <div key={c.src} className="hm-float" style={{ ...c.style, opacity: c.fade ? 0.45 : 1 }} aria-hidden="true">
-            <Image src={c.src} alt="" fill sizes="18vw" className="hm-cover" />
+      {/* ── Gallery ── */}
+      <section className="hm-wrap hm-gallery">
+        {GALLERY.map((g) => (
+          <div key={g.src} className="hm-gallery-img">
+            <Image src={g.src} alt={g.alt} fill sizes="(max-width: 860px) 50vw, 25vw" className="hm-cover" />
           </div>
         ))}
-        <div className="hm-collage-text">
-          <p className="hm-kicker">The conversations</p>
-          <h2 className="hm-display hm-h2" style={{ margin: '14px 0 20px' }}>Six pillars</h2>
-          <p className="hm-body" style={{ margin: '0 auto' }}>
-            The programme is built around six pillars, each a part of the experience economy and the people who lead it.
-          </p>
-          <ul className="hm-pillar-list">
-            {PILLARS.map((p) => (
-              <li key={p.name}>
-                <span className="hm-kicker" style={{ color: MUTED }}>{p.name}</span>
-                <span className="hm-accent">{p.line}</span>
-              </li>
-            ))}
-          </ul>
-          <Link href="/pricing" className="hm-btn hm-btn-black">Explore the programme</Link>
-        </div>
       </section>
 
-      {/* ── 5. The Circle, with an overlapping card ── */}
-      <section className="hm-wrap hm-feature">
-        <div className="hm-feature-media">
-          <div className="hm-img hm-feature-back">
-            <Image src={`${IMG}/dinner.JPG`} alt="Guests at the Atinuda dinner" fill sizes="(max-width: 860px) 100vw, 48vw" className="hm-cover" />
-          </div>
-          <div className="hm-feature-card">
-            <div className="hm-img" style={{ aspectRatio: '4 / 5' }}>
-              <Image src={`${IMG}/new-images/IMG_7600L.jpg`} alt="Members at an Atinuda roundtable" fill sizes="22vw" className="hm-cover" />
-            </div>
-            <p className="hm-card-caption">Member dinners through the year</p>
-          </div>
-        </div>
-        <div className="hm-feature-text">
-          <p className="hm-kicker">Membership</p>
-          <h2 className="hm-display hm-h2">The Circle</h2>
-          <p className="hm-body">
-            Atinuda continues between editions. Members of the Circle receive the first invitation to every edition, meet at dinners through the year and stay close to the people they met in Lagos.
-          </p>
-          <Link href="/membership" className="hm-btn hm-btn-black">Discover the Circle</Link>
-        </div>
-      </section>
+      {/* ── Theme ── */}
+      <Split
+        id="theme"
+        label="The 2027 theme"
+        title="The Architecture of Scale"
+        link="Explore the programme"
+        href="#programme"
+        image={`${IMG}/new-images/IMG_0964L.jpg`}
+        alt="A keynote on the main stage at Atinuda"
+      >
+        Africa’s experience economy has the talent. It is still building what sits beneath it: financing, routes to market, intellectual property, training and shared standards. Tomorrow, Now brings together the people who can build them, and asks them to begin in Lagos.
+      </Split>
 
-      {/* ── 6. Take part ── */}
-      <section className="hm-wrap hm-news">
-        <h2 className="hm-news-title">Take part in Atinuda 7.0</h2>
-        <div className="hm-news-grid">
-          {WAYS.map((w) => (
-            <Link key={w.tag} href={w.href} className="hm-news-card">
-              <div className="hm-img" style={{ aspectRatio: '3 / 4' }}>
-                <Image src={w.image} alt={w.alt} fill sizes="(max-width: 860px) 100vw, 31vw" className="hm-cover" />
-              </div>
-              <p className="hm-news-meta"><span>{w.when}</span><span className="hm-kicker">{w.tag}</span></p>
-              <h3 className="hm-news-head">{w.title}</h3>
-              <p className="hm-news-body">{w.body}</p>
-            </Link>
+      {/* ── Programme ── */}
+      <Split
+        id="programme"
+        label="The programme"
+        title="Three days in Lagos"
+        link="See what each pass includes"
+        href="/pricing"
+        image={`${IMG}/new-images/ATINUDA%20DAY%203_600.jpg`}
+        alt="A workshop session at Atinuda"
+        reverse
+      >
+        Main-stage conversations across six pillars, practical workshops, and smaller sessions in the Roundtable, Future Lab and African Room. Two evenings bring everyone together: the Azizi Welcome Cocktail and the Executive Dinner Gala.
+      </Split>
+
+      {/* ── The six pillars ── */}
+      <section id="pillars" className="hm-wrap hm-section">
+        <p className="hm-label-wrap"><span className="hm-label">The conversations</span></p>
+        <h2 className="hm-display hm-h2" style={{ textAlign: 'center', margin: '18px auto 20px' }}>Six pillars</h2>
+        <p className="hm-body" style={{ textAlign: 'center', margin: '0 auto 72px' }}>
+          The programme is built around six pillars, each a part of the experience economy and the people who lead it.
+        </p>
+        <div className="hm-pillars">
+          {PILLARS.map((p, i) => (
+            <article key={p.name}>
+              <p className="hm-caps" style={{ color: '#b5622a' }}>{String(i + 1).padStart(2, '0')}</p>
+              <p className="hm-caps" style={{ marginTop: '14px', lineHeight: 1.6 }}>{p.name}</p>
+              <h3 className="hm-accent" style={{ fontSize: '1.55rem', margin: '14px 0 12px' }}>{p.line}</h3>
+              <p className="hm-body">{p.body}</p>
+            </article>
           ))}
         </div>
-        <div style={{ textAlign: 'center', marginTop: '64px' }}>
-          <Link href="/become-a-sponsor" className="hm-btn hm-btn-black">Partner with Atinuda</Link>
+      </section>
+
+      {/* ── Ways to take part ── */}
+      <section className="hm-wrap hm-section">
+        <p className="hm-label-wrap"><span className="hm-label">Take part</span></p>
+        <h2 className="hm-display hm-h2" style={{ textAlign: 'center', margin: '18px auto 64px' }}>Your place at Atinuda 7.0</h2>
+        <div className="hm-cards">
+          {WAYS.map((w) => (
+            <article key={w.label}>
+              <div className="hm-card-img">
+                <Image src={w.image} alt={w.alt} fill sizes="(max-width: 860px) 100vw, 33vw" className="hm-cover" />
+              </div>
+              <p className="hm-caps" style={{ color: MUTED, marginTop: '24px' }}>{w.label}</p>
+              <h3 className="hm-accent" style={{ fontSize: '1.6rem', margin: '10px 0 12px' }}>{w.title}</h3>
+              <p className="hm-body">{w.body}</p>
+              <Link href={w.href} className="hm-more">{w.cta}<span aria-hidden="true"> ›</span></Link>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* ── 7. Register ── */}
-      <section className="hm-register">
+      {/* ── Voices ── */}
+      <section className="hm-wrap hm-statement" style={{ paddingTop: 0 }}>
+        <p className="hm-label">Voices of past editions</p>
+        <p className="hm-accent hm-statement-text" style={{ marginTop: '24px' }}>
+          Preston Bailey, David Tutera, David Stark, Marcy Blum and TY Bello are among those who have spoken at Atinuda. The 2027 voices will be announced through the year.
+        </p>
+        <div className="hm-voices">
+          {VOICES.map((v) => (
+            <figure key={v.name}>
+              <div className="hm-portrait">
+                <Image src={v.image} alt={v.name} fill sizes="(max-width: 860px) 50vw, 20vw" className="hm-cover" style={{ objectPosition: 'center top' }} />
+              </div>
+              <figcaption className="hm-caps" style={{ marginTop: '14px' }}>{v.name}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <Link href="/speakers" className="hm-more">All voices<span aria-hidden="true"> ›</span></Link>
+      </section>
+
+      {/* ── The Circle ── */}
+      <Split
+        label="Membership"
+        title="The Circle"
+        link="Discover the Circle"
+        href="/membership"
+        image={`${IMG}/dinner.JPG`}
+        alt="Guests at the Atinuda dinner"
+      >
+        Members receive the first invitation to every edition and meet at dinners through the year, so the conversations started in Lagos carry on long after October.
+      </Split>
+
+      {/* ── Closing and footer ── */}
+      <section className="hm-closing">
         <Image src={`${IMG}/GM5_1315.JPG`} alt="" fill sizes="100vw" className="hm-cover" />
-        <div className="hm-shade" style={{ background: 'rgba(15,15,15,0.55)' }} />
-        <div className="hm-wrap" style={{ position: 'relative' }}>
-          <h2 className="hm-display" style={{ color: BG, fontSize: 'clamp(2.2rem, 3.8vw, 3.4rem)', marginBottom: '16px' }}>Hear it first</h2>
-          <p className="hm-body" style={{ color: 'rgba(244,245,243,0.85)', marginBottom: '48px' }}>
-            Register to hear first as the 2027 voices, sessions and evenings are announced.
-          </p>
-          <InterestForm />
+        <div className="hm-shade" style={{ background: 'rgba(15,15,15,0.72)' }} />
+        <div className="hm-wrap" style={{ position: 'relative', textAlign: 'center' }}>
+          <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.75)' }}>Atinuda 7.0 &nbsp;·&nbsp; Tomorrow, Now</p>
+          <h2 className="hm-display" style={{ color: BG, fontSize: 'clamp(2.8rem, 7vw, 6.4rem)', margin: '24px 0 48px' }}>Lagos, 6–8 October 2027</h2>
+          <Link href="/pricing" className="hm-btn">Attend</Link>
+
+          <footer className="hm-footer">
+            <Link href="/" aria-label="Atinuda home">
+              <Image src="/assets/images/whitelogo.png" alt="Atinuda" width={110} height={34} style={{ objectFit: 'contain' }} />
+            </Link>
+            <nav className="hm-footer-nav" aria-label="Footer">
+              {FOOTER_NAV.map((col) => (
+                <div key={col.heading}>
+                  <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.5)', marginBottom: '16px' }}>{col.heading}</p>
+                  <ul>
+                    {col.links.map((l) => (
+                      <li key={l.name}><Link href={l.path}>{l.name}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </nav>
+            <div className="hm-footer-base">
+              <p>© {new Date().getFullYear()} Atinuda. Produced by Oaken Events.</p>
+              <div style={{ display: 'flex', gap: '18px' }}>
+                {[
+                  { href: 'https://instagram.com/atinuda_', Icon: Instagram, label: 'Instagram' },
+                  { href: 'https://linkedin.com/company/atinuda', Icon: Linkedin, label: 'LinkedIn' },
+                  { href: 'https://twitter.com/atinuda_', Icon: Twitter, label: 'Twitter' },
+                ].map(({ href, Icon, label }) => (
+                  <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} style={{ color: 'rgba(244,245,243,0.6)', display: 'flex' }}>
+                    <Icon size={16} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </footer>
         </div>
       </section>
-
-      {/* ── 8. Footer ── */}
-      <footer className="hm-footer">
-        <div className="hm-footer-top">
-          <Link href="/" aria-label="Atinuda home" className="hm-footer-logo">
-            <Image src="/assets/images/blacklogo.png" alt="Atinuda" width={170} height={52} style={{ objectFit: 'contain' }} />
-          </Link>
-          <nav aria-label="Footer">
-            <ul className="hm-footer-main">
-              {FOOTER_MAIN.map((l) => <li key={l.name}><Link href={l.path}>{l.name}</Link></li>)}
-            </ul>
-            <div className="hm-footer-social">
-              {[
-                { href: 'https://instagram.com/atinuda_', Icon: Instagram, label: 'Instagram' },
-                { href: 'https://linkedin.com/company/atinuda', Icon: Linkedin, label: 'LinkedIn' },
-                { href: 'https://twitter.com/atinuda_', Icon: Twitter, label: 'Twitter' },
-              ].map(({ href, Icon, label }) => (
-                <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={label}><Icon size={18} /></a>
-              ))}
-            </div>
-          </nav>
-          <div className="hm-footer-small">
-            {FOOTER_SMALL.map((group, i) => (
-              <ul key={i}>
-                {group.map((l) => <li key={l.name}><Link href={l.path}>{l.name}</Link></li>)}
-              </ul>
-            ))}
-          </div>
-        </div>
-        <div className="hm-footer-base">
-          <p>For enquiries:<br /><a href="mailto:hello@atinuda.com">hello@atinuda.com</a></p>
-          <p>For press:<br /><a href="mailto:press@atinuda.com">press@atinuda.com</a></p>
-          <p>Atinuda 7.0<br />Lagos, 6–8 October 2027</p>
-          <p style={{ textAlign: 'right' }}>© {new Date().getFullYear()} Atinuda.<br />Produced by Oaken Events.</p>
-        </div>
-      </footer>
 
       <style>{`
-        .hm-wrap { max-width: 1440px; margin: 0 auto; padding-left: clamp(24px, 3vw, 40px); padding-right: clamp(24px, 3vw, 40px); }
-        .hm-kicker { font-family: DIN, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: ${INK}; margin: 0; }
-        .hm-display { font-family: SaolDisplay, Georgia, serif; font-style: italic; font-weight: 400; line-height: 1.02; letter-spacing: -0.015em; color: ${INK}; margin: 0; }
-        .hm-accent { font-family: 'Orpheus Pro', Georgia, serif; font-weight: 400; line-height: 1.25; color: ${INK}; }
-        .hm-h2 { font-size: clamp(2.6rem, 4.4vw, 3.8rem); margin: 10px 0 40px; }
-        .hm-body { font-family: DIN, system-ui, sans-serif; font-size: 16px; line-height: 1.6; color: #3A403C; margin: 0; max-width: 46ch; }
-        .hm-caption { font-family: DIN, system-ui, sans-serif; font-size: 13px; line-height: 1.55; color: ${MUTED}; margin: 16px 0 0; max-width: 52ch; }
+        .hm-wrap { max-width: 1280px; margin: 0 auto; padding-left: clamp(24px, 5vw, 64px); padding-right: clamp(24px, 5vw, 64px); }
+        .hm-section { padding-top: clamp(96px, 11vw, 160px); padding-bottom: clamp(96px, 11vw, 160px); }
+        .hm-caps { font-family: DIN, system-ui, sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: ${INK}; margin: 0; }
+        .hm-label-wrap { text-align: center; margin: 0; }
+        .hm-label { display: inline-block; font-family: DIN, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: ${INK}; margin: 0; padding-bottom: 4px; border-bottom: 2px solid #b5622a; }
+        .hm-display { font-family: SaolDisplay, Georgia, serif; font-style: italic; font-weight: 400; line-height: 1.04; letter-spacing: -0.015em; color: ${INK}; margin: 0; }
+        .hm-accent { font-family: 'Orpheus Pro', Georgia, serif; font-weight: 400; line-height: 1.25; color: ${INK}; margin: 0; }
+        .hm-h2 { font-size: clamp(2.4rem, 4.6vw, 4rem); margin: 18px 0 24px; }
+        .hm-body { font-family: DIN, system-ui, sans-serif; font-size: 16px; line-height: 1.6; color: ${MUTED}; margin: 0; max-width: 44ch; }
+        .hm-more { display: inline-block; margin-top: 24px; font-family: DIN, system-ui, sans-serif; font-size: 15px; color: ${INK}; text-decoration: none; }
+        .hm-more:hover { text-decoration: underline; text-underline-offset: 4px; }
         .hm-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-        .hm-img { position: relative; overflow: hidden; background: #ECEEED; }
-        .hm-shade { position: absolute; inset: 0; background: rgba(10,10,10,0.38); }
+        .hm-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.2) 55%, rgba(10,10,10,0.3) 100%); }
 
-        .hm-btn { display: inline-block; font-family: DIN, system-ui, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; padding: 12px 32px; min-width: 220px; text-align: center; border-radius: 0; transition: opacity 0.25s ease; }
-        .hm-btn:hover { opacity: 0.85; }
-        .hm-btn-white { background: #FFFFFF; color: ${INK}; }
-        .hm-btn-black { background: #0F0F0F; color: ${BG}; }
+        .hm-hero { position: relative; min-height: 100svh; display: flex; align-items: flex-end; overflow: hidden; background: #0F0F0F; }
+        .hm-hero-inner { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 clamp(24px, 5vw, 64px) clamp(64px, 10vh, 112px); }
+        .hm-hero-title { color: ${BG}; font-size: clamp(3.8rem, 11vw, 10.5rem); line-height: 0.92; letter-spacing: -0.025em; margin-top: 24px; }
+        .hm-hero-sub { color: ${BG}; font-size: clamp(1.5rem, 3vw, 2.6rem); margin-top: 14px; }
 
-        .hm-hero { position: relative; height: 100svh; min-height: 620px; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; background: #0F0F0F; }
-        .hm-hero-inner { position: relative; display: flex; flex-direction: column; align-items: center; padding: 0 24px; }
-        .hm-hero-title { color: ${BG}; font-size: clamp(3.4rem, 8vw, 7.5rem); line-height: 0.95; margin: 18px 0 36px; }
+        .hm-statement { text-align: center; padding-top: clamp(112px, 13vw, 180px); padding-bottom: clamp(80px, 9vw, 120px); }
+        .hm-statement-text { font-size: clamp(1.6rem, 2.7vw, 2.5rem); max-width: 30ch; margin: 0 auto; }
 
-        .hm-stagger { display: grid; grid-template-columns: repeat(12, 1fr); column-gap: clamp(16px, 2vw, 32px); padding-top: clamp(140px, 16vw, 230px); padding-bottom: clamp(120px, 14vw, 200px); }
-        .hm-stagger figure { margin: 0; }
-        .hm-stagger-text { grid-column: 2 / span 4; grid-row: 1; }
-        .hm-stagger-b { grid-column: 8 / span 3; grid-row: 1 / span 2; margin-top: 40px !important; }
-        .hm-stagger-c { grid-column: 2 / span 4; grid-row: 2 / span 2; margin-top: clamp(80px, 12vw, 200px) !important; }
-        .hm-stagger-d { grid-column: 7 / span 5; grid-row: 3 / span 2; margin-top: clamp(120px, 16vw, 260px) !important; }
+        .hm-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(12px, 2vw, 32px); padding-bottom: clamp(96px, 11vw, 160px); }
+        .hm-gallery-img { position: relative; aspect-ratio: 1; overflow: hidden; }
 
-        .hm-motto { background: #0F0F0F; text-align: center; padding: clamp(110px, 12vw, 170px) 24px 40px; }
-        .hm-motto-title { color: ${BG}; font-size: clamp(3.4rem, 8.5vw, 8rem); line-height: 0.95; max-width: 11ch; margin: 0 auto; }
-        .hm-motto-sub { font-family: DIN, system-ui, sans-serif; font-size: 15px; color: rgba(244,245,243,0.85); margin: 36px auto 0; max-width: 52ch; }
-        .hm-film { background: linear-gradient(#0F0F0F 0 50%, ${BG} 50% 100%); padding: 40px clamp(24px, 3vw, 40px) 0; }
+        .hm-split { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(32px, 4vw, 64px); align-items: center; padding-top: clamp(48px, 6vw, 80px); padding-bottom: clamp(48px, 6vw, 80px); }
+        .hm-split-rev .hm-split-img { order: 2; }
+        .hm-split-img { position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+        .hm-split-text { padding: 0 clamp(0px, 3vw, 48px); }
 
-        .hm-collage { position: relative; min-height: 1100px; display: flex; align-items: center; justify-content: center; padding: clamp(140px, 14vw, 200px) 24px; overflow: hidden; }
-        .hm-float { position: absolute; aspect-ratio: 4 / 3; overflow: hidden; }
-        .hm-collage-text { position: relative; z-index: 1; text-align: center; max-width: 620px; display: flex; flex-direction: column; align-items: center; }
-        .hm-pillar-list { list-style: none; margin: 48px 0 52px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px; text-align: left; }
-        .hm-pillar-list li { display: flex; flex-direction: column; gap: 8px; }
-        .hm-pillar-list .hm-accent { font-size: 1.15rem; }
+        .hm-pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(56px, 6vw, 88px) clamp(32px, 4vw, 64px); }
+        .hm-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px clamp(20px, 3vw, 40px); }
+        .hm-card-img { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
 
-        .hm-feature { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 120px); align-items: center; padding-top: clamp(80px, 10vw, 140px); padding-bottom: clamp(120px, 14vw, 200px); }
-        .hm-feature-media { position: relative; }
-        .hm-feature-back { aspect-ratio: 4 / 5; }
-        .hm-feature-card { position: absolute; left: 18%; top: 14%; width: 62%; background: #FFFFFF; padding: clamp(24px, 4vw, 64px) clamp(24px, 4vw, 64px) 28px; }
-        .hm-card-caption { font-family: DIN, system-ui, sans-serif; font-size: 15px; color: ${INK}; text-align: center; margin: 22px 0 0; }
-        .hm-feature-text { max-width: 460px; }
-        .hm-feature-text .hm-body { margin-bottom: 40px; }
+        .hm-voices { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(12px, 2vw, 32px); margin: 64px 0 8px; text-align: left; }
+        .hm-voices figure { margin: 0; }
+        .hm-portrait { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: #ECEEED; }
 
-        .hm-news { padding-top: clamp(60px, 8vw, 110px); padding-bottom: clamp(120px, 14vw, 180px); }
-        .hm-news-title { font-family: DIN, system-ui, sans-serif; font-weight: 400; font-size: 20px; color: ${INK}; margin: 0 0 44px; }
-        .hm-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px 24px; }
-        .hm-news-card { text-decoration: none; color: inherit; display: block; }
-        .hm-news-card .hm-img img { transition: transform 1s ease; }
-        .hm-news-card:hover .hm-img img { transform: scale(1.03); }
-        .hm-news-meta { display: flex; gap: 10px; align-items: baseline; font-family: DIN, system-ui, sans-serif; font-size: 13px; color: ${MUTED}; margin: 20px 0 12px; }
-        .hm-news-head { font-family: 'Orpheus Pro', Georgia, serif; font-weight: 400; font-size: 1.4rem; line-height: 1.3; color: ${INK}; margin: 0 0 12px; }
-        .hm-news-body { font-family: DIN, system-ui, sans-serif; font-size: 15px; line-height: 1.55; color: ${MUTED}; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hm-btn { display: inline-block; font-family: DIN, system-ui, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; padding: 17px 48px; color: ${INK}; background: ${BG}; border: 1px solid ${BG}; transition: background 0.25s ease, color 0.25s ease; }
+        .hm-btn:hover { background: transparent; color: ${BG}; }
 
-        .hm-register { position: relative; overflow: hidden; padding: clamp(140px, 18vw, 240px) 0 clamp(120px, 14vw, 200px); background: #0F0F0F; }
-
-        .hm-footer { background: ${BG}; padding: clamp(120px, 14vw, 200px) clamp(24px, 3vw, 40px) 40px; }
-        .hm-footer-top { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 48px; max-width: 1440px; margin: 0 auto; }
-        .hm-footer-main { list-style: none; margin: 0; padding: 0; }
-        .hm-footer-main a { font-family: DIN, system-ui, sans-serif; font-size: clamp(1.8rem, 2.6vw, 2.4rem); line-height: 1.5; color: ${INK}; text-decoration: none; }
-        .hm-footer-main a:hover { opacity: 0.6; }
-        .hm-footer-social { display: flex; gap: 22px; margin-top: 56px; }
-        .hm-footer-social a { color: ${INK}; display: flex; }
-        .hm-footer-small { display: flex; flex-direction: column; gap: 36px; text-align: right; }
-        .hm-footer-small ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-        .hm-footer-small a { font-family: DIN, system-ui, sans-serif; font-size: 14px; color: ${INK}; text-decoration: none; }
-        .hm-footer-small a:hover { text-decoration: underline; }
-        .hm-footer-base { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1440px; margin: clamp(80px, 9vw, 120px) auto 0; padding-top: 40px; border-top: 1px solid #DBDFDB; }
-        .hm-footer-base p { font-family: DIN, system-ui, sans-serif; font-size: 13px; line-height: 1.6; color: ${INK}; margin: 0; }
-        .hm-footer-base a { color: ${INK}; text-decoration: none; }
+        .hm-closing { position: relative; overflow: hidden; margin-top: clamp(64px, 8vw, 120px); padding: clamp(140px, 18vw, 240px) 0 48px; background: #0F0F0F; }
+        .hm-footer { margin-top: clamp(140px, 16vw, 220px); padding-top: 56px; display: grid; grid-template-columns: auto 1fr; gap: 48px; text-align: left; }
+        .hm-footer-nav { display: flex; justify-content: flex-end; gap: clamp(32px, 6vw, 88px); flex-wrap: wrap; }
+        .hm-footer-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+        .hm-footer-nav a { font-family: DIN, system-ui, sans-serif; font-size: 14px; color: rgba(244,245,243,0.8); text-decoration: none; }
+        .hm-footer-nav a:hover { color: ${BG}; }
+        .hm-footer-base { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; padding-top: 24px; }
+        .hm-footer-base p { font-family: DIN, system-ui, sans-serif; font-size: 12px; color: rgba(244,245,243,0.55); margin: 0; }
 
         @media (max-width: 860px) {
-          .hm-stagger { display: flex; flex-direction: column; gap: 56px; }
-          .hm-stagger figure { margin-top: 0 !important; }
-          .hm-collage { min-height: 0; }
-          .hm-float { display: none; }
-          .hm-pillar-list { grid-template-columns: 1fr; }
-          .hm-feature { grid-template-columns: 1fr; }
-          .hm-news-grid { grid-template-columns: 1fr; }
-          .hm-footer-top { grid-template-columns: 1fr; }
-          .hm-footer-small { text-align: left; }
-          .hm-footer-base { grid-template-columns: 1fr 1fr; }
-          .hm-footer-base p:last-child { text-align: left !important; }
+          .hm-split { grid-template-columns: 1fr; }
+          .hm-split-rev .hm-split-img { order: 0; }
+          .hm-split-text { padding: 0; }
+          .hm-cards { grid-template-columns: 1fr; }
+          .hm-pillars { grid-template-columns: 1fr; gap: 48px; }
+          .hm-gallery, .hm-voices { grid-template-columns: repeat(2, 1fr); }
+          .hm-footer { grid-template-columns: 1fr; }
+          .hm-footer-nav { justify-content: flex-start; }
         }
       `}</style>
     </div>
