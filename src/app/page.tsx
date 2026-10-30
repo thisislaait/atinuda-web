@@ -21,7 +21,7 @@ const IMG = '/assets/images/summit';
 
 const GALLERY = [
   { src: `${IMG}/new-images/IMG_0544L.jpg`, alt: 'Delegates seated together at Atinuda' },
-  { src: `${IMG}/ATINUDA%20DAY%203_609.jpg`, alt: 'Delegates at an exhibitor stand' },
+  { src: `${IMG}/new-images/ATINUDA%20DAY%203_609.jpg`, alt: 'Delegates at an exhibitor stand' },
   { src: `${IMG}/new-images/IMG_1451L.jpg`, alt: 'Guests in the audience at Atinuda' },
   { src: `${IMG}/H1C10404.jpg`, alt: 'Delegates meeting between sessions' },
 ];
@@ -175,7 +175,7 @@ export default function HomePage() {
         title="Three days in Lagos"
         link="See what each pass includes"
         href="/pricing"
-        image={`${IMG}/ATINUDA%20DAY%203_600.jpg`}
+        image={`${IMG}/new-images/ATINUDA%20DAY%203_600.jpg`}
         alt="A workshop session at Atinuda"
         reverse
       >
