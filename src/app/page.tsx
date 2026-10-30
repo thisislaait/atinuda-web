@@ -33,8 +33,8 @@ const PILLARS: PillarPanel[] = [
     name: 'MICE & Business Events',
     line: 'New markets and destination competitiveness.',
     body: 'For the people behind conferences, exhibitions, incentive travel, destinations and convention bureaus, and the markets they are opening across the global events economy.',
-    image: `${IMG}/H1C10415.jpg`,
-    alt: 'A full hall of delegates at Atinuda',
+    image: `${IMG}/new-images/IMG_0733L.jpg`,
+    alt: 'A panel session on the Atinuda main stage',
   },
   {
     name: 'Creative Industries & Experience Design',
@@ -47,8 +47,8 @@ const PILLARS: PillarPanel[] = [
     name: 'Social Events, Hospitality & Celebrations',
     line: 'Service excellence and lasting value.',
     body: 'For planners, venues, caterers and luxury providers raising the standard of celebration and hospitality, and the profitability behind it.',
-    image: `${IMG}/GM5_1341.JPG`,
-    alt: 'Guests celebrating together at the Atinuda gala',
+    image: `${IMG}/new-images/IMG_1459L.jpg`,
+    alt: 'Two guests seated together in the Atinuda lounge',
   },
   {
     name: 'Leadership, Enterprise & Investment',
