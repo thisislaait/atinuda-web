@@ -47,19 +47,16 @@ const HeaderNav = () => {
   };
 
   const isAtinuda7 = pathname === '/7.0-waitlist';
-  // The home page is dark, so its solid header stays dark with light text.
-  const darkPage = pathname === '/';
-  const lightSolid = isSolid && !darkPage;
   const transparentMenuColor = isAtinuda7 ? '#b5622a' : 'white';
-  const menuColor = lightSolid ? 'black' : transparentMenuColor;
+  const menuColor = isSolid ? 'black' : transparentMenuColor;
 
-  const logoSrc = lightSolid
+  const logoSrc = isSolid
     ? "/assets/images/blacklogo.png"
     : "/assets/images/whitelogo.png";
 
   // Stone canvas with a hairline divider once scrolled; transparent over a hero
   const headerBg = isSolid
-    ? (darkPage ? "bg-[#0E0F0E]/90 backdrop-blur border-b border-white/10" : "bg-[#F4F5F3] border-b border-[#DBDFDB]")
+    ? "bg-[#F4F5F3] border-b border-[#DBDFDB]"
     : "bg-transparent";
 
   return (
@@ -90,8 +87,8 @@ const HeaderNav = () => {
         >
           {/* Hamburger (mobile) */}
           <div className="md:hidden flex flex-col space-y-1">
-            <span className={`block w-6 h-[2px] ${lightSolid ? "bg-black" : "bg-white"}`} />
-            <span className={`block w-6 h-[2px] ${lightSolid ? "bg-black" : "bg-white"}`} />
+            <span className={`block w-6 h-[2px] ${isSolid ? "bg-black" : "bg-white"}`} />
+            <span className={`block w-6 h-[2px] ${isSolid ? "bg-black" : "bg-white"}`} />
           </div>
 
           {/* “Menu” (desktop) */}
