@@ -54,9 +54,9 @@ const HeaderNav = () => {
     ? "/assets/images/blacklogo.png"
     : "/assets/images/whitelogo.png";
 
-  // Solid white + blur when isSolid; otherwise transparent
+  // Stone canvas with a hairline divider once scrolled; transparent over a hero
   const headerBg = isSolid
-    ? "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-sm"
+    ? "bg-[#F4F5F3] border-b border-[#DBDFDB]"
     : "bg-transparent";
 
   return (
@@ -133,12 +133,13 @@ const HeaderNav = () => {
 
           <nav className="flex flex-col space-y-6 text-white text-4xl header-text h-full justify-center">
             {[
+              ["Atinuda 7.0", "/#atinuda-7"],
               ["Our Story", "/our-story"],
-              ["Membership", "/membership"],
-              ["Brands Activation", "/brands-activation"],
-              ["Spark The Future", "/spark-the-future"],
-              ["Regional Events", "/regional-events"],
-              ["Press & Media", "/press"],
+              ["The Circle", "/membership"],
+              ["Spark the Future", "/spark-the-future"],
+              ["Partner with us", "/become-a-sponsor"],
+              ["Press", "/press"],
+              ["Attend", "/pricing"],
             ].map(([label, path], index) => (
               <motion.span
                 key={index}
