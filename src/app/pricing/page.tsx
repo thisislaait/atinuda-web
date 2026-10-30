@@ -459,9 +459,6 @@ export default function PricingPage() {
           <span><span className="pp-dot" /> Included</span>
           <span><span className="pp-dot pp-dot-partial" /> Selected sessions and associated networking areas only</span>
         </div>
-        <p style={{ ...sans, fontSize: '13px', lineHeight: 1.8, color: '#8D948E', marginTop: '12px', maxWidth: '760px' }}>
-          Seating: Zuri — general; Amani — VIP; Adé — priority. Registration: Nuru and Safi — standard; Zuri — concierge; Amani — VIP; Adé — VVIP.
-        </p>
       </section>
 
       {/* ── SINGLE EXPERIENCES & ADDITIONAL OPTIONS ──────────── */}
