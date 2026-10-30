@@ -36,7 +36,10 @@ export const parallaxStyles = `
     .px-panel-img { order: -1; }
     .px-panel-text { padding: 40px 24px 64px; }
     .px-word { height: 180vh; }
-    .px-word-a { width: 44vw; left: 4%; }
-    .px-word-b { width: 40vw; right: 4%; }
+    .px-word-title { font-size: 17vw; }
+    .px-word-text .px-body { max-width: 30ch; }
+    .px-word-img { opacity: 0.85; }
+    .px-word-a { width: 34vw; left: -6%; }
+    .px-word-b { width: 30vw; right: -5%; }
   }
 `;
