@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { CompareMobile } from './CompareMobile';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
@@ -27,6 +28,22 @@ type Pass = {
   note: string | null;
 };
 
+// Lists shared between passes, so a higher pass shows the full benefits it includes.
+const SAFI_BENEFITS = [
+  'All main-stage conference conversations',
+  'Conference networking labs and connection spaces',
+  'Complete schedule for included conference days',
+];
+
+const AMANI_PROGRAMME = [
+  'Full conference programme, networking labs and workshops',
+  'Roundtable, Future Lab and African Room',
+  'Pamper Lounge',
+  'Direct access to speakers and summit contributors',
+  'Azizi Welcome Cocktail and Executive Dinner Gala',
+  'Private Executive Leadership Session',
+];
+
 const PASSES: Pass[] = [
   {
     id: 'nuru',
@@ -38,7 +55,7 @@ const PASSES: Pass[] = [
       'Selected main-stage conference sessions',
       'Shared networking areas during included sessions',
       'Digital event schedule and attendee information',
-      'Welcome gift package',
+      'Standard Conference Package',
     ],
     note: null,
   },
@@ -49,9 +66,8 @@ const PASSES: Pass[] = [
     price: '₦295,000',
     early: null,
     features: [
-      'All main-stage conference conversations',
-      'Conference networking labs and connection spaces',
-      'Complete schedule for included conference days',
+      ...SAFI_BENEFITS,
+      'Atinuda Gift Package',
     ],
     note: null,
   },
@@ -62,11 +78,12 @@ const PASSES: Pass[] = [
     price: '₦500,000',
     early: null,
     features: [
-      'All Safi programme and networking benefits',
+      ...SAFI_BENEFITS,
       'Full workshop programme and curated breakout groups',
       'Future Lab and African Room',
       'Pamper Lounge',
       'Azizi Welcome Cocktail and concierge registration',
+      'Atinuda Gift Package',
     ],
     note: null,
   },
@@ -77,11 +94,7 @@ const PASSES: Pass[] = [
     price: '₦650,000',
     early: null,
     features: [
-      'Full conference programme, networking labs and workshops',
-      'Roundtable, Future Lab, African Room and Pamper Lounge',
-      'Direct access to speakers and summit contributors',
-      'Azizi Welcome Cocktail and Executive Dinner Gala',
-      'Private Executive Leadership Session',
+      ...AMANI_PROGRAMME,
       'Reserved VIP seating and dedicated VIP registration',
     ],
     note: 'A Support Pass (₦135,000) may be added at checkout for an accompanying PA, assistant or content creator.',
@@ -93,7 +106,7 @@ const PASSES: Pass[] = [
     price: '₦795,000',
     early: null,
     features: [
-      'All Amani programme and hospitality benefits',
+      ...AMANI_PROGRAMME,
       'Executive networking speed sessions',
       'Extended Q&A within the private executive session',
       'Priority seating across the main programme',
@@ -431,6 +444,14 @@ export default function PricingPage() {
           </table>
         </div>
 
+        <div className="pp-compare-mobile">
+          <CompareMobile
+            passes={PASSES.map((p) => ({ id: p.id, name: p.name, price: p.price }))}
+            features={FEATURES}
+            matrix={MATRIX}
+          />
+        </div>
+
         <div className="pp-legend">
           <span><span className="pp-dot" /> Included</span>
           <span><span className="pp-dot pp-dot-partial" /> Selected sessions and associated networking areas only</span>
@@ -548,6 +569,11 @@ export default function PricingPage() {
         .pp-line-item:first-child { padding-top: 0; }
         .pp-line-item:last-child { border-bottom: none; }
 
+        .pp-compare-mobile { display: none; }
+        @media (max-width: 760px) {
+          .pp-table-scroll, .pp-legend { display: none; }
+          .pp-compare-mobile { display: block; }
+        }
         @media (max-width: 900px) {
           .pp-index { grid-template-columns: 1fr; }
           .pp-index-item { flex-direction: row; align-items: baseline; justify-content: space-between; padding: 16px 24px !important; border-right: none; border-bottom: 1px solid rgba(244,245,243,0.12); }
