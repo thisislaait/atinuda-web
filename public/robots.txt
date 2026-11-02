@@ -3,6 +3,7 @@ Allow: /
 
 # Admin and internal routes
 Disallow: /admin/
+Disallow: /staff/
 Disallow: /checkin/
 Disallow: /api/
 Disallow: /attendee-sheets/

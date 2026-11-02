@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/staff/daily-summary", "schedule": "0 7 * * *" },
+    { "path": "/api/checkout/instalment-reminders", "schedule": "0 8 * * *" }
+  ]
+}

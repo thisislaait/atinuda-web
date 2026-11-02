@@ -24,7 +24,7 @@ const SOCIAL = [
 
 const SummitFooter = () => {
   const pathname = usePathname();
-  if (pathname === '/') return null;
+  if (pathname === '/' || pathname?.startsWith('/staff')) return null;
 
   return (
     <footer className="sf">

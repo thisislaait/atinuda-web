@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 // The site sets no analytics or marketing cookies, so this is a notice, not a consent form.
 // If tracking is ever added, it must read STORAGE_KEY and stay off until the visitor opts in.
@@ -10,6 +11,7 @@ const BG  = '#F4F5F3';
 const STORAGE_KEY = 'atinuda_cookie_consent';
 
 export function CookieConsent() {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function CookieConsent() {
     setVisible(false);
   };
 
-  if (!visible) return null;
+  if (!visible || pathname?.startsWith('/staff')) return null;
 
   return (
     <div
