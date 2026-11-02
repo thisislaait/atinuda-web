@@ -2,10 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CompareMobile } from './CompareMobile';
 import Image from 'next/image';
+import { findProduct, formatNaira, isEarlyBird, type ProductId } from '@/lib/atinuda7Checkout';
+
+// Re-rendered hourly so early bird prices drop off the page once the deadline passes.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Passes & Pricing | Atinuda 7.0',
-  description: 'Five passes for Atinuda 7.0, 6–8 October 2027 in Lagos — from selected main-stage sessions to the Executive Dinner Gala and the private leadership session.',
+  description: 'Five passes for Atinuda 7.0, 6–8 October 2027 in Lagos — from the main-stage programme to the Executive Dinner Gala and the private leadership session.',
 };
 
 const DARK   = '#0F0F0F';
@@ -28,6 +32,12 @@ type Pass = {
   note: string | null;
 };
 
+// Prices come from the checkout catalogue, so the page cannot drift from what is charged.
+const earlyLine = (id: ProductId) => {
+  const p = findProduct(id)!;
+  return isEarlyBird(p) ? `${formatNaira(p.earlyBird!.price)} until 31 December 2026` : null;
+};
+
 // Lists shared between passes, so a higher pass shows the full benefits it includes.
 const SAFI_BENEFITS = [
   'All main-stage conference conversations',
@@ -39,7 +49,7 @@ const AMANI_PROGRAMME = [
   'Full conference programme, networking labs and workshops',
   'Roundtable, Future Lab and African Room',
   'Pamper Lounge',
-  'Direct access to speakers and summit contributors',
+  'Meetings with speakers and summit contributors, on confirmation',
   'Azizi Welcome Cocktail and Executive Dinner Gala',
   'Private Executive Leadership Session',
 ];
@@ -50,9 +60,9 @@ const PASSES: Pass[] = [
     name: 'Nuru',
     tier: 'Essential Experience',
     price: '₦180,000',
-    early: '₦155,000 until 31 December 2026',
+    early: earlyLine('nuru'),
     features: [
-      'Selected main-stage conference sessions',
+      'All main-stage conference sessions',
       'Shared networking areas during included sessions',
       'Digital event schedule and attendee information',
       'Standard Conference Package',
@@ -64,7 +74,7 @@ const PASSES: Pass[] = [
     name: 'Safi',
     tier: 'Conference Experience',
     price: '₦295,000',
-    early: null,
+    early: earlyLine('safi'),
     features: [
       ...SAFI_BENEFITS,
       'Atinuda Gift Package',
@@ -76,7 +86,7 @@ const PASSES: Pass[] = [
     name: 'Zuri',
     tier: 'Enhanced Experience',
     price: '₦500,000',
-    early: null,
+    early: earlyLine('zuri'),
     features: [
       ...SAFI_BENEFITS,
       'Full workshop programme and curated breakout groups',
@@ -91,19 +101,21 @@ const PASSES: Pass[] = [
     name: 'Amani',
     tier: 'Signature Experience',
     price: '₦650,000',
-    early: null,
+    early: earlyLine('amani'),
     features: [
       ...AMANI_PROGRAMME,
       'Reserved VIP seating and dedicated VIP registration',
     ],
-    note: 'A Support Pass (₦135,000) may be added at checkout for an accompanying PA, assistant or content creator.',
+    // Support Pass is not publicised for now.
+    // note: 'A Support Pass (₦135,000) may be added at checkout for an accompanying PA, assistant or content creator.',
+    note: null,
   },
   {
     id: 'ade',
     name: 'Adé',
     tier: 'Prestige Experience',
     price: '₦795,000',
-    early: null,
+    early: earlyLine('ade'),
     features: [
       ...AMANI_PROGRAMME,
       'Executive networking speed sessions',
@@ -119,7 +131,7 @@ const [NURU, SAFI, ZURI, AMANI, ADE] = PASSES;
 
 const FEATURES = [
   'Conference programme',
-  'Speaker & contributor access',
+  'Speaker & contributor meetings, on confirmation',
   'Networking labs',
   'Full workshop access',
   'Roundtable, Future Lab & African Room',
@@ -138,7 +150,7 @@ const FEATURES = [
 type Cell = 'yes' | 'no' | 'partial';
 
 const MATRIX: Cell[][] = [
-  ['partial', 'yes', 'yes', 'yes', 'yes'],
+  ['yes', 'yes', 'yes', 'yes', 'yes'],
   ['no', 'no', 'no', 'yes', 'yes'],
   ['partial', 'yes', 'yes', 'yes', 'yes'],
   ['no', 'no', 'yes', 'yes', 'yes'],
@@ -162,8 +174,8 @@ const EXTRAS = [
     label: 'Single experiences',
     heading: 'One part of the programme, without a full pass.',
     items: [
-      { label: 'Workshop Access', price: '₦250,000', desc: 'Expert-led practical workshops and curated small-group breakouts. Excludes the full conference programme.' },
-      { label: 'Executive Dinner Gala Only', price: '₦250,000', desc: 'Dinner gala, curated dining and live entertainment. Excludes daytime conference and workshops.' },
+      { label: 'Workshop Access', price: '₦250,000', early: earlyLine('workshop'), desc: 'Expert-led practical workshops and curated small-group breakouts. Excludes the full conference programme.' },
+      { label: 'Executive Dinner Gala Only', price: '₦250,000', early: earlyLine('gala'), desc: 'Dinner gala, curated dining and live entertainment. Excludes daytime conference and workshops.' },
     ],
   },
   {
@@ -175,14 +187,15 @@ const EXTRAS = [
       { label: 'Loyalty & Community', price: '10% off', desc: 'For returning guests who have attended Atinuda at least twice, and for verified APPOEMN members. Confirmed when you book or with a dedicated code. Not applicable to Nuru passes.' },
     ],
   },
-  {
-    id: 'add',
-    label: 'Add to a pass',
-    heading: 'Bring the person who works alongside you.',
-    items: [
-      { label: 'Support Pass', price: '₦135,000', desc: 'Added to an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not include experiences reserved for the primary pass holder.' },
-    ],
-  },
+  // Support Pass is not publicised for now.
+  //   {
+  //     id: 'add',
+  //     label: 'Add to a pass',
+  //     heading: 'Bring the person who works alongside you.',
+  //     items: [
+  //       { label: 'Support Pass', price: '₦135,000', desc: 'Added to an Amani or Adé pass for an accompanying PA, assistant or content creator. Not sold separately. Does not include experiences reserved for the primary pass holder.' },
+  //     ],
+  //   },
 ];
 
 // Passes are sold on the website while the Atinuda app is unavailable. Point back to
@@ -267,7 +280,7 @@ export default function PricingPage() {
             <em style={{ fontStyle: 'italic', fontWeight: 500, whiteSpace: 'nowrap' }}>Atinuda 7.0</em>
           </h1>
           <p style={{ ...sans, fontSize: '16px', lineHeight: 1.75, color: 'rgba(244,245,243,0.72)', maxWidth: '540px' }}>
-            Each pass sets how much of the programme you join — from selected main-stage sessions to the full workshop programme, the Executive Dinner Gala and a private leadership session off-site.
+            Each pass sets how much of the programme you join — from the main-stage programme to the full workshop programme, the Executive Dinner Gala and a private leadership session off-site.
           </p>
         </div>
 
@@ -316,12 +329,12 @@ export default function PricingPage() {
         <div className="pp-split">
           <div className="pp-split-media" style={{ position: 'relative' }}>
             <Image
-              src="/assets/images/summit/new-images/ATINUDA%20DAY%203_600.jpg"
-              alt="A curated breakout group at Atinuda"
+              src="/assets/images/summit/new-images/zuri-speaker-portrait.jpg"
+              alt="A speaker addressing the audience at Atinuda"
               fill
-              sizes="(max-width: 900px) 100vw, 45vw"
+              sizes="(max-width: 900px) 100vw, 46vw"
               quality={85}
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: 'cover', objectPosition: 'center top' }}
             />
           </div>
           <div className="pp-split-body">
@@ -440,7 +453,7 @@ export default function PricingPage() {
                   {MATRIX[fi].map((val, pi) => (
                     <td key={pi}>
                       {val === 'yes' && <span className="pp-dot" aria-label="Included" />}
-                      {val === 'partial' && <span className="pp-dot pp-dot-partial" aria-label="Selected sessions only" />}
+                      {val === 'partial' && <span className="pp-dot pp-dot-partial" aria-label="Shared networking areas only" />}
                       {val === 'no' && <span className="pp-dash" aria-label="Not included" />}
                     </td>
                   ))}
@@ -460,7 +473,7 @@ export default function PricingPage() {
 
         <div className="pp-legend">
           <span><span className="pp-dot" /> Included</span>
-          <span><span className="pp-dot pp-dot-partial" /> Selected sessions and associated networking areas only</span>
+          <span><span className="pp-dot pp-dot-partial" /> Shared networking areas only</span>
         </div>
       </section>
 
@@ -480,7 +493,10 @@ export default function PricingPage() {
                   <div key={item.label} className="pp-line-item">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', marginBottom: '10px' }}>
                       <p style={{ ...sans, fontSize: '16px', fontWeight: 600, color: INK }}>{item.label}</p>
-                      <p style={{ ...saol, fontSize: '1.7rem', color: INK, whiteSpace: 'nowrap' }}>{item.price}</p>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ ...saol, fontSize: '1.7rem', color: INK, whiteSpace: 'nowrap' }}>{item.price}</p>
+                        {'early' in item && item.early && <p style={{ ...sans, fontSize: '13px', color: COPPER, marginTop: '6px' }}>Early bird {item.early}</p>}
+                      </div>
                     </div>
                     <p style={{ ...sans, fontSize: '14px', lineHeight: 1.7, color: '#5A615C', maxWidth: '520px' }}>{item.desc}</p>
                   </div>
@@ -501,7 +517,7 @@ export default function PricingPage() {
             Reserve your pass.
           </h2>
           <p style={{ ...sans, fontSize: '16px', lineHeight: 1.7, color: '#5A615C', maxWidth: '460px', margin: '0 auto 56px' }}>
-            Nuru is <span style={{ color: COPPER }}>₦155,000</span> until 31 December 2026. Group bookings for companies and associations are available through Ubuntu.
+            Early bird rates apply to every pass and single experience until 31 December 2026. Individual delegates can pay in three instalments: 50% at booking, 25% after 30 days and 25% after 60. Group bookings for companies and associations are available through Ubuntu.
           </p>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href={RESERVE_HREF} className="pp-btn pp-btn-solid">

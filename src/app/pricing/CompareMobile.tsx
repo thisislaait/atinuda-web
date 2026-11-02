@@ -44,7 +44,7 @@ export function CompareMobile({ passes, features, matrix }: {
           {included.map((r) => (
             <li key={r.feature}>
               <span className={r.val === 'partial' ? 'cm-mark cm-partial' : 'cm-mark'} aria-hidden="true" />
-              <span>{r.feature}{r.val === 'partial' && <em> · selected sessions only</em>}</span>
+              <span>{r.feature}{r.val === 'partial' && <em> · shared networking areas only</em>}</span>
             </li>
           ))}
         </ul>

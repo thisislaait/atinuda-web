@@ -4,7 +4,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { randomBytes } from 'crypto';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
-import { EVENT_SLUG, MAX_QUANTITY, quote } from '@/lib/atinuda7Checkout';
+import { EVENT_SLUG, MAX_QUANTITY, instalmentSchedule, instalmentsAvailable, quote } from '@/lib/atinuda7Checkout';
+import { instalmentAttemptRef } from '@/lib/atinuda7Fulfil';
 
 type Person = { name?: unknown; email?: unknown };
 
@@ -12,6 +13,7 @@ type OrderBody = {
   productId?: unknown;
   quantity?: unknown;
   supportPasses?: unknown;
+  plan?: unknown;
   buyer?: { name?: unknown; email?: unknown; phone?: unknown; company?: unknown };
   attendees?: Person[];
 };
@@ -36,6 +38,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
+  const payInThree = body.plan === 'instalments';
+  if (payInThree && !instalmentsAvailable(q.quantity)) {
+    return res.status(400).json({ ok: false, message: 'Paying in three instalments is available on single-pass orders only.' });
+  }
+
   const buyer = {
     name: clean(body.buyer?.name),
     email: clean(body.buyer?.email).toLowerCase(),
@@ -55,6 +62,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   });
 
   const txRef = `ATN7-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
+  const instalments = payInThree
+    ? instalmentSchedule(q.total).map((i) => ({ ...i, status: 'due' as const }))
+    : null;
 
   try {
     await adminDb.collection('orders').doc(txRef).set({
@@ -75,6 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       currency: 'NGN',
       buyer,
       attendees,
+      plan: payInThree ? 'instalments' : 'full',
+      ...(instalments ? { instalments, payToken: randomBytes(16).toString('hex') } : {}),
       createdAt: FieldValue.serverTimestamp(),
     });
   } catch (err) {
@@ -82,5 +94,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ ok: false, message: 'We could not start your order. Please try again.' });
   }
 
-  return res.status(200).json({ ok: true, txRef, amount: q.total, currency: 'NGN' });
+  // Each instalment is its own Flutterwave payment, with its own reference.
+  if (instalments) {
+    return res.status(200).json({ ok: true, orderRef: txRef, txRef: instalmentAttemptRef(txRef, 1), amount: instalments[0].amount, currency: 'NGN' });
+  }
+  return res.status(200).json({ ok: true, orderRef: txRef, txRef, amount: q.total, currency: 'NGN' });
 }

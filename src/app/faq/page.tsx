@@ -85,6 +85,11 @@ const CATEGORIES: FaqCategory[] = [
         q: 'What is the refund policy?',
         a: 'Tickets are non-refundable. If you can’t attend, you may transfer your ticket to someone else before the event. Contact support to update the name/email on the ticket.',
       },
+      {
+        id: 'instalments',
+        q: 'Can I pay in instalments?',
+        a: 'Yes, on single-pass orders booked by 31 July 2027. You pay 50% at checkout, 25% after 30 days and 25% after 60 days, using a private link we email you. You keep the price you booked at while you stay on schedule, including the early bird rate, and your pass is issued after the final payment clears. If a payment is more than seven days late, your booking is cancelled and your place released.',
+      },
     ],
   },
   {

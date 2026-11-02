@@ -13,10 +13,15 @@ import {
   PRODUCTS,
   SUPPORT_PASS,
   findProduct,
+  formatDueDate,
   formatNaira,
+  instalmentSchedule,
+  instalmentsAvailable,
   isEarlyBird,
   quote,
   unitPrice,
+  type Instalment,
+  type PaymentPlan,
   type ProductId,
 } from '@/lib/atinuda7Checkout';
 
@@ -36,6 +41,7 @@ type Step = 1 | 2 | 3;
 type Stage = 'idle' | 'creating' | 'paying' | 'confirming' | 'done';
 type Seat = { name: string; email: string };
 type Ticket = { ticketNumber: string; ticketType: string; name: string; email: string };
+export type ScheduleRow = Instalment & { status?: 'due' | 'paid' };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSES = PRODUCTS.filter((p) => p.kind === 'pass');
@@ -50,6 +56,8 @@ export default function CheckoutClient() {
   );
   const [quantity, setQuantity] = useState(() => clampQty(Number(params?.get('qty') ?? 1)));
   const [supportPasses, setSupportPasses] = useState(0);
+  const [plan, setPlan] = useState<PaymentPlan>('full');
+  const [heldSchedule, setHeldSchedule] = useState<ScheduleRow[] | null>(null);
   const [buyer, setBuyer] = useState({ name: '', email: '', phone: '', company: '' });
   const [seatOneIsBuyer, setSeatOneIsBuyer] = useState(true);
   const [showSeats, setShowSeats] = useState(false);
@@ -66,7 +74,16 @@ export default function CheckoutClient() {
   const product = findProduct(productId)!;
   const q = useMemo(() => quote({ productId, quantity, supportPasses }), [productId, quantity, supportPasses]);
 
+  const canPayInThree = instalmentsAvailable(quantity);
+  const payInThree = plan === 'instalments' && canPayInThree;
+  const schedule = useMemo(() => (payInThree && q ? instalmentSchedule(q.total) : null), [payInThree, q]);
+  const dueToday = schedule ? schedule[0].amount : q?.total ?? 0;
+
   // Keep dependent fields valid as the order changes.
+  useEffect(() => {
+    if (!canPayInThree) setPlan('full');
+  }, [canPayInThree]);
+
   useEffect(() => {
     if (!product.allowsSupportPass) setSupportPasses(0);
     else setSupportPasses((s) => Math.min(s, quantity));
@@ -96,9 +113,10 @@ export default function CheckoutClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ txRef, transactionId }),
       });
-      const json = (await res.json()) as { ok?: boolean; message?: string; tickets?: Ticket[] };
+      const json = (await res.json()) as { ok?: boolean; message?: string; tickets?: Ticket[]; instalments?: ScheduleRow[] };
       if (!res.ok || !json.ok) throw new Error(json.message || 'We could not confirm your payment.');
       setTickets(json.tickets ?? []);
+      if (json.instalments?.length) setHeldSchedule(json.instalments);
       setStage('done');
       window.scrollTo({ top: 0 });
     } catch (err) {
@@ -136,23 +154,25 @@ export default function CheckoutClient() {
     setStage('creating');
     let txRef: string;
     let amount: number;
+    let reference: string;
     try {
       const res = await fetch('/api/checkout/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity, supportPasses, buyer, attendees: attendeesPayload() }),
+        body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', buyer, attendees: attendeesPayload() }),
       });
-      const json = (await res.json()) as { ok?: boolean; message?: string; txRef?: string; amount?: number };
+      const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; txRef?: string; amount?: number };
       if (!res.ok || !json.ok || !json.txRef || !json.amount) throw new Error(json.message || 'We could not start your order.');
       txRef = json.txRef;
       amount = json.amount;
+      reference = json.orderRef ?? json.txRef;
     } catch (err) {
       setStage('idle');
       setError(err instanceof Error ? err.message : 'We could not start your order.');
       return;
     }
 
-    setOrderRef(txRef);
+    setOrderRef(reference);
     setStage('paying');
     paidRef.current = false;
     window.FlutterwaveCheckout({
@@ -164,7 +184,7 @@ export default function CheckoutClient() {
       customer: { email: buyer.email.trim(), name: buyer.name.trim(), phone_number: buyer.phone.trim() },
       customizations: {
         title: EVENT_LABEL,
-        description: `${product.name} × ${quantity}${supportPasses ? ` + ${supportPasses} Support Pass` : ''}`,
+        description: `${product.name} × ${quantity}${supportPasses ? ` + ${supportPasses} Support Pass` : ''}${payInThree ? ' · first of 3 payments' : ''}`,
         logo: `${window.location.origin}/icon.png`,
       },
       callback: (resp: { transaction_id?: string | number }) => {
@@ -178,6 +198,9 @@ export default function CheckoutClient() {
     });
   }
 
+  if (stage === 'done' && heldSchedule) {
+    return <PlaceHeld schedule={heldSchedule} email={buyer.email} orderRef={orderRef} productName={product.name} />;
+  }
   if (stage === 'done') {
     return <Confirmation tickets={tickets} email={buyer.email} orderRef={orderRef} />;
   }
@@ -186,12 +209,12 @@ export default function CheckoutClient() {
     stage === 'creating' ? 'Opening secure payment…'
     : stage === 'paying' ? 'Complete payment in the window'
     : stage === 'confirming' ? 'Confirming payment…'
-    : `Pay ${q ? formatNaira(q.total) : ''}`;
+    : `Pay ${q ? formatNaira(dueToday) : ''}${schedule ? ' today' : ''}`;
   const actionLabel = step < 3 ? 'Continue' : payLabel;
 
   const steps: { n: Step; title: string; value: string }[] = [
     { n: 1, title: 'Pass', value: product.name },
-    { n: 2, title: 'How many', value: `${quantity} ${quantity === 1 ? 'pass' : 'passes'}${q?.groupPercent ? ` · ${q.groupPercent}% off` : ''}` },
+    { n: 2, title: 'How many', value: `${quantity} ${quantity === 1 ? 'pass' : 'passes'}${q?.groupPercent ? ` · ${q.groupPercent}% off` : ''}${schedule ? ' · instalments' : ''}` },
     { n: 3, title: 'Details', value: buyer.name.trim() || 'Name, email, phone' },
   ];
 
@@ -304,6 +327,31 @@ export default function CheckoutClient() {
                 </div>
               )}
 
+              <div className="co-plan">
+                <p className="co-caps" style={{ color: '#8D948E' }}>How you pay</p>
+                {canPayInThree ? (
+                  <>
+                    <div className="co-plans" role="radiogroup" aria-label="How you pay">
+                      <button type="button" role="radio" aria-checked={!payInThree} className={`co-preset${!payInThree ? ' is-active' : ''}`} onClick={() => setPlan('full')}>
+                        <span className="co-preset-label">Pay in full</span>
+                        <span className="co-preset-sub">{q ? formatNaira(q.total) : ''} today</span>
+                      </button>
+                      <button type="button" role="radio" aria-checked={payInThree} className={`co-preset${payInThree ? ' is-active' : ''}`} onClick={() => setPlan('instalments')}>
+                        <span className="co-preset-label">Pay in instalments</span>
+                        <span className="co-preset-sub">{q ? formatNaira(instalmentSchedule(q.total)[0].amount) : ''} today</span>
+                      </button>
+                    </div>
+                    {payInThree && (
+                      <p className="co-plan-note">
+                        50% today, 25% after 30 days and 25% after 60. Your price is held and your pass is issued after the final payment. A payment more than 7 days late cancels the booking and releases your place.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  quantity > 1 && <p className="co-plan-note">Paying in instalments is available on single-pass orders. This order is paid in full.</p>
+                )}
+              </div>
+
               {quantity >= MAX_QUANTITY && (
                 <p style={{ fontSize: '13px', color: '#5A615C', marginTop: '16px' }}>
                   Booking more than {MAX_QUANTITY}? Write to <a href="mailto:hello@atinuda.africa" style={{ color: INK }}>hello@atinuda.africa</a> for coordinated group booking.
@@ -367,7 +415,7 @@ export default function CheckoutClient() {
         </main>
 
         <aside className="co-aside" aria-label="Order summary">
-          <Summary q={q} payLabel={actionLabel} busy={busy} onPay={primaryAction} onQuantity={setQuantity} error={error} />
+          <Summary q={q} schedule={schedule} payLabel={actionLabel} busy={busy} onPay={primaryAction} onQuantity={setQuantity} error={error} />
         </aside>
       </div>
 
@@ -377,7 +425,7 @@ export default function CheckoutClient() {
           <p style={{ fontSize: '12px', color: '#8D948E' }}>
             {quantity} × {product.name}{q?.groupPercent ? ` · ${q.groupPercent}% off` : ''}
           </p>
-          <p style={{ ...saol, fontSize: '1.6rem', color: INK, lineHeight: 1.1 }}>{q ? formatNaira(q.total) : '—'}</p>
+          <p style={{ ...saol, fontSize: '1.6rem', color: INK, lineHeight: 1.1 }}>{q ? `${formatNaira(dueToday)}${schedule ? ' today' : ''}` : '—'}</p>
         </div>
         <button type="button" className="co-pay co-pay-sm" onClick={primaryAction} disabled={busy || !q}>
           {busy ? '…' : step < 3 ? 'Next' : 'Pay'}
@@ -456,7 +504,7 @@ function Field({ label, value, onChange, type = 'text', autoComplete, error }: {
   );
 }
 
-function Summary({ q, payLabel, busy, onPay, onQuantity, error }: { q: ReturnType<typeof quote>; payLabel: string; busy: boolean; onPay: () => void; onQuantity: (n: number) => void; error: string | null }) {
+function Summary({ q, schedule, payLabel, busy, onPay, onQuantity, error }: { q: ReturnType<typeof quote>; schedule: ScheduleRow[] | null; payLabel: string; busy: boolean; onPay: () => void; onQuantity: (n: number) => void; error: string | null }) {
   if (!q) return null;
   const nextTier = [...GROUP_TIERS].reverse().find((t) => q.quantity < t.min);
   const toNext = nextTier ? nextTier.min - q.quantity : 0;
@@ -510,6 +558,7 @@ function Summary({ q, payLabel, busy, onPay, onQuantity, error }: { q: ReturnTyp
           <span style={{ ...saol, fontSize: 'clamp(2rem, 2.6vw, 2.5rem)', color: INK, lineHeight: 1 }}>{formatNaira(q.total)}</span>
         </div>
         {q.groupDiscount > 0 && <p className="co-saved">You save {formatNaira(q.groupDiscount)}</p>}
+        {schedule && <PaymentSchedule rows={schedule} />}
 
         <button type="button" className="co-pay" onClick={onPay} disabled={busy}>{payLabel}</button>
 
@@ -518,9 +567,42 @@ function Summary({ q, payLabel, busy, onPay, onQuantity, error }: { q: ReturnTyp
         <ul className="co-assure">
           <li>Secure payment by Flutterwave</li>
           <li>Card, bank transfer or USSD</li>
-          <li>Passes sent by email once payment clears</li>
+          <li>{schedule ? 'Pass sent by email after your final payment' : 'Passes sent by email once payment clears'}</li>
         </ul>
       </div>
+    </div>
+  );
+}
+
+export function PaymentSchedule({ rows }: { rows: ScheduleRow[] }) {
+  return (
+    <dl className="co-lines co-schedule">
+      {rows.map((r, i) => (
+        <div key={r.n} className={r.status === 'paid' ? 'is-win' : undefined}>
+          <dt>{r.status === 'paid' ? 'Paid' : r.status === undefined && i === 0 ? 'Today' : `Due ${formatDueDate(r.dueAt)}`}</dt>
+          <dd>{formatNaira(r.amount)}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+function PlaceHeld({ schedule, email, orderRef, productName }: { schedule: ScheduleRow[]; email: string; orderRef: string; productName: string }) {
+  return (
+    <div id="nohero" className="co-page">
+      <div className="co-wrap co-done">
+        <p className="co-caps" style={{ color: COPPER }}>First payment received</p>
+        <h1 style={{ ...saol, fontSize: 'clamp(2.8rem, 6vw, 5.4rem)', lineHeight: 0.98, letterSpacing: '-0.025em', color: INK, margin: '24px 0 28px', maxWidth: '900px' }}>
+          Your <em style={{ fontStyle: 'italic', fontWeight: 500 }}>{productName}</em> place is held
+        </h1>
+        <p style={{ fontSize: '16px', lineHeight: 1.75, color: '#5A615C', maxWidth: '560px' }}>
+          We have emailed {email} a private link for your remaining payments, and we will remind you before each due date. Your pass is issued after the final payment clears.
+        </p>
+        <div style={{ maxWidth: '480px', marginTop: '32px' }}><PaymentSchedule rows={schedule} /></div>
+        <p style={{ fontSize: '13px', color: '#8D948E', marginTop: '24px' }}>Order reference {orderRef}</p>
+        <Link href="/pricing" className="co-back" style={{ display: 'inline-block', marginTop: '40px' }}>← Back to passes</Link>
+      </div>
+      <style>{CSS}</style>
     </div>
   );
 }
@@ -557,7 +639,11 @@ function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: 
   );
 }
 
-const CSS = `
+export const CSS = `
+  .co-plan { margin-top: 32px; padding-top: 28px; border-top: 1px solid #E4E7E4; }
+  .co-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  .co-plan-note { font-size: 13px; line-height: 1.6; color: #5A615C; margin-top: 14px; max-width: 520px; }
+  .co-schedule { margin-top: 20px; }
   .co-page { background: ${BG}; min-height: 100vh; color: ${INK}; font-family: "Hanken Grotesk", system-ui, sans-serif; padding-bottom: 120px; }
   .co-wrap { max-width: 1240px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
   .co-head { padding-top: 120px; padding-bottom: clamp(32px, 4vw, 48px); }

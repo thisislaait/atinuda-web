@@ -20,5 +20,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ ok: false, message: 'We could not confirm your payment yet.' });
   }
   if (!result.ok) return res.status(result.status).json({ ok: false, message: result.message });
-  return res.status(200).json({ ok: true, tickets: result.tickets });
+  return res.status(200).json({ ok: true, tickets: result.tickets, instalments: result.instalments });
 }

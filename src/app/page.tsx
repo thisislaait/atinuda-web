@@ -78,7 +78,7 @@ const WAYS = [
   {
     label: 'Delegates',
     title: 'Attend Atinuda 7.0',
-    body: 'Five passes, from selected main-stage sessions to the full programme and the Private Executive Leadership Session.',
+    body: 'Five passes, from the main-stage programme to the full programme and the Private Executive Leadership Session.',
     cta: 'Explore the passes',
     href: '/pricing',
     image: `${IMG}/new-images/IMG_0523L.jpg`,

@@ -8,6 +8,13 @@ export const EVENT_LABEL = 'Atinuda 7.0';
 export const EVENT_WHEN = '6–8 October 2027';
 export const EVENT_WHERE = 'Lagos';
 
+// Early bird ends at midnight Lagos time (WAT, UTC+1) going into 1 January 2027.
+const earlyBird = (price: number) => ({
+  price,
+  until: '2027-01-01T00:00:00+01:00',
+  label: 'Early bird until 31 December 2026',
+});
+
 export type ProductId = 'nuru' | 'safi' | 'zuri' | 'amani' | 'ade' | 'workshop' | 'gala';
 
 export type Product = {
@@ -29,9 +36,8 @@ export const PRODUCTS: Product[] = [
     tier: 'Essential Experience',
     kind: 'pass',
     price: 180000,
-    // Early bird ends at midnight Lagos time (WAT, UTC+1) going into 1 January 2027.
-    earlyBird: { price: 155000, until: '2027-01-01T00:00:00+01:00', label: 'Early bird until 31 December 2026' },
-    summary: 'Selected main-stage sessions and the networking areas around them.',
+    earlyBird: earlyBird(155000),
+    summary: 'All main-stage sessions and the networking areas around them.',
     allowsSupportPass: false,
     ticketPrefix: 'NUR',
   },
@@ -41,6 +47,7 @@ export const PRODUCTS: Product[] = [
     tier: 'Conference Experience',
     kind: 'pass',
     price: 295000,
+    earlyBird: earlyBird(255000),
     summary: 'Every main-stage conversation, plus the conference networking labs.',
     allowsSupportPass: false,
     ticketPrefix: 'SAF',
@@ -51,7 +58,8 @@ export const PRODUCTS: Product[] = [
     tier: 'Enhanced Experience',
     kind: 'pass',
     price: 500000,
-    summary: 'The full workshop programme, Future Lab, African Room and the Azizi Welcome Cocktail.',
+    earlyBird: earlyBird(430000),
+    summary: 'The full workshop programme and the Azizi Welcome Cocktail.',
     allowsSupportPass: false,
     ticketPrefix: 'ZUR',
   },
@@ -61,8 +69,9 @@ export const PRODUCTS: Product[] = [
     tier: 'Signature Experience',
     kind: 'pass',
     price: 650000,
+    earlyBird: earlyBird(560000),
     summary: 'VIP seating, the Executive Dinner Gala and the private Executive Leadership Session.',
-    allowsSupportPass: true,
+    allowsSupportPass: false, // Support Pass is not publicised for now; set back to true to offer it.
     ticketPrefix: 'AMA',
   },
   {
@@ -71,8 +80,9 @@ export const PRODUCTS: Product[] = [
     tier: 'Prestige Experience',
     kind: 'pass',
     price: 795000,
+    earlyBird: earlyBird(685000),
     summary: 'Everything in Amani, with VVIP registration, priority seating and executive networking.',
-    allowsSupportPass: true,
+    allowsSupportPass: false, // Support Pass is not publicised for now; set back to true to offer it.
     ticketPrefix: 'ADE',
   },
   {
@@ -81,6 +91,7 @@ export const PRODUCTS: Product[] = [
     tier: 'Single experience',
     kind: 'single',
     price: 250000,
+    earlyBird: earlyBird(215000),
     summary: 'Expert-led workshops and curated breakouts. Excludes the main conference.',
     allowsSupportPass: false,
     ticketPrefix: 'WRK',
@@ -91,6 +102,7 @@ export const PRODUCTS: Product[] = [
     tier: 'Single experience',
     kind: 'single',
     price: 250000,
+    earlyBird: earlyBird(215000),
     summary: 'The dinner gala, curated dining and live entertainment. Excludes the daytime programme.',
     allowsSupportPass: false,
     ticketPrefix: 'GAL',
@@ -165,5 +177,36 @@ export function quote(
     total: subtotal - groupDiscount + supportTotal,
   };
 }
+
+// Pay in 3: single-pass orders only. The amounts are fixed when the order is created, so a
+// buyer who starts before an early bird deadline keeps that price while they stay on schedule.
+export type PaymentPlan = 'full' | 'instalments';
+export type Instalment = { n: number; amount: number; dueAt: string };
+
+const INSTALMENT_STEPS = [
+  { percent: 50, afterDays: 0 },
+  { percent: 25, afterDays: 30 },
+  { percent: 25, afterDays: 60 },
+] as const;
+
+export const INSTALMENT_PLAN_UNTIL = '2027-08-01T00:00:00+01:00';
+export const INSTALMENT_GRACE_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export const instalmentsAvailable = (quantity: number, now: Date = new Date()) =>
+  quantity === 1 && now < new Date(INSTALMENT_PLAN_UNTIL);
+
+export function instalmentSchedule(total: number, start: Date = new Date()): Instalment[] {
+  let remaining = total;
+  return INSTALMENT_STEPS.map((step, i) => {
+    // The last payment takes whatever is left, so the three always add up to the total.
+    const amount = i === INSTALMENT_STEPS.length - 1 ? remaining : Math.round((total * step.percent) / 100);
+    remaining -= amount;
+    return { n: i + 1, amount, dueAt: new Date(start.getTime() + step.afterDays * DAY_MS).toISOString() };
+  });
+}
+
+export const formatDueDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Lagos' });
 
 export const formatNaira = (n: number) => `₦${Math.round(n).toLocaleString('en-NG')}`;
