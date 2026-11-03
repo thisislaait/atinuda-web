@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -44,8 +45,12 @@ const passLabel = (type: string) => (/pass|access|gala/i.test(type) ? type : `${
 function Invitation({ order, downloadUrl }: { order: OrderState; downloadUrl: string }) {
   const many = order.tickets.length > 1;
   return (
+    <>
+    <div className="co-invite-scene" aria-hidden="true">
+      <Image src="/assets/images/summit/new-images/invitation-backdrop.jpg" alt="" fill sizes="100vw" priority style={{ objectFit: 'cover', objectPosition: 'center top' }} />
+    </div>
     <div className="co-invite-page">
-      <p className="co-invite-intro">You are confirmed. Your {many ? 'invitations are' : 'invitation is'} below, and we have emailed your pass details to {order.buyerEmail}.</p>
+      <p className="co-invite-intro">You are confirmed. We email your pass details to {order.buyerEmail}.</p>
       <div className="co-invite-list">
         {order.tickets.map((t) => (
           <article className="co-invite" key={t.ticketNumber} aria-label={`Invitation for ${t.name || 'your guest'}`}>
@@ -73,6 +78,7 @@ function Invitation({ order, downloadUrl }: { order: OrderState; downloadUrl: st
         <p className="co-invite-note">To name a guest, reply to your confirmation email with their name and email.</p>
       )}
     </div>
+    </>
   );
 }
 

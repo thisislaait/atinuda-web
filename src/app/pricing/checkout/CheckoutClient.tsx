@@ -833,27 +833,38 @@ export const CSS = `
   @font-face { font-family: 'InviteScript'; src: url('/assets/fonts/PinyonScript-Regular.ttf') format('truetype'); font-display: swap; }
   @font-face { font-family: 'InviteDisplay'; src: url('/assets/fonts/CormorantGaramond-Medium.ttf') format('truetype'); font-display: swap; }
   @font-face { font-family: 'InvitePlain'; src: url('/assets/fonts/FuturaPT-Light.ttf') format('truetype'); font-display: swap; }
-  .co-invite-page { max-width: 460px; margin: 0 auto; text-align: center; display: grid; gap: 20px; justify-items: center; }
-  .co-invite-intro { font-size: 15px; line-height: 1.6; color: #5A615C; max-width: 420px; overflow-wrap: anywhere; }
-  .co-invite-list { width: 100%; display: grid; gap: 24px; }
-  .co-invite { position: relative; width: 100%; aspect-ratio: 420 / 595; background: #F4F5F3; container-type: inline-size; box-shadow: 0 1px 2px rgba(15,15,15,0.06), 0 28px 56px -28px rgba(15,15,15,0.28); overflow: hidden; }
-  .co-invite-arch { position: absolute; inset: 6.67cqw 6.67cqw 6.67cqw; border: 0.17cqw solid #9E6E12; border-radius: 50cqw 50cqw 0 0; }
-  .co-invite-body { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 15cqw 16cqw 0; font-family: 'InvitePlain', "Hanken Grotesk", sans-serif; color: #1B1E1C; }
+  .co-page:has(.co-invite-scene) { position: relative; isolation: isolate; }
+  .co-invite-scene { position: fixed; inset: 0; z-index: 0; background: #0B1A4A; }
+  .co-invite-scene::after { content: ''; position: absolute; inset: 0; background: rgba(8,12,30,0.08); }
+  body:has(.co-invite-scene) header { display: none; }
+  .co-wrap.co-done:has(.co-invite-page) { padding-top: 20px; padding-bottom: 20px; }
+  .co-page:has(.co-invite-scene) { padding-bottom: 0; }
+  /* The card shrinks with the screen, so the download button stays in view without scrolling. */
+  .co-invite-page { position: relative; z-index: 1; --card: min(460px, 100%, max(300px, calc((100vh - 160px) * 0.706))); --card: min(460px, 100%, max(300px, calc((100svh - 160px) * 0.706))); max-width: 560px; margin: 0 auto; text-align: center; display: grid; gap: 14px; justify-items: center; }
+  .co-invite-intro { box-sizing: border-box; margin: 0; padding: 7px 16px; background: rgba(244,245,243,0.94); border-radius: 6px; font-size: 13px; line-height: 1.45; color: #1B1E1C; overflow-wrap: anywhere; }
+  .co-invite-list { width: var(--card); display: grid; gap: 24px; }
+  .co-invite { position: relative; width: 100%; aspect-ratio: 420 / 595; container-type: inline-size; overflow: hidden; border-radius: 6px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.14) 0%, rgba(14,20,44,0.42) 32%, rgba(14,20,44,0.5) 100%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+    border: 1px solid rgba(255,255,255,0.38); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 32px 64px -20px rgba(0,0,0,0.6); box-sizing: border-box; }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .co-invite { background: rgba(14,20,44,0.9); } }
+  .co-invite-arch { position: absolute; inset: 6.67cqw 6.67cqw 6.67cqw; border: 0.17cqw solid rgba(240,212,150,0.75); border-radius: 50cqw 50cqw 0 0; }
+  .co-invite-body { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 13cqw 13cqw 0; font-family: 'InvitePlain', "Hanken Grotesk", sans-serif; color: #fff; }
   .co-invite-body p { margin: 0; }
-  .co-invite-glyph { width: 9.5cqw; height: 9.5cqw; }
-  .co-invite-brand { font-family: 'InviteDisplay', Georgia, serif; font-size: 5.24cqw; letter-spacing: 0.23em; margin: 1.6cqw 0 0 0.23em !important; color: #9E6E12; line-height: 1.2; }
-  .co-invite-small { font-size: 2.74cqw; color: #5A615C; line-height: 1.3; }
+  .co-invite-glyph { width: 9.5cqw; height: 9.5cqw; filter: brightness(1.75) saturate(0.75); }
+  .co-invite-brand { font-family: 'InviteDisplay', Georgia, serif; font-size: 5.24cqw; letter-spacing: 0.23em; margin: 1.6cqw 0 0 0.23em !important; color: #F0D496; line-height: 1.2; }
+  .co-invite-small { font-size: max(2.74cqw, 11.5px); color: #fff; line-height: 1.3; }
   .co-invite-brand + .co-invite-small { margin-top: 3.4cqw !important; }
-  .co-invite-name { font-family: 'InviteScript', 'Snell Roundhand', cursive; font-size: 9cqw; line-height: 1.15; margin: 3.6cqw 0 3.4cqw !important; color: #1B1E1C; overflow-wrap: anywhere; }
-  .co-invite-event { font-family: 'InviteDisplay', Georgia, serif; font-size: 8.1cqw; color: #9E6E12; line-height: 1.1; margin-top: 3.4cqw !important; }
-  .co-invite-strap { font-size: 2.62cqw; line-height: 1.36; color: #5A615C; margin-top: 2cqw !important; max-width: 50cqw; }
-  .co-invite-when { font-size: 3.57cqw; line-height: 1.33; margin-top: 4.4cqw !important; }
-  .co-invite-rule { width: 11.4cqw; height: 0; border-top: 0.15cqw solid #9E6E12; margin-top: 4cqw; }
+  .co-invite-name { font-family: 'InviteScript', 'Snell Roundhand', cursive; font-size: 9cqw; line-height: 1.15; margin: 3.6cqw 0 3.4cqw !important; color: #fff; overflow-wrap: anywhere; }
+  .co-invite-event { font-family: 'InviteDisplay', Georgia, serif; font-size: 8.1cqw; color: #F0D496; line-height: 1.1; margin-top: 3.4cqw !important; }
+  .co-invite-strap { font-size: max(2.62cqw, 11px); line-height: 1.36; color: #fff; margin-top: 2cqw !important; max-width: 62cqw; }
+  .co-invite-when { font-size: max(3.57cqw, 13px); line-height: 1.33; margin-top: 4.4cqw !important; }
+  .co-invite-rule { width: 11.4cqw; height: 0; border-top: 0.15cqw solid #F0D496; margin-top: 4cqw; }
   .co-invite-pass { font-family: 'InviteDisplay', Georgia, serif; font-size: 4.29cqw; margin-top: 3.8cqw !important; }
-  .co-invite-number { font-size: 2.38cqw; color: #5A615C; margin-top: 1.2cqw !important; }
-  .co-invite-test { font-size: 2.62cqw; color: #9E6E12; margin-top: 1.4cqw !important; }
-  .co-invite-download { display: block; text-align: center; text-decoration: none; width: 100%; box-sizing: border-box; margin: 0; }
-  .co-invite-note { font-size: 13px; line-height: 1.6; color: #5A615C; overflow-wrap: anywhere; }
+  .co-invite-number { font-size: max(2.38cqw, 10.5px); color: #fff; margin-top: 1.2cqw !important; }
+  .co-invite-test { font-size: max(2.62cqw, 11px); color: #fff; margin-top: 1.4cqw !important; }
+  .co-invite-download { display: block; text-align: center; text-decoration: none; width: var(--card) !important; box-sizing: border-box; margin: 0 !important; padding-top: 14px !important; padding-bottom: 14px !important; background: #F4F5F3 !important; color: #1B1E1C !important; }
+  .co-invite-note { font-size: 13px; line-height: 1.6; color: #fff; overflow-wrap: anywhere; text-shadow: 0 1px 10px rgba(0,0,0,0.5); }
   .co-preset.co-method-off:disabled { opacity: 0.45; cursor: not-allowed; }
   .co-status { max-width: 620px; margin: 0 auto; background: #FBFBF9; border: 1px solid #E4E7E4; border-radius: 6px; box-shadow: 0 2px 4px rgba(15,15,15,0.03), 0 24px 48px -28px rgba(15,15,15,0.18); padding: clamp(28px, 5vw, 48px); }
   .co-status-title { font-size: clamp(2.1rem, 5vw, 3rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: #1B1E1C; margin: 0 0 14px; }

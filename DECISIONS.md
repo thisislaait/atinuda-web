@@ -69,7 +69,7 @@ Instalments are allowed; staff track them on a spreadsheet and confirm each paym
 
 ## Invitations
 
-A confirmed order's private page shows each ticket as an invitation, downloadable as an A5 PDF from `/api/checkout/invitation`. Pinyon Script sets the guest's name and Cormorant Garamond the headings, both under the SIL Open Font License. Saol isn't used because its WOFF2 files don't embed cleanly and its licence may not cover PDFs. Names with letters the script lacks fall back to another font, so no letter prints blank. Orders paid through Flutterwave in one go have no private token, so they need one added before they can download an invitation.
+A confirmed order's private page shows each ticket as an invitation, downloadable as an A5 PDF from `/api/checkout/invitation`. Pinyon Script sets the guest's name and Cormorant Garamond the headings, both under the SIL Open Font License. Saol isn't used because its WOFF2 files don't embed cleanly and its licence may not cover PDFs. On screen the invitation is smoked glass with light text over an event photograph, at the owner's request (3 November 2026). The PDF stays plain paper, because it may be printed. Names with letters the script lacks fall back to another font, so no letter prints blank. Orders paid through Flutterwave in one go have no private token, so they need one added before they can download an invitation.
 
 ## Project-specific overrides of the house design system
 
