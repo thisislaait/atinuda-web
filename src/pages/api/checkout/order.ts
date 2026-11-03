@@ -80,8 +80,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     phone: clean(body.buyer?.phone, 30),
     company: clean(body.buyer?.company),
   };
-  if (!buyer.name || !EMAIL_RE.test(buyer.email) || buyer.phone.length < 7) {
-    return res.status(400).json({ ok: false, message: 'Your name, a valid email and a phone number are required.' });
+  if (!buyer.name || !EMAIL_RE.test(buyer.email) || buyer.phone.length < 7 || !buyer.company) {
+    return res.status(400).json({ ok: false, message: 'Your name, a valid email, a phone number and your company are required.' });
   }
   if (q.product.kind === 'test' && !STAFF_EMAILS.includes(buyer.email)) {
     return res.status(403).json({ ok: false, message: 'This pass is for staff testing only.' });

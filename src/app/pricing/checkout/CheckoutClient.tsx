@@ -113,6 +113,7 @@ export default function CheckoutClient() {
     name: !buyer.name.trim() ? 'Enter your full name' : '',
     email: !EMAIL_RE.test(buyer.email.trim()) ? 'Enter a valid email address' : '',
     phone: buyer.phone.replace(/\D/g, '').length < 7 ? 'Enter a phone number' : '',
+    company: !buyer.company.trim() ? 'Enter your company' : '',
   };
   const seatErrors = seats.map((s) => (s.email.trim() && !EMAIL_RE.test(s.email.trim()) ? 'Check this email' : ''));
   const hasErrors = Object.values(fieldErrors).some(Boolean) || seatErrors.some(Boolean);
@@ -261,7 +262,7 @@ export default function CheckoutClient() {
     return <PlaceHeld schedule={heldSchedule} email={buyer.email} orderRef={orderRef} productName={product.name} />;
   }
   if (stage === 'done') {
-    return <Confirmation tickets={tickets} email={buyer.email} orderRef={orderRef} />;
+    return <Confirmation tickets={tickets} email={buyer.email} />;
   }
 
   const payLabel =
@@ -430,7 +431,7 @@ export default function CheckoutClient() {
               <Field label="Full name" value={buyer.name} autoComplete="name" error={showErrors ? fieldErrors.name : ''} onChange={(v) => setBuyer({ ...buyer, name: v })} />
               <Field label="Email" type="email" value={buyer.email} autoComplete="email" error={showErrors ? fieldErrors.email : ''} onChange={(v) => setBuyer({ ...buyer, email: v })} />
               <Field label="Phone" type="tel" value={buyer.phone} autoComplete="tel" error={showErrors ? fieldErrors.phone : ''} onChange={(v) => setBuyer({ ...buyer, phone: v })} />
-              <Field label="Company (optional)" value={buyer.company} autoComplete="organization" onChange={(v) => setBuyer({ ...buyer, company: v })} />
+              <Field label="Company" value={buyer.company} autoComplete="organization" error={showErrors ? fieldErrors.company : ''} onChange={(v) => setBuyer({ ...buyer, company: v })} />
             </div>
 
             <div className="co-attendees">
@@ -797,7 +798,7 @@ function PlaceHeld({ schedule, email, orderRef, productName }: { schedule: Sched
   );
 }
 
-function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: string; orderRef: string }) {
+function Confirmation({ tickets, email }: { tickets: Ticket[]; email: string }) {
   const unassigned = tickets.filter((t) => !t.name).length;
   return (
     <div id="nohero" className="co-page">
@@ -821,7 +822,6 @@ function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: 
           ))}
         </div>
 
-        <p style={{ fontSize: '13px', color: '#8D948E', marginTop: '24px' }}>Order reference {orderRef}</p>
         <Link href="/pricing" className="co-back" style={{ display: 'inline-block', marginTop: '40px' }}>← Back to passes</Link>
       </div>
       <style>{CSS}</style>
@@ -830,7 +830,50 @@ function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: 
 }
 
 export const CSS = `
+  @font-face { font-family: 'InviteScript'; src: url('/assets/fonts/PinyonScript-Regular.ttf') format('truetype'); font-display: swap; }
+  @font-face { font-family: 'InviteDisplay'; src: url('/assets/fonts/CormorantGaramond-Medium.ttf') format('truetype'); font-display: swap; }
+  @font-face { font-family: 'InvitePlain'; src: url('/assets/fonts/FuturaPT-Light.ttf') format('truetype'); font-display: swap; }
+  .co-invite-page { max-width: 460px; margin: 0 auto; text-align: center; display: grid; gap: 20px; justify-items: center; }
+  .co-invite-intro { font-size: 15px; line-height: 1.6; color: #5A615C; max-width: 420px; overflow-wrap: anywhere; }
+  .co-invite-list { width: 100%; display: grid; gap: 24px; }
+  .co-invite { position: relative; width: 100%; aspect-ratio: 420 / 595; background: #F4F5F3; container-type: inline-size; box-shadow: 0 1px 2px rgba(15,15,15,0.06), 0 28px 56px -28px rgba(15,15,15,0.28); overflow: hidden; }
+  .co-invite-arch { position: absolute; inset: 6.67cqw 6.67cqw 6.67cqw; border: 0.17cqw solid #9E6E12; border-radius: 50cqw 50cqw 0 0; }
+  .co-invite-body { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 15cqw 16cqw 0; font-family: 'InvitePlain', "Hanken Grotesk", sans-serif; color: #1B1E1C; }
+  .co-invite-body p { margin: 0; }
+  .co-invite-glyph { width: 9.5cqw; height: 9.5cqw; }
+  .co-invite-brand { font-family: 'InviteDisplay', Georgia, serif; font-size: 5.24cqw; letter-spacing: 0.23em; margin: 1.6cqw 0 0 0.23em !important; color: #9E6E12; line-height: 1.2; }
+  .co-invite-small { font-size: 2.74cqw; color: #5A615C; line-height: 1.3; }
+  .co-invite-brand + .co-invite-small { margin-top: 3.4cqw !important; }
+  .co-invite-name { font-family: 'InviteScript', 'Snell Roundhand', cursive; font-size: 9cqw; line-height: 1.15; margin: 3.6cqw 0 3.4cqw !important; color: #1B1E1C; overflow-wrap: anywhere; }
+  .co-invite-event { font-family: 'InviteDisplay', Georgia, serif; font-size: 8.1cqw; color: #9E6E12; line-height: 1.1; margin-top: 3.4cqw !important; }
+  .co-invite-strap { font-size: 2.62cqw; line-height: 1.36; color: #5A615C; margin-top: 2cqw !important; max-width: 50cqw; }
+  .co-invite-when { font-size: 3.57cqw; line-height: 1.33; margin-top: 4.4cqw !important; }
+  .co-invite-rule { width: 11.4cqw; height: 0; border-top: 0.15cqw solid #9E6E12; margin-top: 4cqw; }
+  .co-invite-pass { font-family: 'InviteDisplay', Georgia, serif; font-size: 4.29cqw; margin-top: 3.8cqw !important; }
+  .co-invite-number { font-size: 2.38cqw; color: #5A615C; margin-top: 1.2cqw !important; }
+  .co-invite-test { font-size: 2.62cqw; color: #9E6E12; margin-top: 1.4cqw !important; }
+  .co-invite-download { display: block; text-align: center; text-decoration: none; width: 100%; box-sizing: border-box; margin: 0; }
+  .co-invite-note { font-size: 13px; line-height: 1.6; color: #5A615C; overflow-wrap: anywhere; }
   .co-preset.co-method-off:disabled { opacity: 0.45; cursor: not-allowed; }
+  .co-status { max-width: 620px; margin: 0 auto; background: #FBFBF9; border: 1px solid #E4E7E4; border-radius: 6px; box-shadow: 0 2px 4px rgba(15,15,15,0.03), 0 24px 48px -28px rgba(15,15,15,0.18); padding: clamp(28px, 5vw, 48px); }
+  .co-status-title { font-size: clamp(2.1rem, 5vw, 3rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: #1B1E1C; margin: 0 0 14px; }
+  .co-status-lede { font-size: 16px; line-height: 1.6; color: #5A615C; }
+  .co-status-lede strong { font-weight: 600; color: #1B1E1C; overflow-wrap: anywhere; }
+  .co-track { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 0; }
+  .co-track li { position: relative; display: flex; align-items: center; gap: 14px; padding: 9px 0; font-size: 15px; color: #1B1E1C; }
+  .co-track li:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 33px; bottom: -9px; width: 1px; background: #DBDFDB; }
+  .co-track li.co-track-done:not(:last-child)::after { background: #28503E; }
+  .co-track-dot { flex: 0 0 23px; height: 23px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 1px solid #DBDFDB; background: #FBFBF9; color: #fff; }
+  .co-track-done .co-track-dot { background: #28503E; border-color: #28503E; }
+  .co-track-now { font-weight: 600; }
+  .co-track-now .co-track-dot { border: 2px solid ${COPPER}; box-shadow: inset 0 0 0 4px #FBFBF9; background: ${COPPER}; }
+  .co-track-next { color: #5A615C !important; }
+  .co-status-details { margin-top: 28px; max-width: none; }
+  .co-bank.co-status-details > div:last-child { border-bottom: 0; }
+  .co-status-schedule { margin-top: 12px; }
+  .co-status-foot { font-size: 13px; line-height: 1.6; color: #5A615C; margin-top: 24px; padding-top: 20px; border-top: 1px solid #E4E7E4; }
+  .co-status-foot a { color: #1B1E1C; }
+  @media (max-width: 560px) { .co-bank.co-status-details > div { grid-template-columns: 92px minmax(0, 1fr) auto; gap: 8px; font-size: 14px; } }
   .co-shot { margin-top: 20px; padding: 12px 14px; background: #FBF2DD; border-left: 3px solid #C8860A; font-size: 14px; font-weight: 600; line-height: 1.5; color: #1B1E1C; max-width: 560px; }
   .co-receipt { display: grid; gap: 6px; margin-top: 20px; padding: 16px; border: 1px solid #1B1E1C; max-width: 560px; cursor: pointer; }
   .co-receipt-title { font-size: 15px; font-weight: 600; color: #1B1E1C; }

@@ -77,9 +77,9 @@ const csvCell = (value: string | number) => {
 };
 
 function downloadCsv(rows: PaymentRow[]) {
-  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Paid as', 'Paid by', 'Confirmed by', 'Order reference', 'Flutterwave ID', 'Booking'];
+  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Paid as', 'Paid by', 'Confirmed by', 'Ticket email', 'Order reference', 'Flutterwave ID', 'Booking'];
   const lines = rows.map((r) =>
-    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.paidAs, r.channel, r.confirmedBy, r.orderRef, r.flwTransactionId, r.booking]
+    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.paidAs, r.channel, r.confirmedBy, r.ticketEmail ?? '', r.orderRef, r.flwTransactionId, r.booking]
       .map(csvCell)
       .join(','),
   );
@@ -242,6 +242,7 @@ function PaymentDrawer({ row, onClose, onReceipt }: { row: PaymentRow; onClose: 
     ['Paid by', row.channel],
     ...(row.paidAs ? ([['Paid as', row.paidAs]] as [string, string][]) : []),
     ...(row.confirmedBy ? ([['Confirmed by', row.confirmedBy]] as [string, string][]) : []),
+    ...(row.ticketEmail ? ([['Ticket email', row.ticketEmail]] as [string, string][]) : []),
     ['Booking', row.booking],
     ['Reference', row.orderRef],
     ['Flutterwave ID', row.flwTransactionId || 'Not recorded'],
@@ -293,7 +294,7 @@ function PaymentsTable({ rows, onOpen }: { rows: PaymentRow[]; onOpen: (r: Payme
   return (
     <table className="sa-table">
       <thead>
-        <tr><th>Buyer</th><th>Pass</th><th>Payment</th><th>Date</th><th className="sa-num">Amount</th></tr>
+        <tr><th>Buyer</th><th>Company and phone</th><th>Pass</th><th>Payment</th><th>Date</th><th className="sa-num">Amount</th></tr>
       </thead>
       <tbody>
         {rows.map((r) => (
@@ -301,6 +302,10 @@ function PaymentsTable({ rows, onOpen }: { rows: PaymentRow[]; onOpen: (r: Payme
             <td className="sa-td-buyer">
               <button className="sa-buyer" onClick={(e) => { e.stopPropagation(); onOpen(r); }}>{r.buyerName}</button>
               <span className="sa-subline">{r.buyerEmail}</span>
+            </td>
+            <td className="sa-td-company">
+              <span className="sa-company">{r.company || 'Company not given'}</span>
+              <span className="sa-subline">{r.buyerPhone}</span>
             </td>
             <td className="sa-td-pass">{r.pass}{r.quantity > 1 ? ` × ${r.quantity}` : ''}</td>
             <td className="sa-td-status">{paymentPill(r)}</td>
@@ -313,7 +318,16 @@ function PaymentsTable({ rows, onOpen }: { rows: PaymentRow[]; onOpen: (r: Payme
   );
 }
 
-function FlagItem({ item }: { item: AttentionItem }) {
+function FlagItem({ item, onResend }: { item: AttentionItem; onResend: (orderRef: string) => Promise<string | null> }) {
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  const resend = async () => {
+    setBusy(true);
+    setProblem('');
+    const failure = await onResend(item.orderRef);
+    setBusy(false);
+    if (failure) setProblem(failure);
+  };
   return (
     <div className="sa-flag">
       <div className="sa-flag-head">
@@ -322,7 +336,13 @@ function FlagItem({ item }: { item: AttentionItem }) {
       </div>
       <p className="sa-flag-name">{item.buyerName}, {item.pass}</p>
       <p className="sa-flag-note">{item.note}</p>
-      <p className="sa-flag-contact">{item.buyerEmail}, {item.buyerPhone}</p>
+      <p className="sa-flag-contact">{item.company || 'Company not given'}, {item.buyerPhone}, {item.buyerEmail}</p>
+      {item.resend && (
+        <div className="sa-transfer-actions">
+          <button className="sa-btn" onClick={resend} disabled={busy}>{busy ? 'Sending…' : 'Resend ticket email'}</button>
+        </div>
+      )}
+      {problem && <p className="sa-error" role="alert">{problem}</p>}
     </div>
   );
 }
@@ -375,7 +395,7 @@ function TransferItem({ item, onConfirm, onReceipt }: { item: AwaitingTransfer; 
         {item.payment}. Look in {item.bank} for a transfer from <b>{item.buyerName}</b>
         {item.send !== formatNaira(item.naira) ? `, counted as ${formatNaira(item.naira)}` : ''}. {item.note} Reference {item.orderRef}.
       </p>
-      <p className="sa-flag-contact">{item.buyerEmail}, {item.buyerPhone}</p>
+      <p className="sa-flag-contact">{item.company || 'Company not given'}, {item.buyerPhone}, {item.buyerEmail}</p>
       <div className="sa-transfer-actions">
         {item.receiptKey && (
           <button className="sa-btn" onClick={() => onReceipt({ orderRef: item.orderRef, key: item.receiptKey!, buyerName: item.buyerName })}>View receipt</button>
@@ -488,7 +508,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
       if (typeFilter === 'full' && r.payment !== 'Paid in full') return false;
       if (typeFilter === 'instalments' && r.payment === 'Paid in full') return false;
       if (typeFilter === 'cancelled' && r.booking !== 'Cancelled') return false;
-      return !q || [r.buyerName, r.buyerEmail, r.buyerPhone, r.orderRef, r.pass].some((v) => v.toLowerCase().includes(q));
+      return !q || [r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.orderRef, r.pass].some((v) => v.toLowerCase().includes(q));
     });
   }, [inRange, query, typeFilter]);
 
@@ -546,6 +566,24 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
       : `Flutterwave check, last ${comparison.days} days: ${comparison.matched} matched, ${unrecorded.length} not recorded.${comparison.partial ? ' Flutterwave returned only part of its records, so this is incomplete.' : ''}${comparison.otherCount > 0 ? ` ${plural(comparison.otherCount, 'other payment')} on the account (${formatNaira(comparison.otherNaira)} in naira) came from outside this checkout and are not counted here.` : ''}`;
 
   const titles: Record<View, string> = { overview: 'Overview', transfers: 'Bank transfers', payments: 'Payments', attention: 'Needs attention' };
+
+  const resendTickets = async (orderRef: string): Promise<string | null> => {
+    if (sample) return 'This is a preview, so nothing was sent.';
+    if (!user) return 'Please sign in again.';
+    try {
+      const resp = await fetch('/api/staff/resend-tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await user.getIdToken()}` },
+        body: JSON.stringify({ orderRef }),
+      });
+      const json = await resp.json();
+      if (!resp.ok || !json.ok) return json.message || 'The email did not send. Try again shortly.';
+      await load(user);
+      return null;
+    } catch {
+      return 'The email may not have sent. Refresh and check before trying again.';
+    }
+  };
 
   const confirmItem = async (item: AwaitingTransfer): Promise<string | null> => {
     if (sample) return 'This is a preview, so nothing was confirmed.';
@@ -690,7 +728,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                       {attentionCount === 0 && <p className="sa-empty">Nothing to follow up.</p>}
                       <div className="sa-flags">
                         {unrecorded.slice(0, 3).map((m) => <UnrecordedItem key={m.id} item={m} />)}
-                        {attention.slice(0, Math.max(0, 3 - unrecorded.length)).map((a) => <FlagItem key={a.id} item={a} />)}
+                        {attention.slice(0, Math.max(0, 3 - unrecorded.length)).map((a) => <FlagItem key={a.id} item={a} onResend={resendTickets} />)}
                       </div>
                     </section>
 
@@ -726,7 +764,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                   <input
                     className="sa-search"
                     type="search"
-                    placeholder="Search name, email, phone or reference"
+                    placeholder="Search name, company, email, phone or reference"
                     aria-label="Search payments"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -762,7 +800,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                 {attentionCount === 0 && <p className="sa-empty" style={{ paddingTop: 20 }}>Nothing to follow up.</p>}
                 <div className="sa-flags">
                   {unrecorded.map((m) => <UnrecordedItem key={m.id} item={m} />)}
-                  {attention.map((a) => <FlagItem key={a.id} item={a} />)}
+                  {attention.map((a) => <FlagItem key={a.id} item={a} onResend={resendTickets} />)}
                 </div>
                 <p className="sa-check" role="status">{compareLine}</p>
               </section>

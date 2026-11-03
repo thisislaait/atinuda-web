@@ -3,7 +3,7 @@
 // tickets only when the final instalment clears.
 // Used by both the browser confirmation (/api/checkout/confirm) and the Flutterwave webhook
 // (/api/checkout/webhook). Idempotent: whichever arrives second gets the existing result.
-import { randomBytes } from 'crypto';
+import { randomBytes, timingSafeEqual } from 'crypto';
 import nodemailer from 'nodemailer';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 import {
@@ -59,6 +59,8 @@ export type OrderDoc = {
   confirmedBy?: string;
   // Keyed by instalment number, or 'full' for an order paid in one go.
   receipts?: Record<string, { path: string; contentType: string; size: number; uploadedAt: string }>;
+  // Whether the buyer's tickets actually left. 'sending' that never changes means the send was cut off.
+  ticketEmail?: { status: 'sending' | 'sent' | 'failed'; at: string; error?: string };
 };
 
 export type IssuedTicket = { ticketNumber: string; ticketType: string; name: string; email: string };
@@ -91,6 +93,18 @@ const ATTEMPT_RE = /^(ATN7-[A-Z0-9]+-[A-F0-9]{6})-P([1-9])-[A-F0-9]+$/;
 
 export const instalmentAttemptRef = (orderId: string, n: number) =>
   `${orderId}-P${n}-${randomBytes(3).toString('hex').toUpperCase()}`;
+
+const ORDER_RE = /^ATN7-[A-Z0-9]+-[A-F0-9]{6}$/;
+
+// The order behind a private link, or null if the reference or token is wrong.
+export async function orderForToken(orderId: unknown, token: unknown): Promise<OrderDoc | null> {
+  if (typeof orderId !== 'string' || !ORDER_RE.test(orderId) || typeof token !== 'string' || !token) return null;
+  const order = (await adminDb.collection('orders').doc(orderId).get()).data() as OrderDoc | undefined;
+  if (!order?.payToken) return null;
+  const a = Buffer.from(token);
+  const b = Buffer.from(order.payToken);
+  return a.length === b.length && timingSafeEqual(a, b) ? order : null;
+}
 
 export const payLink = (order: Pick<OrderDoc, 'txRef' | 'payToken'>) =>
   `${SITE_URL}/pricing/pay?order=${encodeURIComponent(order.txRef)}&t=${order.payToken}`;
@@ -222,7 +236,7 @@ export async function fulfilOrder(txRef: string, transactionId: string | number)
 
   if (result.issued) {
     // Awaited so serverless functions don't freeze before the email is handed off.
-    await sendConfirmation(order, result.tickets).catch((err) => console.warn('fulfilOrder: email failed', err));
+    await deliverTickets(order, result.tickets);
   }
 
   return { ok: true, tickets: result.tickets };
@@ -294,7 +308,7 @@ async function fulfilInstalment(
       await recordReview(outcome.order, { ...entry, reason: 'paid after cancellation' });
       return manualCheck;
     case 'complete':
-      await sendConfirmation(outcome.order, tickets).catch((err) => console.warn('fulfilInstalment: email failed', err));
+      await deliverTickets(outcome.order, tickets);
       return replay(outcome.order);
     case 'progress':
       await sendInstalmentReceipt(outcome.order, target).catch((err) => console.warn('fulfilInstalment: email failed', err));
@@ -367,12 +381,32 @@ export async function sendInstalmentReceipt(order: OrderDoc, paid: Instalment) {
   );
 }
 
+// Sends the tickets and records what happened, so staff can see a failure and resend. Never
+// throws: the payment and tickets are already saved, whatever happens to the email.
+export async function deliverTickets(order: OrderDoc, tickets: IssuedTicket[]) {
+  const ref = adminDb.collection('orders').doc(order.txRef);
+  const record = (ticketEmail: NonNullable<OrderDoc['ticketEmail']>) =>
+    ref.set({ ticketEmail }, { merge: true }).catch((err) => console.error('deliverTickets: could not record', order.txRef, err));
+
+  await record({ status: 'sending', at: new Date().toISOString() });
+  try {
+    const sent = await sendConfirmation(order, tickets);
+    if (!sent) throw new Error('Email is not configured');
+    await record({ status: 'sent', at: new Date().toISOString() });
+    return true;
+  } catch (err) {
+    console.error('deliverTickets: email failed', order.txRef, err);
+    await record({ status: 'failed', at: new Date().toISOString(), error: String(err instanceof Error ? err.message : err).slice(0, 300) });
+    return false;
+  }
+}
+
 export async function sendConfirmation(order: OrderDoc, tickets: IssuedTicket[]) {
   const rows = tickets
     .map((t) => `<tr><td style="padding:6px 16px 6px 0;font-family:monospace">${t.ticketNumber}</td><td style="padding:6px 16px 6px 0">${t.ticketType}</td><td style="padding:6px 0">${t.name ? esc(t.name) : 'To be assigned'}</td></tr>`)
     .join('');
 
-  await sendMail(
+  return sendMail(
     order.buyer.email,
     `Your ${EVENT_LABEL} passes are confirmed`,
     `
@@ -380,7 +414,7 @@ export async function sendConfirmation(order: OrderDoc, tickets: IssuedTicket[])
         <p>Hello ${esc(order.buyer.name)},</p>
         <p>Your payment of ${buyerAmount(order)} is confirmed. ${EVENT_LABEL} takes place on ${EVENT_WHEN} in ${EVENT_WHERE}.</p>
         <table style="border-collapse:collapse;font-size:14px;margin:16px 0">${rows}</table>
-        <p>Order reference: <strong>${order.txRef}</strong></p>
+        ${order.payToken ? `<p><a href="${payLink(order)}" style="color:#1B1E1C">View and download your invitation</a>. This link is private to you.</p>` : ''}
         <p>To assign unnamed passes, reply to this email with each attendee's name and email.</p>
         <p>Atinuda</p>
       </div>`,

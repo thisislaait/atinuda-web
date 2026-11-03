@@ -5,10 +5,10 @@ import { BANK_ACCOUNTS, EVENT_LABEL, TRANSFER_HOLD_DAYS, formatDueDate } from '@
 import {
   buildTickets,
   buyerAmount,
+  deliverTickets,
   esc,
   nextInstalment,
   payLink,
-  sendConfirmation,
   sendInstalmentReceipt,
   sendMail,
   writeTickets,
@@ -156,7 +156,7 @@ export async function confirmTransfer(orderRef: string, n: number | null, staff:
     case 'already':
       return { ok: true, already: true };
     case 'complete':
-      await sendConfirmation(outcome.order, outcome.tickets).catch((err) => console.warn('confirmTransfer: email failed', err));
+      await deliverTickets(outcome.order, outcome.tickets);
       return { ok: true, already: false };
     case 'progress':
       await sendInstalmentReceipt(outcome.order, outcome.paid).catch((err) => console.warn('confirmTransfer: email failed', err));

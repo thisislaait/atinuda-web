@@ -2,16 +2,13 @@
 // A buyer attaches their transfer receipt, using their order's private token. Replacing it is
 // allowed until they have told us the transfer is made.
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { timingSafeEqual } from 'crypto';
 import { adminDb } from '@/utils/firebaseAdmin';
-import { nextInstalment, type OrderDoc } from '@/lib/atinuda7Fulfil';
+import { nextInstalment, orderForToken } from '@/lib/atinuda7Fulfil';
 import { receiptKey } from '@/lib/atinuda7Transfers';
 import { MAX_RECEIPT_BYTES, deleteReceipt, detectReceiptType, saveReceipt } from '@/lib/transferReceipts';
 
 // The body is the raw file.
 export const config = { api: { bodyParser: false } };
-
-const ORDER_RE = /^ATN7-[A-Z0-9]+-[A-F0-9]{6}$/;
 
 async function readBody(req: NextApiRequest) {
   const parts: Buffer[] = [];
@@ -29,19 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method !== 'POST') return res.status(405).json({ ok: false, message: 'Method not allowed' });
   res.setHeader('Cache-Control', 'no-store');
 
-  const { order: orderId, t: token } = req.query;
-  if (typeof orderId !== 'string' || !ORDER_RE.test(orderId) || typeof token !== 'string' || !token) {
-    return res.status(404).json({ ok: false, message: 'This order link is not valid.' });
-  }
+  const orderId = String(req.query.order);
 
   try {
-    const ref = adminDb.collection('orders').doc(orderId);
-    const order = (await ref.get()).data() as OrderDoc | undefined;
-    const a = Buffer.from(token);
-    const b = Buffer.from(order?.payToken ?? '');
-    if (!order || order.method !== 'transfer' || a.length !== b.length || !timingSafeEqual(a, b)) {
+    const order = await orderForToken(req.query.order, req.query.t);
+    if (!order || order.method !== 'transfer') {
       return res.status(404).json({ ok: false, message: 'This order link is not valid.' });
     }
+    const ref = adminDb.collection('orders').doc(orderId);
     const declared = order.plan === 'instalments' ? !!nextInstalment(order)?.declaredAt : !!order.declaredAt;
     if (!['pending', 'part_paid'].includes(order.status) || declared) {
       return res.status(409).json({ ok: false, message: 'This order is not waiting for a receipt.' });

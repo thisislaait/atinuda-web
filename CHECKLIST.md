@@ -75,7 +75,7 @@ The live rule `match /{allPaths=**} { allow read: if true; }` makes the whole bu
 | Deferred item | Bring it in when |
 |---|---|
 | Queue for webhook and email work | Webhook processing regularly exceeds a few seconds, or email failures need retries |
-| Wider audit log | Staff confirmations of bank transfers already write to `auditLog`. Extend it before the first refund, manual ticket change or other staff action |
+| Wider audit log | Staff confirmations of bank transfers already write to `auditLog`. So do ticket email resends. Extend it before the first refund, manual ticket change or other staff action |
 | Feature flags | A risky change needs a staged rollout |
 | Read caching | Pricing or ticket pages become slow or expensive under launch traffic |
 | Public status page | Corporate buyers ask for one |

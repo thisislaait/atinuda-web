@@ -88,6 +88,7 @@ export const CSS = `
   .sa-buyer { display: block; width: 100%; background: none; border: 0; padding: 0; text-align: left; font-weight: 500; overflow-wrap: anywhere; }
   .sa-subline { display: block; color: var(--ink-3); font-size: 13px; overflow-wrap: anywhere; }
   .sa-date { color: var(--ink-2); white-space: nowrap; }
+  .sa-company { display: block; overflow-wrap: anywhere; }
 
   .sa-pill { display: inline-block; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 500; white-space: nowrap; }
   .sa-pill-paid { background: var(--money-bg); color: var(--money); }
@@ -178,9 +179,10 @@ export const CSS = `
     .sa-table td, .sa-table td:first-child, .sa-table td:last-child { padding: 0; border: 0; }
     .sa-td-buyer { grid-column: 1; grid-row: 1; }
     .sa-table td.sa-num { grid-column: 2; grid-row: 1; }
-    .sa-td-pass { grid-column: 1; grid-row: 2; color: var(--ink-2); font-size: 13px; }
-    .sa-td-status { grid-column: 2; grid-row: 2; justify-self: end; }
-    .sa-td-date { grid-column: 1 / -1; grid-row: 3; font-size: 13px; }
+    .sa-td-company { grid-column: 1 / -1; grid-row: 2; font-size: 13px; }
+    .sa-td-pass { grid-column: 1; grid-row: 3; color: var(--ink-2); font-size: 13px; }
+    .sa-td-status { grid-column: 2; grid-row: 3; justify-self: end; }
+    .sa-td-date { grid-column: 1 / -1; grid-row: 4; font-size: 13px; }
     .sa-tools, .sa-phead, .sa-pager { padding-left: 16px; padding-right: 16px; }
     .sa-flag { padding-left: 16px; padding-right: 16px; }
     .sa-check { padding-left: 16px; padding-right: 16px; }

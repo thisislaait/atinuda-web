@@ -3,22 +3,13 @@
 // payment, or with `action: 'declare'` records that the buyer has sent a bank transfer.
 // Amounts always come from the stored order.
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { timingSafeEqual } from 'crypto';
-import { adminDb } from '@/utils/firebaseAdmin';
 import { FLUTTERWAVE_OPEN } from '@/lib/atinuda7Checkout';
-import { instalmentAttemptRef, nextInstalment, publicSchedule, type OrderDoc } from '@/lib/atinuda7Fulfil';
+import { instalmentAttemptRef, nextInstalment, orderForToken, publicSchedule, type OrderDoc } from '@/lib/atinuda7Fulfil';
 import { declareTransfer, transferDue } from '@/lib/atinuda7Transfers';
 
-const ORDER_RE = /^ATN7-[A-Z0-9]+-[A-F0-9]{6}$/;
-
 async function loadOrder(orderId: unknown, token: unknown): Promise<OrderDoc | null> {
-  if (typeof orderId !== 'string' || !ORDER_RE.test(orderId) || typeof token !== 'string' || !token) return null;
-  const snap = await adminDb.collection('orders').doc(orderId).get();
-  const order = snap.data() as OrderDoc | undefined;
-  if (!order?.payToken || (order.plan !== 'instalments' && order.method !== 'transfer')) return null;
-  const a = Buffer.from(token);
-  const b = Buffer.from(order.payToken);
-  return a.length === b.length && timingSafeEqual(a, b) ? order : null;
+  const order = await orderForToken(orderId, token);
+  return order && (order.plan === 'instalments' || order.method === 'transfer') ? order : null;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -44,6 +35,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       status: order.status,
       instalments: publicSchedule(order),
       method: order.method ?? 'flutterwave',
+      buyerEmail: order.buyer.email,
+      tickets: order.status === 'paid' ? order.tickets ?? [] : [],
+      testOnly: order.productId === 'test',
       holdUntil: order.holdUntil ?? null,
       transfer: order.transfer ? { currency: order.transfer.currency, amounts: order.transfer.amounts, due: transferDue(order) } : null,
     });

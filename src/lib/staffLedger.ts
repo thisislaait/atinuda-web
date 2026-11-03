@@ -32,6 +32,7 @@ export type PaymentRow = {
   // What the buyer sent when that isn't naira. `amount` stays in naira so totals add up.
   paidAs: string;
   confirmedBy: string;
+  ticketEmail: 'Sent' | 'Failed' | 'Not confirmed' | null;
 };
 
 // A bank transfer staff should look for. `n` is the instalment, or null for payment in one go.
@@ -43,6 +44,7 @@ export type AwaitingTransfer = {
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string;
+  company: string;
   pass: string;
   naira: number;
   send: string;
@@ -59,10 +61,13 @@ export type AttentionItem = {
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string;
+  company: string;
   pass: string;
   amount: number;
   note: string;
   orderRef: string;
+  // True when staff can send this order's ticket email again from here.
+  resend?: boolean;
 };
 
 export type Ledger = {
@@ -112,6 +117,18 @@ export const addDays = (day: string, n: number) =>
 
 const BANK_LABEL = { NGN: 'GT Bank', USD: 'Access Bank' } as const;
 
+// A send still 'sending' after this long was cut off before it could report back.
+const SENDING_GRACE_MS = 2 * 60 * 1000;
+
+function ticketEmailLabel(o: StaffOrder, now: Date): PaymentRow['ticketEmail'] {
+  if (o.status !== 'paid' || !o.tickets?.length) return null;
+  const email = o.ticketEmail;
+  if (email?.status === 'sent') return 'Sent';
+  if (email?.status === 'failed') return 'Failed';
+  if (email?.status === 'sending' && now.getTime() - new Date(email.at).getTime() < SENDING_GRACE_MS) return 'Sent';
+  return 'Not confirmed';
+}
+
 const dateLabel = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' });
 
@@ -126,8 +143,9 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
       buyerName: o.buyer.name,
       buyerEmail: o.buyer.email,
       buyerPhone: o.buyer.phone,
+      company: o.buyer.company,
     };
-    const row = { ...buyer, company: o.buyer.company, pass: o.productName, quantity: o.quantity, orderRef: o.txRef };
+    const row = { ...buyer, pass: o.productName, quantity: o.quantity, orderRef: o.txRef };
     const isTransfer = o.method === 'transfer';
     const channel = isTransfer ? ('Bank transfer' as const) : ('Flutterwave' as const);
     const paidAs = (n: number | null) => {
@@ -155,6 +173,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
           receiptKey: o.receipts?.[String(i.n)] ? String(i.n) : null,
           paidAs: paidAs(i.n),
           confirmedBy: i.confirmedBy ?? '',
+          ticketEmail: i.n === o.instalments!.length ? ticketEmailLabel(o, now) : null,
         });
       }
     } else if (o.status === 'paid' && o.paidAtIso) {
@@ -171,6 +190,22 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
         receiptKey: o.receipts?.full ? 'full' : null,
         paidAs: paidAs(null),
         confirmedBy: o.confirmedBy ?? '',
+        ticketEmail: ticketEmailLabel(o, now),
+      });
+    }
+
+    const ticketEmail = ticketEmailLabel(o, now);
+    if (ticketEmail === 'Failed' || ticketEmail === 'Not confirmed') {
+      attention.push({
+        id: `${o.txRef}-ticket-email`,
+        level: 'check',
+        label: ticketEmail === 'Failed' ? 'Ticket email failed' : 'Ticket email not confirmed',
+        ...buyer,
+        pass: o.productName,
+        amount: o.amountPaid ?? o.total,
+        note: 'Paid and ticket issued, but we cannot confirm the buyer received their ticket email.',
+        orderRef: o.txRef,
+        resend: true,
       });
     }
 
@@ -209,6 +244,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
       buyerName: o.buyer.name,
       buyerEmail: o.buyer.email,
       buyerPhone: o.buyer.phone,
+      company: o.buyer.company,
       pass: o.productName,
       bank: account,
     };

@@ -67,6 +67,10 @@ An order holds its price for 3 days, then lapses, but staff can still confirm it
 
 Instalments are allowed; staff track them on a spreadsheet and confirm each payment on `/staff/payments`. Only a staff confirmation issues tickets, and each one is written to `auditLog`.
 
+## Invitations
+
+A confirmed order's private page shows each ticket as an invitation, downloadable as an A5 PDF from `/api/checkout/invitation`. Pinyon Script sets the guest's name and Cormorant Garamond the headings, both under the SIL Open Font License. Saol isn't used because its WOFF2 files don't embed cleanly and its licence may not cover PDFs. Names with letters the script lacks fall back to another font, so no letter prints blank. Orders paid through Flutterwave in one go have no private token, so they need one added before they can download an invitation.
+
 ## Project-specific overrides of the house design system
 
 The house standard in `~/.claude/CLAUDE.md` is the default. This project deliberately departs from it where the brand requires:

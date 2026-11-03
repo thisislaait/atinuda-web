@@ -27,7 +27,7 @@ function fullOrder(i: number, daysAgo: number, now: number): StaffOrder {
     supportPasses: 0,
     total: pass.price,
     currency: 'NGN',
-    buyer: { name, email: `buyer${i}@example.com`, phone: '+234 800 000 0000', company: '' },
+    buyer: { name, email: `buyer${i}@example.com`, phone: '+234 800 000 0000', company: `Sample Company ${(i % 5) + 1} Ltd` },
     attendees: [],
     plan: 'full',
     amountPaid: pass.price,
@@ -63,6 +63,7 @@ export function sampleLedger() {
   const now = Date.now();
   const gaps = [0, 0, 1, 1, 2, 3, 3, 4, 6, 7, 7, 8, 9, 11, 12, 14, 14, 15, 17, 19, 21, 22, 24, 26, 27, 29, 33, 36, 40, 44, 47];
   const orders: StaffOrder[] = gaps.map((daysAgo, i) => fullOrder(i, daysAgo, now));
+  orders[3] = { ...orders[3], tickets: [{ ticketNumber: 'ATN7-AMA-SAMPLE', ticketType: 'Amani', name: 'Sample', email: '' }], ticketEmail: { status: 'failed', at: new Date(now).toISOString(), error: 'Sample failure' } };
   orders.push(planOrder(40, 25, 1, now));
   orders.push(planOrder(41, 34, 1, now));
   orders.push(planOrder(42, 62, 2, now));

@@ -94,7 +94,8 @@ function summaryHtml(orders: StaffOrder[], comparison: Comparison | null, now: D
   const toConfirm = ledger.awaiting.filter((a) => a.state === 'sent');
 
   const rows = paid.map((r) => `<tr>
-    <td style="${cell}">${esc(r.buyerName)}</td>
+    <td style="${cell}">${esc(r.buyerName)}${r.company ? `<br>${esc(r.company)}` : ''}</td>
+    <td style="${cell}">${esc(r.buyerPhone)}</td>
     <td style="${cell}">${esc(r.pass)}</td>
     <td style="${cell}">${esc(r.payment)}</td>
     <td style="${cell}">${formatNaira(r.amount)}</td>
@@ -121,7 +122,7 @@ function summaryHtml(orders: StaffOrder[], comparison: Comparison | null, now: D
       <p>${paid.length > 0 ? `${paid.length} ${paid.length === 1 ? 'payment' : 'payments'} totalling <strong>${formatNaira(total)}</strong> on ${longDay(yesterday)}.` : `No payments on ${longDay(yesterday)}.`} Received to date: <strong>${formatNaira(toDate)}</strong>.</p>
       ${paid.length > 0 ? `<table style="border-collapse:collapse;font-size:14px">${rows}</table>` : ''}
       ${toConfirm.length > 0 ? `${heading('Bank transfers to confirm')}<table style="border-collapse:collapse;font-size:14px">${toConfirm.map((a) => `<tr>
-        <td style="${cell}">${esc(a.buyerName)}</td>
+        <td style="${cell}">${esc(a.buyerName)}${a.company ? `<br>${esc(a.company)}` : ''}</td>
         <td style="${cell}">${esc(a.send)} to ${esc(a.bank)}</td>
         <td style="${cell}">${esc(a.orderRef)}</td>
       </tr>`).join('')}</table>` : ''}
