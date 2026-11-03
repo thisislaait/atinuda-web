@@ -6,6 +6,7 @@ import { randomBytes } from 'crypto';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 import { EVENT_SLUG, MAX_QUANTITY, instalmentSchedule, instalmentsAvailable, quote } from '@/lib/atinuda7Checkout';
 import { instalmentAttemptRef } from '@/lib/atinuda7Fulfil';
+import { STAFF_EMAILS } from '@/lib/staffPayments';
 
 type Person = { name?: unknown; email?: unknown };
 
@@ -51,6 +52,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
   if (!buyer.name || !EMAIL_RE.test(buyer.email) || buyer.phone.length < 7) {
     return res.status(400).json({ ok: false, message: 'Your name, a valid email and a phone number are required.' });
+  }
+  if (q.product.kind === 'test' && !STAFF_EMAILS.includes(buyer.email)) {
+    return res.status(403).json({ ok: false, message: 'This pass is for staff testing only.' });
   }
 
   // Attendee details are optional per seat; keep only what was supplied, one entry per seat.

@@ -15,13 +15,13 @@ const earlyBird = (price: number) => ({
   label: 'Early bird until 31 December 2026',
 });
 
-export type ProductId = 'nuru' | 'safi' | 'zuri' | 'amani' | 'ade' | 'workshop' | 'gala';
+export type ProductId = 'nuru' | 'safi' | 'zuri' | 'amani' | 'ade' | 'workshop' | 'gala' | 'test';
 
 export type Product = {
   id: ProductId;
   name: string;
   tier: string;
-  kind: 'pass' | 'single';
+  kind: 'pass' | 'single' | 'test';
   price: number;
   earlyBird?: { price: number; until: string; label: string };
   summary: string;
@@ -106,6 +106,18 @@ export const PRODUCTS: Product[] = [
     summary: 'The dinner gala, curated dining and live entertainment. Excludes the daytime programme.',
     allowsSupportPass: false,
     ticketPrefix: 'GAL',
+  },
+  // Temporary, for testing real payments. Reached only at /pricing/checkout?pass=test, and
+  // /api/checkout/order sells it to staff addresses only. Remove after testing.
+  {
+    id: 'test',
+    name: 'Test pass',
+    tier: 'Staff payment test',
+    kind: 'test',
+    price: 200,
+    summary: 'For testing payments only. Not valid for entry.',
+    allowsSupportPass: false,
+    ticketPrefix: 'TST',
   },
 ];
 
