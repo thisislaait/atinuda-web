@@ -5,7 +5,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { timingSafeEqual } from 'crypto';
 import { adminDb } from '@/utils/firebaseAdmin';
-import { flutterwaveAvailable } from '@/lib/atinuda7Checkout';
+import { FLUTTERWAVE_OPEN } from '@/lib/atinuda7Checkout';
 import { instalmentAttemptRef, nextInstalment, publicSchedule, type OrderDoc } from '@/lib/atinuda7Fulfil';
 import { declareTransfer, transferDue } from '@/lib/atinuda7Transfers';
 
@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 
-  if (order.method === 'transfer' || !flutterwaveAvailable(order.productId)) {
+  if (order.method === 'transfer' || !FLUTTERWAVE_OPEN) {
     return res.status(409).json({ ok: false, message: 'This order is paid by bank transfer.' });
   }
 

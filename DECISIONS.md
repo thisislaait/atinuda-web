@@ -55,11 +55,17 @@ A morning email goes to `STAFF_EMAILS` at 08:00 Lagos time from `/api/staff/dail
 
 ## Bank transfer while Flutterwave is on hold
 
-Flutterwave refuses payments with "Compliance status failure" (seen 3 November 2026), so buyers pay by bank transfer and Flutterwave stays visible but disabled. `FLUTTERWAVE_OPEN` in `src/lib/atinuda7Checkout.ts` turns it back on; the ₦200 test pass keeps it available so the fix can be checked.
+Flutterwave refuses payments with "Compliance status failure" (seen 3 November 2026), so buyers pay by bank transfer and Flutterwave stays visible but disabled. `FLUTTERWAVE_OPEN` in `src/lib/atinuda7Checkout.ts` turns it back on for every pass, including the ₦200 test pass.
+
+Choosing bank transfer shows the account details straight away, at the owner's request. The order is only created when the buyer presses "I've made the transfer", so a first payment carries the buyer's name as its narration, not an order reference.
 
 Accounts confirmed by the owner: GT Bank `0009210368` for naira, Access Bank `0022136364` for dollars, both Oaken Events Limited. Dollar prices convert at ₦1,400 to $1. Rounding up to the whole dollar is an implementation choice, not something the client specified. Staff totals stay in naira at the order's naira price.
 
-An order holds its price for 3 days, then lapses, but staff can still confirm it if the money arrives late. Instalments are allowed; staff track them on a spreadsheet and confirm each payment on `/staff/payments`. Only a staff confirmation issues tickets, and each one is written to `auditLog`.
+An order holds its price for 3 days, then lapses, but staff can still confirm it if the money arrives late. Buyers must attach a screenshot or receipt before a transfer is marked as sent. Files reach staff only through a staff-checked route. The live storage rules end with a catch-all that lets anyone read and list the bucket, which a more specific rule can't override, so receipts are encrypted with AES-256-GCM before upload and named at random. The key derives from `FIREBASE_SERVICE_ACCOUNT_B64`, so replacing that service account makes stored receipts unreadable.
+
+**Open decision:** the same catch-all exposes `users/` and the signed-in-only speaker files in `events/`. It should be narrowed to the public gallery folders. The rules are not in either repository, only live in Firebase.
+
+Instalments are allowed; staff track them on a spreadsheet and confirm each payment on `/staff/payments`. Only a staff confirmation issues tickets, and each one is written to `auditLog`.
 
 ## Project-specific overrides of the house design system
 

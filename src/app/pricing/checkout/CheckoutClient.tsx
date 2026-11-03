@@ -11,11 +11,12 @@ import {
   GROUP_TIERS,
   MAX_QUANTITY,
   PRODUCTS,
+  BANK_ACCOUNTS,
+  FLUTTERWAVE_OPEN,
   SUPPORT_PASS,
   TRANSFER_HOLD_DAYS,
   USD_RATE,
   findProduct,
-  flutterwaveAvailable,
   formatDueDate,
   formatMoney,
   formatNaira,
@@ -64,8 +65,11 @@ export default function CheckoutClient() {
   const [quantity, setQuantity] = useState(() => clampQty(Number(params?.get('qty') ?? 1)));
   const [supportPasses, setSupportPasses] = useState(0);
   const [plan, setPlan] = useState<PaymentPlan>('full');
-  const [method, setMethod] = useState<PayMethod>(() => (params?.get('pass') === 'test' ? 'flutterwave' : 'transfer'));
+  const [method, setMethod] = useState<PayMethod | null>(null);
   const [currency, setCurrency] = useState<TransferCurrency>('NGN');
+  const [askReceipt, setAskReceipt] = useState(false);
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const receiptRef = useRef<HTMLDivElement>(null);
   const [heldSchedule, setHeldSchedule] = useState<ScheduleRow[] | null>(null);
   const [buyer, setBuyer] = useState({ name: '', email: '', phone: '', company: '' });
   const [seatOneIsBuyer, setSeatOneIsBuyer] = useState(true);
@@ -87,8 +91,7 @@ export default function CheckoutClient() {
   const payInThree = plan === 'instalments' && canPayInThree;
   const schedule = useMemo(() => (payInThree && q ? instalmentSchedule(q.total) : null), [payInThree, q]);
   const dueToday = schedule ? schedule[0].amount : q?.total ?? 0;
-  const flutterwaveOpen = flutterwaveAvailable(productId);
-  const payByTransfer = method === 'transfer' || !flutterwaveOpen;
+  const payByTransfer = method === 'transfer';
   const usdTotal = q ? transferAmounts([q.total], 'USD')[0] : 0;
   const usdNow = q ? transferAmounts(schedule ? schedule.map((r) => r.amount) : [q.total], 'USD')[0] : 0;
 
@@ -160,7 +163,20 @@ export default function CheckoutClient() {
       return;
     }
     if (payByTransfer) {
+      if (!askReceipt || !receipt) {
+        setAskReceipt(true);
+        requestAnimationFrame(() => receiptRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+        return;
+      }
       setStage('creating');
+      let prepared: Blob;
+      try {
+        prepared = await prepareReceipt(receipt);
+      } catch (err) {
+        setStage('idle');
+        setError(err instanceof Error ? err.message : RECEIPT_TYPE_ERROR);
+        return;
+      }
       try {
         const res = await fetch('/api/checkout/order', {
           method: 'POST',
@@ -168,11 +184,23 @@ export default function CheckoutClient() {
           body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'transfer', currency, buyer, attendees: attendeesPayload() }),
         });
         const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; payToken?: string };
-        if (!res.ok || !json.ok || !json.orderRef || !json.payToken) throw new Error(json.message || 'We could not start your order.');
-        window.location.assign(`/pricing/pay?order=${encodeURIComponent(json.orderRef)}&t=${encodeURIComponent(json.payToken)}`);
+        if (!res.ok || !json.ok || !json.orderRef || !json.payToken) throw new Error(json.message || 'We could not record your order.');
+        // Once the order exists, always go to its page: anything that fails here can be retried there.
+        const orderPage = `/pricing/pay?order=${encodeURIComponent(json.orderRef)}&t=${encodeURIComponent(json.payToken)}`;
+        try {
+          await uploadReceipt(json.orderRef, json.payToken, prepared);
+          await fetch('/api/checkout/instalment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order: json.orderRef, t: json.payToken, action: 'declare' }),
+          });
+        } catch (err) {
+          console.warn('checkout: receipt step will be retried on the order page', err);
+        }
+        window.location.assign(orderPage);
       } catch (err) {
         setStage('idle');
-        setError(err instanceof Error ? err.message : 'We could not start your order.');
+        setError(err instanceof Error ? err.message : 'We could not record your order.');
       }
       return;
     }
@@ -237,7 +265,8 @@ export default function CheckoutClient() {
   }
 
   const payLabel =
-    payByTransfer ? (stage === 'creating' ? 'Preparing your bank details…' : 'Continue to bank details')
+    !method ? 'Choose a payment method'
+    : payByTransfer ? (stage === 'creating' ? 'Sending your receipt…' : !askReceipt ? "I've made the transfer" : receipt ? 'Submit receipt' : 'Attach your receipt')
     : stage === 'creating' ? 'Opening secure payment…'
     : stage === 'paying' ? 'Complete payment in the window'
     : stage === 'confirming' ? 'Confirming payment…'
@@ -441,9 +470,9 @@ export default function CheckoutClient() {
                   <span className="co-preset-label">Pay via bank transfer</span>
                   <span className="co-preset-sub">Naira or US dollars</span>
                 </button>
-                <button type="button" role="radio" aria-checked={!payByTransfer} aria-disabled={!flutterwaveOpen} disabled={!flutterwaveOpen} className={`co-preset co-method-off${!payByTransfer ? ' is-active' : ''}`} onClick={() => setMethod('flutterwave')}>
+                <button type="button" role="radio" aria-checked={method === 'flutterwave'} aria-disabled={!FLUTTERWAVE_OPEN} disabled={!FLUTTERWAVE_OPEN} className={`co-preset co-method-off${method === 'flutterwave' ? ' is-active' : ''}`} onClick={() => setMethod('flutterwave')}>
                   <span className="co-preset-label">Pay with Flutterwave</span>
-                  <span className="co-preset-sub">{flutterwaveOpen ? 'Card, transfer or USSD' : 'Temporarily unavailable'}</span>
+                  <span className="co-preset-sub">{FLUTTERWAVE_OPEN ? 'Card, transfer or USSD' : 'Temporarily unavailable'}</span>
                 </button>
               </div>
 
@@ -460,10 +489,27 @@ export default function CheckoutClient() {
                       <span className="co-preset-sub">{formatMoney(usdTotal, 'USD')}</span>
                     </button>
                   </div>
+                  <dl className="co-bank">
+                    <CopyRow label="Account number" value={BANK_ACCOUNTS[currency].accountNumber} />
+                    <div><dt>Bank</dt><dd>{BANK_ACCOUNTS[currency].bank}</dd><span /></div>
+                    <div><dt>Account name</dt><dd>{BANK_ACCOUNTS[currency].accountName}</dd><span /></div>
+                    <div>
+                      <dt>Amount{schedule ? ' now' : ''}</dt>
+                      <dd>{currency === 'USD' ? formatMoney(usdNow, 'USD') : formatNaira(dueToday)}</dd>
+                      <span />
+                    </div>
+                    <div><dt>Narration</dt><dd>Your full name</dd><span /></div>
+                  </dl>
+                  <p className="co-shot" role="note">Take a screenshot of the transfer. You will need it to get your ticket.</p>
                   <p className="co-plan-note">
                     {currency === 'USD' && `Converted at ₦${USD_RATE.toLocaleString('en-NG')} to $1, rounded up to the whole dollar. `}
-                    You will see the bank details next. We hold your order and price for {TRANSFER_HOLD_DAYS} days, and send your pass once the team confirms your {schedule ? 'final payment' : 'transfer'}.
+                    Send the exact amount, fill in your details above, then press &ldquo;I&rsquo;ve made the transfer&rdquo; and attach your screenshot. We hold your order and price for {TRANSFER_HOLD_DAYS} days, and send your pass once the team confirms your {schedule ? 'final payment' : 'transfer'}.
                   </p>
+                  {askReceipt && (
+                    <div ref={receiptRef}>
+                      <ReceiptField file={receipt} onChange={(f) => { setReceipt(f); setError(null); }} />
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -475,13 +521,13 @@ export default function CheckoutClient() {
             {step > 1 ? (
               <button type="button" className="co-backbtn" onClick={() => goTo((step - 1) as Step)}>← Back</button>
             ) : <span />}
-            <button type="button" className="co-next" onClick={primaryAction} disabled={busy || !q}>{actionLabel}</button>
+            <button type="button" className="co-next" onClick={primaryAction} disabled={busy || !q || (step === 3 && (!method || (payByTransfer && askReceipt && !receipt)))}>{actionLabel}</button>
           </div>
           </div>
         </main>
 
         <aside className="co-aside" aria-label="Order summary">
-          <Summary q={q} schedule={schedule} payLabel={actionLabel} busy={busy} onPay={primaryAction} onQuantity={setQuantity} error={error} transfer={payByTransfer} usdNow={payByTransfer && currency === 'USD' ? usdNow : null} />
+          <Summary q={q} schedule={schedule} payLabel={actionLabel} busy={busy || (step === 3 && (!method || (payByTransfer && askReceipt && !receipt)))} onPay={primaryAction} onQuantity={setQuantity} error={error} transfer={method !== 'flutterwave'} usdNow={payByTransfer && currency === 'USD' ? usdNow : null} />
         </aside>
       </div>
 
@@ -493,12 +539,80 @@ export default function CheckoutClient() {
           </p>
           <p style={{ ...saol, fontSize: '1.6rem', color: INK, lineHeight: 1.1 }}>{q ? `${formatNaira(dueToday)}${schedule ? ' today' : ''}` : '—'}</p>
         </div>
-        <button type="button" className="co-pay co-pay-sm" onClick={primaryAction} disabled={busy || !q}>
-          {busy ? '…' : step < 3 ? 'Next' : payByTransfer ? 'Continue' : 'Pay'}
+        <button type="button" className="co-pay co-pay-sm" onClick={primaryAction} disabled={busy || !q || (step === 3 && (!method || (payByTransfer && askReceipt && !receipt)))}>
+          {busy ? '…' : step < 3 ? 'Next' : !method ? 'Choose' : payByTransfer ? (!askReceipt ? 'I’ve paid' : 'Submit') : 'Pay'}
         </button>
       </div>
 
       <style>{CSS}</style>
+    </div>
+  );
+}
+
+const RECEIPT_TYPE_ERROR = 'Please attach your receipt as a JPG, PNG or PDF.';
+const MAX_UPLOAD = 4 * 1024 * 1024;
+const COMPRESS_OVER = 1.5 * 1024 * 1024;
+
+// Phone screenshots can be large, so big images are reduced before upload. A PDF goes as it is.
+export async function prepareReceipt(file: File): Promise<Blob> {
+  if (file.type === 'application/pdf') {
+    if (file.size > MAX_UPLOAD) throw new Error('That PDF is too large. Please attach one under 4 MB, or a screenshot.');
+    return file;
+  }
+  if (!file.type.startsWith('image/')) throw new Error(RECEIPT_TYPE_ERROR);
+  const usable = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
+  if (usable && file.size <= COMPRESS_OVER) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    if (!blob || blob.size > MAX_UPLOAD) throw new Error('too large');
+    return blob;
+  } catch {
+    throw new Error(RECEIPT_TYPE_ERROR);
+  }
+}
+
+export async function uploadReceipt(orderRef: string, token: string, file: Blob) {
+  const res = await fetch(`/api/checkout/receipt?order=${encodeURIComponent(orderRef)}&t=${encodeURIComponent(token)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: file,
+  });
+  const json = (await res.json().catch(() => ({}))) as { ok?: boolean; message?: string };
+  if (!res.ok || !json.ok) throw new Error(json.message || 'Your receipt did not upload. Please try again.');
+}
+
+export function ReceiptField({ file, onChange }: { file: File | null; onChange: (f: File | null) => void }) {
+  return (
+    <label className="co-receipt">
+      <span className="co-receipt-title">Attach your transfer screenshot or receipt</span>
+      <span className="co-receipt-sub">JPG, PNG or PDF. We need this to issue your ticket.</span>
+      <input type="file" accept="image/*,application/pdf" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
+      {file && <span className="co-receipt-name">{file.name}</span>}
+    </label>
+  );
+}
+
+export function CopyRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+      <button type="button" className="co-copy" onClick={copy} aria-label={`Copy ${label.toLowerCase()}`}>{copied ? 'Copied' : 'Copy'}</button>
     </div>
   );
 }
@@ -717,6 +831,12 @@ function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: 
 
 export const CSS = `
   .co-preset.co-method-off:disabled { opacity: 0.45; cursor: not-allowed; }
+  .co-shot { margin-top: 20px; padding: 12px 14px; background: #FBF2DD; border-left: 3px solid #C8860A; font-size: 14px; font-weight: 600; line-height: 1.5; color: #1B1E1C; max-width: 560px; }
+  .co-receipt { display: grid; gap: 6px; margin-top: 20px; padding: 16px; border: 1px solid #1B1E1C; max-width: 560px; cursor: pointer; }
+  .co-receipt-title { font-size: 15px; font-weight: 600; color: #1B1E1C; }
+  .co-receipt-sub { font-size: 13px; color: #5A615C; }
+  .co-receipt input { margin-top: 6px; font: inherit; font-size: 14px; max-width: 100%; }
+  .co-receipt-name { font-size: 13px; font-weight: 600; color: #28503E; overflow-wrap: anywhere; }
   .co-bank { max-width: 560px; margin-top: 32px; border-top: 1px solid #DBDFDB; }
   .co-bank > div { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; align-items: baseline; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E4E7E4; font-size: 15px; }
   .co-bank dt { font-size: 13px; color: #5A615C; }

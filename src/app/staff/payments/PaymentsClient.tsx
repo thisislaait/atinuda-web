@@ -153,7 +153,73 @@ function SignIn({ notice }: { notice?: string }) {
   );
 }
 
-function PaymentDrawer({ row, onClose }: { row: PaymentRow; onClose: () => void }) {
+type ReceiptRef = { orderRef: string; key: string; buyerName: string };
+
+const SAMPLE_RECEIPT = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="480" height="640"><rect width="480" height="640" fill="#fff"/><text x="240" y="320" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#475467">Sample receipt</text></svg>')}`;
+
+function ReceiptViewer({ receipt, user, sample, onClose }: { receipt: ReceiptRef; user: User | null | undefined; sample: boolean; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [url, setUrl] = useState<string | null>(sample ? SAMPLE_RECEIPT : null);
+  const [isPdf, setIsPdf] = useState(false);
+  const [problem, setProblem] = useState('');
+
+  useEffect(() => {
+    dialog.current?.showModal();
+  }, []);
+
+  useEffect(() => {
+    if (sample || !user) return;
+    let created: string | null = null;
+    (async () => {
+      try {
+        const resp = await fetch(`/api/staff/receipt?orderRef=${encodeURIComponent(receipt.orderRef)}&key=${encodeURIComponent(receipt.key)}`, {
+          headers: { Authorization: `Bearer ${await user.getIdToken()}` },
+        });
+        if (!resp.ok) throw new Error();
+        const blob = await resp.blob();
+        created = URL.createObjectURL(blob);
+        setIsPdf(blob.type === 'application/pdf');
+        setUrl(created);
+      } catch {
+        setProblem('This receipt did not load. Close this and try again.');
+      }
+    })();
+    return () => {
+      if (created) URL.revokeObjectURL(created);
+    };
+  }, [receipt, sample, user]);
+
+  return (
+    <dialog
+      ref={dialog}
+      className="sa-drawer"
+      data-lenis-prevent
+      aria-label={`Receipt from ${receipt.buyerName}`}
+      onClose={onClose}
+      onClick={(e) => { if (e.target === dialog.current) dialog.current?.close(); }}
+    >
+      <div className="sa-drawer-head">
+        <div>
+          <p className="sa-flag-name">Receipt from {receipt.buyerName}</p>
+          <p className="sa-flag-contact">{receipt.orderRef}</p>
+        </div>
+        <button className="sa-btn" onClick={() => dialog.current?.close()}>Close</button>
+      </div>
+      <div className="sa-receipt">
+        {problem && <p className="sa-error" role="alert">{problem}</p>}
+        {!url && !problem && <p className="sa-flag-note" role="status">Loading receipt…</p>}
+        {url && !isPdf && (
+          // eslint-disable-next-line @next/next/no-img-element -- a private file held in the browser's memory
+          <img src={url} alt={`Transfer receipt from ${receipt.buyerName}`} />
+        )}
+        {url && isPdf && <iframe src={url} title={`Transfer receipt from ${receipt.buyerName}`} />}
+        {url && <a className="sa-btn sa-btn-link" href={url} download={`receipt-${receipt.orderRef}`}>Download receipt</a>}
+      </div>
+    </dialog>
+  );
+}
+
+function PaymentDrawer({ row, onClose, onReceipt }: { row: PaymentRow; onClose: () => void; onReceipt: (r: ReceiptRef) => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [copied, setCopied] = useState(false);
 
@@ -203,7 +269,20 @@ function PaymentDrawer({ row, onClose }: { row: PaymentRow; onClose: () => void 
         ))}
         <div style={{ borderBottom: 0 }}>
           <dt />
-          <dd><button className="sa-btn" onClick={copy}>{copied ? 'Reference copied' : 'Copy reference'}</button></dd>
+          <dd className="sa-transfer-actions">
+            <button className="sa-btn" onClick={copy}>{copied ? 'Reference copied' : 'Copy reference'}</button>
+            {row.receiptKey && (
+              <button
+                className="sa-btn"
+                onClick={() => {
+                  dialog.current?.close();
+                  onReceipt({ orderRef: row.orderRef, key: row.receiptKey!, buyerName: row.buyerName });
+                }}
+              >
+                View receipt
+              </button>
+            )}
+          </dd>
         </div>
       </dl>
     </dialog>
@@ -263,13 +342,13 @@ function UnrecordedItem({ item }: { item: Comparison['unrecorded'][number] }) {
 }
 
 const AWAITING_LABEL: Record<AwaitingTransfer['state'], { text: string; pill: string }> = {
-  sent: { text: 'Buyer says sent', pill: 'sa-pill-paid' },
+  sent: { text: 'Receipt attached', pill: 'sa-pill-paid' },
   overdue: { text: 'Overdue', pill: 'sa-pill-overdue' },
-  not_marked: { text: 'Not marked as sent', pill: 'sa-pill-part' },
+  not_marked: { text: 'No receipt yet', pill: 'sa-pill-part' },
   lapsed: { text: 'Hold ended', pill: 'sa-pill-due' },
 };
 
-function TransferItem({ item, onConfirm }: { item: AwaitingTransfer; onConfirm: (item: AwaitingTransfer) => Promise<string | null> }) {
+function TransferItem({ item, onConfirm, onReceipt }: { item: AwaitingTransfer; onConfirm: (item: AwaitingTransfer) => Promise<string | null>; onReceipt: (r: ReceiptRef) => void }) {
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
@@ -293,11 +372,14 @@ function TransferItem({ item, onConfirm }: { item: AwaitingTransfer; onConfirm: 
       </div>
       <p className="sa-flag-name">{item.buyerName}, {item.pass}</p>
       <p className="sa-flag-note">
-        {item.payment}. Look in {item.bank} for reference <b>{item.orderRef}</b>
-        {item.send !== formatNaira(item.naira) ? `, counted as ${formatNaira(item.naira)}` : ''}. {item.note}
+        {item.payment}. Look in {item.bank} for a transfer from <b>{item.buyerName}</b>
+        {item.send !== formatNaira(item.naira) ? `, counted as ${formatNaira(item.naira)}` : ''}. {item.note} Reference {item.orderRef}.
       </p>
       <p className="sa-flag-contact">{item.buyerEmail}, {item.buyerPhone}</p>
       <div className="sa-transfer-actions">
+        {item.receiptKey && (
+          <button className="sa-btn" onClick={() => onReceipt({ orderRef: item.orderRef, key: item.receiptKey!, buyerName: item.buyerName })}>View receipt</button>
+        )}
         {!asking ? (
           <button className="sa-btn" onClick={() => setAsking(true)}>Confirm payment</button>
         ) : (
@@ -335,6 +417,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [page, setPage] = useState(0);
   const [openRow, setOpenRow] = useState<PaymentRow | null>(null);
+  const [openReceipt, setOpenReceipt] = useState<ReceiptRef | null>(null);
 
   useEffect(() => {
     if (sample) return;
@@ -633,7 +716,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
               <section className="sa-panel" aria-label="Bank transfers to check">
                 {awaiting.length === 0
                   ? <p className="sa-empty" style={{ paddingTop: 20 }}>No bank transfers to check. New orders appear here as soon as a buyer sees the bank details.</p>
-                  : <div className="sa-flags">{awaiting.map((a) => <TransferItem key={a.id} item={a} onConfirm={confirmItem} />)}</div>}
+                  : <div className="sa-flags">{awaiting.map((a) => <TransferItem key={a.id} item={a} onConfirm={confirmItem} onReceipt={setOpenReceipt} />)}</div>}
               </section>
             )}
 
@@ -688,7 +771,8 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
         )}
       </main>
 
-      {openRow && <PaymentDrawer key={openRow.id} row={openRow} onClose={() => setOpenRow(null)} />}
+      {openRow && <PaymentDrawer key={openRow.id} row={openRow} onClose={() => setOpenRow(null)} onReceipt={setOpenReceipt} />}
+      {openReceipt && <ReceiptViewer key={`${openReceipt.orderRef}-${openReceipt.key}`} receipt={openReceipt} user={user} sample={!!sample} onClose={() => setOpenReceipt(null)} />}
     </div>
   );
 }

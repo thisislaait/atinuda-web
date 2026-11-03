@@ -13,7 +13,7 @@ import {
   formatNaira,
   type TransferCurrency,
 } from '@/lib/atinuda7Checkout';
-import { CSS, PaymentSchedule, type ScheduleRow } from '../checkout/CheckoutClient';
+import { CSS, CopyRow, PaymentSchedule, ReceiptField, prepareReceipt, uploadReceipt, type ScheduleRow } from '../checkout/CheckoutClient';
 
 // Private page for an order: bank details for transfer buyers, and the link emailed to pay-in-3 buyers.
 type OrderState = {
@@ -35,26 +35,9 @@ const INK = '#1B1E1C';
 const COPPER = '#b5622a';
 const saol = { fontFamily: 'SaolDisplay, Georgia, serif' };
 
-function CopyRow({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  };
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-      <button type="button" className="co-copy" onClick={copy} aria-label={`Copy ${label.toLowerCase()}`}>{copied ? 'Copied' : 'Copy'}</button>
-    </div>
-  );
-}
-
-function TransferView({ order, onDeclare, busy, error }: { order: OrderState; onDeclare: () => void; busy: boolean; error: string | null }) {
+function TransferView({ order, onDeclare, busy, error }: { order: OrderState; onDeclare: (receipt: File) => void; busy: boolean; error: string | null }) {
+  const [asking, setAsking] = useState(false);
+  const [receipt, setReceipt] = useState<File | null>(null);
   const { transfer } = order;
   if (!transfer) return null;
   const account = BANK_ACCOUNTS[transfer.currency];
@@ -83,7 +66,7 @@ function TransferView({ order, onDeclare, busy, error }: { order: OrderState; on
         {lapsed && `If you have already paid, write to hello@atinuda.africa with your receipt and quote ${order.orderRef}.`}
         {cancelled && `To talk this through, write to hello@atinuda.africa and quote ${order.orderRef}.`}
         {!paid && !lapsed && !cancelled && due?.declared && `We will email you as soon as the team confirms your ${money(due.amount)} transfer. You don't need to do anything else.`}
-        {!paid && !lapsed && !cancelled && due && !due.declared && `${order.productName} pass, ${EVENT_LABEL}. Send the exact amount and put the reference in your transfer narration, so we can match it to your order.`}
+        {!paid && !lapsed && !cancelled && due && !due.declared && `${order.productName} pass, ${EVENT_LABEL}. Send the exact amount and put this reference in your transfer narration, so we can match it to your order.`}
       </p>
 
       {due && !lapsed && (
@@ -103,9 +86,19 @@ function TransferView({ order, onDeclare, busy, error }: { order: OrderState; on
       )}
 
       {due && !due.declared && !lapsed && (
-        <button type="button" className="co-pay" style={{ maxWidth: '560px', marginTop: '28px' }} onClick={onDeclare} disabled={busy}>
-          {busy ? 'Saving…' : "I've made the transfer"}
-        </button>
+        <>
+          <p className="co-shot" role="note">Take a screenshot of the transfer. You will need it to get your ticket.</p>
+          {asking && <ReceiptField file={receipt} onChange={setReceipt} />}
+          <button
+            type="button"
+            className="co-pay"
+            style={{ maxWidth: '560px', marginTop: '20px' }}
+            onClick={() => (asking && receipt ? onDeclare(receipt) : setAsking(true))}
+            disabled={busy || (asking && !receipt)}
+          >
+            {busy ? 'Sending your receipt…' : !asking ? "I've made the transfer" : receipt ? 'Submit receipt' : 'Attach your receipt'}
+          </button>
+        </>
       )}
       {error && <p className="co-error" style={{ maxWidth: '560px' }} role="alert">{error}</p>}
 
@@ -215,10 +208,11 @@ export default function PayClient() {
     });
   }
 
-  async function declare() {
+  async function declare(receipt: File) {
     setError(null);
     setBusy(true);
     try {
+      await uploadReceipt(orderId, token, await prepareReceipt(receipt));
       const res = await fetch('/api/checkout/instalment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

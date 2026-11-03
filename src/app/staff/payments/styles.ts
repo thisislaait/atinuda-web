@@ -133,6 +133,10 @@ export const CSS = `
   .sa-dl dd { margin: 0; overflow-wrap: anywhere; }
   .sa-drawer .sa-btn { font: inherit; font-size: 13px; color: inherit; cursor: pointer; }
 
+  .sa-receipt { padding: 20px 24px 24px; display: grid; gap: 14px; justify-items: start; }
+  .sa-receipt img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+  .sa-receipt iframe { width: 100%; height: 70vh; border: 1px solid var(--line); border-radius: 8px; }
+  .sa-btn-link { display: inline-block; color: var(--ink); text-decoration: none; }
   .sa-skel { background: var(--line-2); border-radius: 12px; animation: sa-pulse 1.4s ease-in-out infinite; }
   @keyframes sa-pulse { 50% { opacity: 0.55; } }
 

@@ -18,6 +18,12 @@ import { STAFF_EMAILS } from '@/lib/staffPayments';
 
 const SITE_URL = process.env.SITE_URL || 'https://www.atinuda.africa';
 
+// Which payment a receipt belongs to: the next instalment, or 'full' for payment in one go.
+export function receiptKey(order: OrderDoc) {
+  const next = order.plan === 'instalments' ? nextInstalment(order) : null;
+  return next ? String(next.n) : 'full';
+}
+
 export function transferDue(order: OrderDoc) {
   if (!order.transfer) return null;
   const next = nextInstalment(order);
@@ -34,6 +40,7 @@ export async function declareTransfer(order: OrderDoc): Promise<{ ok: true } | {
   const outcome = await adminDb.runTransaction(async (tx) => {
     const fresh = (await tx.get(ref)).data() as OrderDoc;
     if (!['pending', 'part_paid'].includes(fresh.status)) return { blocked: true, added: false };
+    if (!fresh.receipts?.[receiptKey(fresh)]) return { blocked: false, added: false, needsReceipt: true };
     if (fresh.plan === 'instalments') {
       const next = nextInstalment(fresh);
       if (!next) return { blocked: true, added: false };
@@ -46,6 +53,7 @@ export async function declareTransfer(order: OrderDoc): Promise<{ ok: true } | {
     return { blocked: false, added: true };
   });
   if (outcome.blocked) return { ok: false, message: 'This order has no transfer due. If you have paid, write to hello@atinuda.africa.' };
+  if (outcome.needsReceipt) return { ok: false, message: 'Please attach your receipt first.' };
 
   // Emails go once per payment, so refreshing or pressing the button again can't send more.
   if (outcome.added) {
@@ -67,7 +75,7 @@ export async function declareTransfer(order: OrderDoc): Promise<{ ok: true } | {
       `Transfer to confirm: ${amount} from ${order.buyer.name.slice(0, 60).replace(/[\r\n]+/g, ' ')}`,
       `<div style="font-family:Helvetica,Arial,sans-serif;color:#1B1E1C;font-size:14px">
         <p>${esc(order.buyer.name)} says they have sent <strong>${amount}</strong> to ${account.bank} for ${esc(order.productName)}.</p>
-        <p>Look for reference <strong>${order.txRef}</strong>, then confirm it on the <a href="${SITE_URL}/staff/payments" style="color:#1B1E1C">payments page</a>. Their pass is not issued until you do.</p>
+        <p>Look for a transfer from ${esc(order.buyer.name)}. The narration should show their name, or reference <strong>${order.txRef}</strong> for later instalments. Their receipt is attached on the <a href="${SITE_URL}/staff/payments" style="color:#1B1E1C">payments page</a>, where you can confirm it. Their pass is not issued until you do.</p>
       </div>`,
     ).catch((err) => console.warn('declareTransfer: staff email failed', err));
   }

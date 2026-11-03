@@ -91,8 +91,9 @@ export function sampleLedger() {
       ...extra,
     };
   };
-  orders.push(transfer(50, 'NGN', { declaredAt: new Date(now - 3_600_000).toISOString() }));
-  orders.push(transfer(51, 'USD', { declaredAt: new Date(now - 7_200_000).toISOString() }));
+  const receipts = { full: { path: '', contentType: 'image/svg+xml', size: 0, uploadedAt: new Date(now).toISOString() } };
+  orders.push(transfer(50, 'NGN', { declaredAt: new Date(now - 3_600_000).toISOString(), receipts }));
+  orders.push(transfer(51, 'USD', { declaredAt: new Date(now - 7_200_000).toISOString(), receipts }));
   orders.push(transfer(52, 'NGN', {}));
   orders.push(transfer(53, 'NGN', { status: 'lapsed', holdUntil: new Date(now - 2 * DAY_MS).toISOString() }));
   return buildLedger(orders, new Date(now));

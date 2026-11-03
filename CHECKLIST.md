@@ -62,9 +62,13 @@ Run every change through the checks below before calling it done. Decisions and 
 | Buyer name, email, phone, company | `orders` | Staff (once item 1 is done) | To define | To define |
 | Attendee names and emails | `orders`, `tickets` | Staff, ticket holder | To define | To define |
 | Instalment schedule, private pay token, payment records | `orders` | Buyer via private link, staff (the pay token is never sent to the staff page) | To define | To define |
+| Transfer receipts (may show name, bank and account details) | Firebase Storage, `transfer-receipts/`, encrypted | Staff, through `/api/staff/receipt` | To define | To define |
 | Yesterday's buyer names, passes and amounts | Daily email to staff inboxes | `STAFF_EMAILS` in `src/lib/staffPayments.ts` | To define | To define |
 | Check-ins | `events/{slug}/attendees`, check-in collections | Staff | To define | To define |
 | Account profiles | `users` | Owner, staff | To define | To define |
+
+### Storage rules
+The live rule `match /{allPaths=**} { allow read: if true; }` makes the whole bucket readable and listable by anyone, including `users/`. Narrow it to the public gallery folders and keep the rules in the repo.
 
 ## Triggers
 

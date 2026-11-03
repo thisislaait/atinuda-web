@@ -27,6 +27,8 @@ export type PaymentRow = {
   flwTransactionId: string;
   booking: 'Paid' | 'Part paid' | 'Cancelled';
   channel: 'Bank transfer' | 'Flutterwave';
+  // Identifies an attached receipt to fetch; the file's location never reaches the browser.
+  receiptKey: string | null;
   // What the buyer sent when that isn't naira. `amount` stays in naira so totals add up.
   paidAs: string;
   confirmedBy: string;
@@ -47,6 +49,7 @@ export type AwaitingTransfer = {
   bank: string;
   payment: string;
   note: string;
+  receiptKey: string | null;
 };
 
 export type AttentionItem = {
@@ -149,6 +152,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
           flwTransactionId: i.flwTransactionId ?? '',
           booking,
           channel,
+          receiptKey: o.receipts?.[String(i.n)] ? String(i.n) : null,
           paidAs: paidAs(i.n),
           confirmedBy: i.confirmedBy ?? '',
         });
@@ -164,6 +168,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
         flwTransactionId: o.flwTransactionId ?? '',
         booking: 'Paid',
         channel,
+        receiptKey: o.receipts?.full ? 'full' : null,
         paidAs: paidAs(null),
         confirmedBy: o.confirmedBy ?? '',
       });
@@ -230,6 +235,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
         naira: next.amount,
         send: send(next.n),
         payment: `Instalment ${next.n} of ${of}`,
+        receiptKey: o.receipts?.[String(next.n)] ? String(next.n) : null,
         note: state === 'lapsed' ? 'The 3-day hold ended. You can still confirm if the money arrived.' : `Due ${dateLabel(next.dueAt)}.`,
       });
     } else if (o.status === 'pending' || o.status === 'lapsed') {
@@ -243,6 +249,7 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
         naira: o.total,
         send: send(null),
         payment: 'Full payment',
+        receiptKey: o.receipts?.full ? 'full' : null,
         note: state === 'lapsed'
           ? 'The 3-day hold ended. You can still confirm if the money arrived.'
           : `Held until ${dateLabel(o.holdUntil ?? now.toISOString())}.`,

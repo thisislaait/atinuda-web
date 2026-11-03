@@ -9,7 +9,7 @@ import {
   MAX_QUANTITY,
   TRANSFER_HOLD_DAYS,
   USD_RATE,
-  flutterwaveAvailable,
+  FLUTTERWAVE_OPEN,
   instalmentSchedule,
   instalmentsAvailable,
   quote,
@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const method = body.method === 'flutterwave' ? 'flutterwave' : 'transfer';
-  if (method === 'flutterwave' && !flutterwaveAvailable(q.product.id)) {
+  if (method === 'flutterwave' && !FLUTTERWAVE_OPEN) {
     return res.status(409).json({ ok: false, message: 'Flutterwave is temporarily unavailable. Please pay by bank transfer.' });
   }
   const currency = method === 'transfer' && body.currency === 'USD' ? 'USD' : 'NGN';

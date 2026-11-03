@@ -57,6 +57,8 @@ export type OrderDoc = {
   holdUntil?: string;
   declaredAt?: string;
   confirmedBy?: string;
+  // Keyed by instalment number, or 'full' for an order paid in one go.
+  receipts?: Record<string, { path: string; contentType: string; size: number; uploadedAt: string }>;
 };
 
 export type IssuedTicket = { ticketNumber: string; ticketType: string; name: string; email: string };
