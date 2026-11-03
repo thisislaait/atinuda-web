@@ -3,21 +3,123 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
-import { EVENT_LABEL, EVENT_WHEN, EVENT_WHERE, formatDueDate, formatNaira } from '@/lib/atinuda7Checkout';
+import {
+  BANK_ACCOUNTS,
+  EVENT_LABEL,
+  EVENT_WHEN,
+  EVENT_WHERE,
+  formatDueDate,
+  formatMoney,
+  formatNaira,
+  type TransferCurrency,
+} from '@/lib/atinuda7Checkout';
 import { CSS, PaymentSchedule, type ScheduleRow } from '../checkout/CheckoutClient';
 
-// Private page behind the link emailed to pay-in-3 buyers.
+// Private page for an order: bank details for transfer buyers, and the link emailed to pay-in-3 buyers.
 type OrderState = {
   orderRef: string;
   productName: string;
   total: number;
-  status: 'pending' | 'part_paid' | 'paid' | 'review' | 'cancelled';
+  status: 'pending' | 'part_paid' | 'paid' | 'review' | 'cancelled' | 'lapsed';
   instalments: ScheduleRow[];
+  method: 'transfer' | 'flutterwave';
+  holdUntil: string | null;
+  transfer: {
+    currency: TransferCurrency;
+    amounts: number[];
+    due: { n: number | null; amount: number; declared: boolean } | null;
+  } | null;
 };
 
 const INK = '#1B1E1C';
 const COPPER = '#b5622a';
 const saol = { fontFamily: 'SaolDisplay, Georgia, serif' };
+
+function CopyRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+      <button type="button" className="co-copy" onClick={copy} aria-label={`Copy ${label.toLowerCase()}`}>{copied ? 'Copied' : 'Copy'}</button>
+    </div>
+  );
+}
+
+function TransferView({ order, onDeclare, busy, error }: { order: OrderState; onDeclare: () => void; busy: boolean; error: string | null }) {
+  const { transfer } = order;
+  if (!transfer) return null;
+  const account = BANK_ACCOUNTS[transfer.currency];
+  const money = (n: number) => formatMoney(n, transfer.currency);
+  const paid = order.status === 'paid';
+  const lapsed = order.status === 'lapsed';
+  const cancelled = order.status === 'cancelled';
+  const due = transfer.due;
+  const firstPayment = order.status === 'pending';
+
+  const eyebrow = paid ? 'Payment confirmed' : lapsed ? 'Hold ended' : cancelled ? 'Booking cancelled' : due?.declared ? 'Transfer noted' : 'Pay by bank transfer';
+  const heading = paid ? 'You are confirmed'
+    : lapsed ? 'The hold on this order has ended'
+    : cancelled ? 'This booking was cancelled'
+    : due?.declared ? 'We will check for your transfer'
+    : due ? `Transfer ${money(due.amount)}` : '';
+
+  return (
+    <>
+      <p className="co-caps" style={{ color: COPPER }}>{eyebrow}</p>
+      <h1 style={{ ...saol, fontSize: 'clamp(2.4rem, 5vw, 4.4rem)', lineHeight: 1, letterSpacing: '-0.025em', color: INK, margin: '24px 0 20px', maxWidth: '900px' }}>
+        {heading}
+      </h1>
+      <p style={{ fontSize: '16px', lineHeight: 1.75, color: '#5A615C', maxWidth: '560px' }}>
+        {paid && `Your ${order.productName} pass for ${EVENT_LABEL} has been sent to your email. ${EVENT_WHEN}, ${EVENT_WHERE}.`}
+        {lapsed && `If you have already paid, write to hello@atinuda.africa with your receipt and quote ${order.orderRef}.`}
+        {cancelled && `To talk this through, write to hello@atinuda.africa and quote ${order.orderRef}.`}
+        {!paid && !lapsed && !cancelled && due?.declared && `We will email you as soon as the team confirms your ${money(due.amount)} transfer. You don't need to do anything else.`}
+        {!paid && !lapsed && !cancelled && due && !due.declared && `${order.productName} pass, ${EVENT_LABEL}. Send the exact amount and put the reference in your transfer narration, so we can match it to your order.`}
+      </p>
+
+      {due && !lapsed && (
+        <dl className="co-bank">
+          <CopyRow label="Account number" value={account.accountNumber} />
+          <div><dt>Bank</dt><dd>{account.bank}</dd><span /></div>
+          <div><dt>Account name</dt><dd>{account.accountName}</dd><span /></div>
+          <div><dt>Amount</dt><dd>{money(due.amount)}</dd><span /></div>
+          <CopyRow label="Reference" value={order.orderRef} />
+        </dl>
+      )}
+
+      {firstPayment && order.holdUntil && !due?.declared && (
+        <p style={{ fontSize: '14px', color: '#5A615C', marginTop: '16px', maxWidth: '560px' }}>
+          Your order and price are held until {formatDueDate(order.holdUntil)}.
+        </p>
+      )}
+
+      {due && !due.declared && !lapsed && (
+        <button type="button" className="co-pay" style={{ maxWidth: '560px', marginTop: '28px' }} onClick={onDeclare} disabled={busy}>
+          {busy ? 'Saving…' : "I've made the transfer"}
+        </button>
+      )}
+      {error && <p className="co-error" style={{ maxWidth: '560px' }} role="alert">{error}</p>}
+
+      {order.instalments.length > 0 && (
+        <div style={{ maxWidth: '560px', marginTop: '32px' }}>
+          <PaymentSchedule rows={order.instalments} format={(_, n) => money(transfer.amounts[n - 1])} />
+        </div>
+      )}
+      <p style={{ fontSize: '13px', color: '#5A615C', marginTop: '24px', maxWidth: '560px' }}>
+        Save the link to this page to come back to your order. Order reference {order.orderRef}
+      </p>
+    </>
+  );
+}
 
 export default function PayClient() {
   const params = useSearchParams();
@@ -113,6 +215,25 @@ export default function PayClient() {
     });
   }
 
+  async function declare() {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch('/api/checkout/instalment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order: orderId, t: token, action: 'declare' }),
+      });
+      const json = (await res.json()) as { ok?: boolean; message?: string };
+      if (!res.ok || !json.ok) throw new Error(json.message || 'We could not record that. Please try again.');
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'We could not record that. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const eyebrow = order?.status === 'paid' ? 'Paid in full' : order?.status === 'cancelled' ? 'Booking cancelled' : 'Your instalments';
   const heading = order?.status === 'paid' ? 'You are confirmed' : order?.status === 'cancelled' ? 'This booking was cancelled' : next ? `${formatNaira(next.amount)} due ${formatDueDate(next.dueAt)}` : '';
 
@@ -128,7 +249,8 @@ export default function PayClient() {
             </p>
           </>
         )}
-        {order && (
+        {order?.method === 'transfer' && <TransferView order={order} onDeclare={declare} busy={busy} error={error} />}
+        {order && order.method !== 'transfer' && (
           <>
             <p className="co-caps" style={{ color: COPPER }}>{eyebrow}</p>
             <h1 style={{ ...saol, fontSize: 'clamp(2.4rem, 5vw, 4.4rem)', lineHeight: 1, letterSpacing: '-0.025em', color: INK, margin: '24px 0 20px', maxWidth: '900px' }}>

@@ -71,7 +71,7 @@ Run every change through the checks below before calling it done. Decisions and 
 | Deferred item | Bring it in when |
 |---|---|
 | Queue for webhook and email work | Webhook processing regularly exceeds a few seconds, or email failures need retries |
-| Audit log collection | Before more staff get admin access, or the first refund or manual ticket change. `/staff/payments` is read-only and has two people, so it stays deferred for now; a third person or any staff action brings it in |
+| Wider audit log | Staff confirmations of bank transfers already write to `auditLog`. Extend it before the first refund, manual ticket change or other staff action |
 | Feature flags | A risky change needs a staged rollout |
 | Read caching | Pricing or ticket pages become slow or expensive under launch traffic |
 | Public status page | Corporate buyers ask for one |

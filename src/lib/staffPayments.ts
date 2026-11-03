@@ -29,7 +29,13 @@ export async function loadStaffOrders(): Promise<StaffOrder[]> {
     .where('eventSlug', '==', EVENT_SLUG)
     .where('status', 'in', ['paid', 'part_paid', 'review', 'cancelled'])
     .get();
-  return snap.docs.map((d) => {
+  // Unpaid bank transfers also matter, because staff may see the money before the buyer says so.
+  const transfers = await adminDb.collection('orders')
+    .where('method', '==', 'transfer')
+    .where('status', 'in', ['pending', 'lapsed'])
+    .get();
+  const docs = [...snap.docs, ...transfers.docs.filter((d) => d.get('eventSlug') === EVENT_SLUG)];
+  return docs.map((d) => {
     const o = d.data();
     return { ...o, paidAtIso: iso(o.paidAt), createdAtIso: iso(o.createdAt) } as StaffOrder;
   });
@@ -85,6 +91,7 @@ function summaryHtml(orders: StaffOrder[], comparison: Comparison | null, now: D
   const total = paid.reduce((sum, r) => sum + r.amount, 0);
   const toDate = ledger.rows.reduce((sum, r) => sum + r.amount, 0);
   const attention = ledger.attention.filter((a) => a.level !== 'due');
+  const toConfirm = ledger.awaiting.filter((a) => a.state === 'sent');
 
   const rows = paid.map((r) => `<tr>
     <td style="${cell}">${esc(r.buyerName)}</td>
@@ -113,6 +120,11 @@ function summaryHtml(orders: StaffOrder[], comparison: Comparison | null, now: D
     html: `<div style="font-family:Helvetica,Arial,sans-serif;color:#1B1E1C;max-width:640px;font-size:14px">
       <p>${paid.length > 0 ? `${paid.length} ${paid.length === 1 ? 'payment' : 'payments'} totalling <strong>${formatNaira(total)}</strong> on ${longDay(yesterday)}.` : `No payments on ${longDay(yesterday)}.`} Received to date: <strong>${formatNaira(toDate)}</strong>.</p>
       ${paid.length > 0 ? `<table style="border-collapse:collapse;font-size:14px">${rows}</table>` : ''}
+      ${toConfirm.length > 0 ? `${heading('Bank transfers to confirm')}<table style="border-collapse:collapse;font-size:14px">${toConfirm.map((a) => `<tr>
+        <td style="${cell}">${esc(a.buyerName)}</td>
+        <td style="${cell}">${esc(a.send)} to ${esc(a.bank)}</td>
+        <td style="${cell}">${esc(a.orderRef)}</td>
+      </tr>`).join('')}</table>` : ''}
       ${attention.length > 0 ? `${heading('Needs attention')}<table style="border-collapse:collapse;font-size:14px">${attention.map((a) => `<tr>
         <td style="${cell}">${esc(a.label)}</td>
         <td style="${cell}">${esc(a.buyerName)}</td>

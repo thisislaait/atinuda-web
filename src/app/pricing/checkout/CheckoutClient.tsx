@@ -12,17 +12,24 @@ import {
   MAX_QUANTITY,
   PRODUCTS,
   SUPPORT_PASS,
+  TRANSFER_HOLD_DAYS,
+  USD_RATE,
   findProduct,
+  flutterwaveAvailable,
   formatDueDate,
+  formatMoney,
   formatNaira,
   instalmentSchedule,
   instalmentsAvailable,
   isEarlyBird,
   quote,
+  transferAmounts,
   unitPrice,
   type Instalment,
+  type PayMethod,
   type PaymentPlan,
   type ProductId,
+  type TransferCurrency,
 } from '@/lib/atinuda7Checkout';
 
 declare global {
@@ -57,6 +64,8 @@ export default function CheckoutClient() {
   const [quantity, setQuantity] = useState(() => clampQty(Number(params?.get('qty') ?? 1)));
   const [supportPasses, setSupportPasses] = useState(0);
   const [plan, setPlan] = useState<PaymentPlan>('full');
+  const [method, setMethod] = useState<PayMethod>(() => (params?.get('pass') === 'test' ? 'flutterwave' : 'transfer'));
+  const [currency, setCurrency] = useState<TransferCurrency>('NGN');
   const [heldSchedule, setHeldSchedule] = useState<ScheduleRow[] | null>(null);
   const [buyer, setBuyer] = useState({ name: '', email: '', phone: '', company: '' });
   const [seatOneIsBuyer, setSeatOneIsBuyer] = useState(true);
@@ -78,6 +87,10 @@ export default function CheckoutClient() {
   const payInThree = plan === 'instalments' && canPayInThree;
   const schedule = useMemo(() => (payInThree && q ? instalmentSchedule(q.total) : null), [payInThree, q]);
   const dueToday = schedule ? schedule[0].amount : q?.total ?? 0;
+  const flutterwaveOpen = flutterwaveAvailable(productId);
+  const payByTransfer = method === 'transfer' || !flutterwaveOpen;
+  const usdTotal = q ? transferAmounts([q.total], 'USD')[0] : 0;
+  const usdNow = q ? transferAmounts(schedule ? schedule.map((r) => r.amount) : [q.total], 'USD')[0] : 0;
 
   // Keep dependent fields valid as the order changes.
   useEffect(() => {
@@ -146,6 +159,24 @@ export default function CheckoutClient() {
       goTo(3);
       return;
     }
+    if (payByTransfer) {
+      setStage('creating');
+      try {
+        const res = await fetch('/api/checkout/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'transfer', currency, buyer, attendees: attendeesPayload() }),
+        });
+        const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; payToken?: string };
+        if (!res.ok || !json.ok || !json.orderRef || !json.payToken) throw new Error(json.message || 'We could not start your order.');
+        window.location.assign(`/pricing/pay?order=${encodeURIComponent(json.orderRef)}&t=${encodeURIComponent(json.payToken)}`);
+      } catch (err) {
+        setStage('idle');
+        setError(err instanceof Error ? err.message : 'We could not start your order.');
+      }
+      return;
+    }
+
     if (typeof window.FlutterwaveCheckout !== 'function') {
       setError('The payment window is still loading. Try again in a moment.');
       return;
@@ -159,7 +190,7 @@ export default function CheckoutClient() {
       const res = await fetch('/api/checkout/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', buyer, attendees: attendeesPayload() }),
+        body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'flutterwave', buyer, attendees: attendeesPayload() }),
       });
       const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; txRef?: string; amount?: number };
       if (!res.ok || !json.ok || !json.txRef || !json.amount) throw new Error(json.message || 'We could not start your order.');
@@ -206,7 +237,8 @@ export default function CheckoutClient() {
   }
 
   const payLabel =
-    stage === 'creating' ? 'Opening secure payment…'
+    payByTransfer ? (stage === 'creating' ? 'Preparing your bank details…' : 'Continue to bank details')
+    : stage === 'creating' ? 'Opening secure payment…'
     : stage === 'paying' ? 'Complete payment in the window'
     : stage === 'confirming' ? 'Confirming payment…'
     : `Pay ${q ? formatNaira(dueToday) : ''}${schedule ? ' today' : ''}`;
@@ -401,6 +433,40 @@ export default function CheckoutClient() {
                 );
               })}
             </div>
+
+            <div className="co-plan">
+              <p className="co-caps" style={{ color: '#8D948E' }}>Payment method</p>
+              <div className="co-plans" role="radiogroup" aria-label="Payment method">
+                <button type="button" role="radio" aria-checked={payByTransfer} className={`co-preset${payByTransfer ? ' is-active' : ''}`} onClick={() => setMethod('transfer')}>
+                  <span className="co-preset-label">Pay via bank transfer</span>
+                  <span className="co-preset-sub">Naira or US dollars</span>
+                </button>
+                <button type="button" role="radio" aria-checked={!payByTransfer} aria-disabled={!flutterwaveOpen} disabled={!flutterwaveOpen} className={`co-preset co-method-off${!payByTransfer ? ' is-active' : ''}`} onClick={() => setMethod('flutterwave')}>
+                  <span className="co-preset-label">Pay with Flutterwave</span>
+                  <span className="co-preset-sub">{flutterwaveOpen ? 'Card, transfer or USSD' : 'Temporarily unavailable'}</span>
+                </button>
+              </div>
+
+              {payByTransfer && (
+                <>
+                  <p className="co-caps" style={{ color: '#8D948E', marginTop: '24px' }}>Currency</p>
+                  <div className="co-plans" role="radiogroup" aria-label="Currency">
+                    <button type="button" role="radio" aria-checked={currency === 'NGN'} className={`co-preset${currency === 'NGN' ? ' is-active' : ''}`} onClick={() => setCurrency('NGN')}>
+                      <span className="co-preset-label">Naira</span>
+                      <span className="co-preset-sub">{q ? formatNaira(q.total) : ''}</span>
+                    </button>
+                    <button type="button" role="radio" aria-checked={currency === 'USD'} className={`co-preset${currency === 'USD' ? ' is-active' : ''}`} onClick={() => setCurrency('USD')}>
+                      <span className="co-preset-label">US dollars</span>
+                      <span className="co-preset-sub">{formatMoney(usdTotal, 'USD')}</span>
+                    </button>
+                  </div>
+                  <p className="co-plan-note">
+                    {currency === 'USD' && `Converted at ₦${USD_RATE.toLocaleString('en-NG')} to $1, rounded up to the whole dollar. `}
+                    You will see the bank details next. We hold your order and price for {TRANSFER_HOLD_DAYS} days, and send your pass once the team confirms your {schedule ? 'final payment' : 'transfer'}.
+                  </p>
+                </>
+              )}
+            </div>
           </section>
           )}
           </div>
@@ -415,7 +481,7 @@ export default function CheckoutClient() {
         </main>
 
         <aside className="co-aside" aria-label="Order summary">
-          <Summary q={q} schedule={schedule} payLabel={actionLabel} busy={busy} onPay={primaryAction} onQuantity={setQuantity} error={error} />
+          <Summary q={q} schedule={schedule} payLabel={actionLabel} busy={busy} onPay={primaryAction} onQuantity={setQuantity} error={error} transfer={payByTransfer} usdNow={payByTransfer && currency === 'USD' ? usdNow : null} />
         </aside>
       </div>
 
@@ -428,7 +494,7 @@ export default function CheckoutClient() {
           <p style={{ ...saol, fontSize: '1.6rem', color: INK, lineHeight: 1.1 }}>{q ? `${formatNaira(dueToday)}${schedule ? ' today' : ''}` : '—'}</p>
         </div>
         <button type="button" className="co-pay co-pay-sm" onClick={primaryAction} disabled={busy || !q}>
-          {busy ? '…' : step < 3 ? 'Next' : 'Pay'}
+          {busy ? '…' : step < 3 ? 'Next' : payByTransfer ? 'Continue' : 'Pay'}
         </button>
       </div>
 
@@ -504,7 +570,7 @@ function Field({ label, value, onChange, type = 'text', autoComplete, error }: {
   );
 }
 
-function Summary({ q, schedule, payLabel, busy, onPay, onQuantity, error }: { q: ReturnType<typeof quote>; schedule: ScheduleRow[] | null; payLabel: string; busy: boolean; onPay: () => void; onQuantity: (n: number) => void; error: string | null }) {
+function Summary({ q, schedule, payLabel, busy, onPay, onQuantity, error, transfer, usdNow }: { q: ReturnType<typeof quote>; schedule: ScheduleRow[] | null; payLabel: string; busy: boolean; onPay: () => void; onQuantity: (n: number) => void; error: string | null; transfer: boolean; usdNow: number | null }) {
   if (!q) return null;
   const nextTier = [...GROUP_TIERS].reverse().find((t) => q.quantity < t.min);
   const toNext = nextTier ? nextTier.min - q.quantity : 0;
@@ -559,14 +625,24 @@ function Summary({ q, schedule, payLabel, busy, onPay, onQuantity, error }: { q:
         </div>
         {q.groupDiscount > 0 && <p className="co-saved">You save {formatNaira(q.groupDiscount)}</p>}
         {schedule && <PaymentSchedule rows={schedule} />}
+        {usdNow !== null && <p className="co-saved" style={{ color: '#5A615C' }}>You transfer {formatMoney(usdNow, 'USD')}{schedule ? ' now' : ''}</p>}
 
         <button type="button" className="co-pay" onClick={onPay} disabled={busy}>{payLabel}</button>
 
         {error && <p className="co-error" role="alert">{error}</p>}
 
         <ul className="co-assure">
-          <li>Secure payment by Flutterwave</li>
-          <li>Card, bank transfer or USSD</li>
+          {transfer ? (
+            <>
+              <li>Bank transfer to Oaken Events Limited</li>
+              <li>Order and price held for {TRANSFER_HOLD_DAYS} days</li>
+            </>
+          ) : (
+            <>
+              <li>Secure payment by Flutterwave</li>
+              <li>Card, bank transfer or USSD</li>
+            </>
+          )}
           <li>{schedule ? 'Pass sent by email after your final payment' : 'Passes sent by email once payment clears'}</li>
         </ul>
       </div>
@@ -574,13 +650,13 @@ function Summary({ q, schedule, payLabel, busy, onPay, onQuantity, error }: { q:
   );
 }
 
-export function PaymentSchedule({ rows }: { rows: ScheduleRow[] }) {
+export function PaymentSchedule({ rows, format = formatNaira }: { rows: ScheduleRow[]; format?: (amount: number, n: number) => string }) {
   return (
     <dl className="co-lines co-schedule">
       {rows.map((r, i) => (
         <div key={r.n} className={r.status === 'paid' ? 'is-win' : undefined}>
           <dt>{r.status === 'paid' ? 'Paid' : r.status === undefined && i === 0 ? 'Today' : `Due ${formatDueDate(r.dueAt)}`}</dt>
-          <dd>{formatNaira(r.amount)}</dd>
+          <dd>{format(r.amount, r.n)}</dd>
         </div>
       ))}
     </dl>
@@ -640,6 +716,12 @@ function Confirmation({ tickets, email, orderRef }: { tickets: Ticket[]; email: 
 }
 
 export const CSS = `
+  .co-preset.co-method-off:disabled { opacity: 0.45; cursor: not-allowed; }
+  .co-bank { max-width: 560px; margin-top: 32px; border-top: 1px solid #DBDFDB; }
+  .co-bank > div { display: grid; grid-template-columns: 130px minmax(0, 1fr) auto; align-items: baseline; gap: 12px; padding: 14px 0; border-bottom: 1px solid #E4E7E4; font-size: 15px; }
+  .co-bank dt { font-size: 13px; color: #5A615C; }
+  .co-bank dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; color: #1B1E1C; }
+  .co-copy { background: none; border: 0; border-bottom: 1px solid #1B1E1C; padding: 0; font: inherit; font-size: 13px; color: #1B1E1C; cursor: pointer; }
   .co-plan { margin-top: 32px; padding-top: 28px; border-top: 1px solid #E4E7E4; }
   .co-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
   .co-plan-note { font-size: 13px; line-height: 1.6; color: #5A615C; margin-top: 14px; max-width: 520px; }

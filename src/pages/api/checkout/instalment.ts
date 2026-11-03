@@ -1,10 +1,13 @@
 // pages/api/checkout/instalment.ts
-// Backs the private pay link emailed to pay-in-3 buyers. GET shows where the order stands;
-// POST starts the next payment. The amount always comes from the stored order.
+// Backs the private pay link. GET shows where the order stands. POST starts the next Flutterwave
+// payment, or with `action: 'declare'` records that the buyer has sent a bank transfer.
+// Amounts always come from the stored order.
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { timingSafeEqual } from 'crypto';
 import { adminDb } from '@/utils/firebaseAdmin';
+import { flutterwaveAvailable } from '@/lib/atinuda7Checkout';
 import { instalmentAttemptRef, nextInstalment, publicSchedule, type OrderDoc } from '@/lib/atinuda7Fulfil';
+import { declareTransfer, transferDue } from '@/lib/atinuda7Transfers';
 
 const ORDER_RE = /^ATN7-[A-Z0-9]+-[A-F0-9]{6}$/;
 
@@ -12,7 +15,7 @@ async function loadOrder(orderId: unknown, token: unknown): Promise<OrderDoc | n
   if (typeof orderId !== 'string' || !ORDER_RE.test(orderId) || typeof token !== 'string' || !token) return null;
   const snap = await adminDb.collection('orders').doc(orderId).get();
   const order = snap.data() as OrderDoc | undefined;
-  if (!order?.payToken || order.plan !== 'instalments') return null;
+  if (!order?.payToken || (order.plan !== 'instalments' && order.method !== 'transfer')) return null;
   const a = Buffer.from(token);
   const b = Buffer.from(order.payToken);
   return a.length === b.length && timingSafeEqual(a, b) ? order : null;
@@ -40,7 +43,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       total: order.total,
       status: order.status,
       instalments: publicSchedule(order),
+      method: order.method ?? 'flutterwave',
+      holdUntil: order.holdUntil ?? null,
+      transfer: order.transfer ? { currency: order.transfer.currency, amounts: order.transfer.amounts, due: transferDue(order) } : null,
     });
+  }
+
+  if (params.action === 'declare') {
+    try {
+      const result = await declareTransfer(order);
+      if (!result.ok) return res.status(409).json({ ok: false, message: result.message });
+      return res.status(200).json({ ok: true });
+    } catch (err) {
+      console.error('checkout/instalment: declare failed', order.txRef, err);
+      return res.status(500).json({ ok: false, message: 'We could not record that. Please try again.' });
+    }
+  }
+
+  if (order.method === 'transfer' || !flutterwaveAvailable(order.productId)) {
+    return res.status(409).json({ ok: false, message: 'This order is paid by bank transfer.' });
   }
 
   if (order.status !== 'part_paid') {

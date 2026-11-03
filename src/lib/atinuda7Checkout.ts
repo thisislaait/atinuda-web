@@ -222,3 +222,33 @@ export const formatDueDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Africa/Lagos' });
 
 export const formatNaira = (n: number) => `₦${Math.round(n).toLocaleString('en-NG')}`;
+
+// Bank transfer is how buyers pay while Flutterwave's compliance hold is in place.
+// Set FLUTTERWAVE_OPEN to true once a real payment has gone through again.
+export const FLUTTERWAVE_OPEN = false;
+export const flutterwaveAvailable = (productId: string) => FLUTTERWAVE_OPEN || productId === 'test';
+
+export type PayMethod = 'transfer' | 'flutterwave';
+export type TransferCurrency = 'NGN' | 'USD';
+
+export const USD_RATE = 1400;
+export const TRANSFER_HOLD_DAYS = 3;
+
+export const BANK_ACCOUNTS: Record<TransferCurrency, { label: string; accountName: string; accountNumber: string; bank: string }> = {
+  NGN: { label: 'Naira', accountName: 'OAKEN EVENTS LIMITED', accountNumber: '0009210368', bank: 'GT Bank' },
+  USD: { label: 'US dollars', accountName: 'OAKEN EVENTS LIMITED', accountNumber: '0022136364', bank: 'Access Bank' },
+};
+
+export const formatMoney = (amount: number, currency: TransferCurrency) =>
+  currency === 'USD' ? `$${Math.round(amount).toLocaleString('en-US')}` : formatNaira(amount);
+
+// Dollar amounts are whole dollars, rounded up at USD_RATE. The last instalment takes what is
+// left, so the parts always add up to the same dollar total as paying in one go.
+export function transferAmounts(naira: number[], currency: TransferCurrency): number[] {
+  if (currency === 'NGN') return naira;
+  const toUsd = (n: number) => Math.ceil(n / USD_RATE);
+  const total = toUsd(naira.reduce((sum, n) => sum + n, 0));
+  const parts = naira.slice(0, -1).map(toUsd);
+  const paidSoFar = parts.reduce((sum, n) => sum + n, 0);
+  return [...parts, Math.max(1, total - paidSoFar)];
+}

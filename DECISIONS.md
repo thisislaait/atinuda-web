@@ -53,6 +53,14 @@ A morning email goes to `STAFF_EMAILS` at 08:00 Lagos time from `/api/staff/dail
 
 **Local development:** Firebase Admin fails with "Premature close" on Node 22.23, so run the dev server and scripts on Node 20. Production is not affected.
 
+## Bank transfer while Flutterwave is on hold
+
+Flutterwave refuses payments with "Compliance status failure" (seen 3 November 2026), so buyers pay by bank transfer and Flutterwave stays visible but disabled. `FLUTTERWAVE_OPEN` in `src/lib/atinuda7Checkout.ts` turns it back on; the ₦200 test pass keeps it available so the fix can be checked.
+
+Accounts confirmed by the owner: GT Bank `0009210368` for naira, Access Bank `0022136364` for dollars, both Oaken Events Limited. Dollar prices convert at ₦1,400 to $1. Rounding up to the whole dollar is an implementation choice, not something the client specified. Staff totals stay in naira at the order's naira price.
+
+An order holds its price for 3 days, then lapses, but staff can still confirm it if the money arrives late. Instalments are allowed; staff track them on a spreadsheet and confirm each payment on `/staff/payments`. Only a staff confirmation issues tickets, and each one is written to `auditLog`.
+
 ## Project-specific overrides of the house design system
 
 The house standard in `~/.claude/CLAUDE.md` is the default. This project deliberately departs from it where the brand requires:

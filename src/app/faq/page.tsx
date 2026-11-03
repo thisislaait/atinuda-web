@@ -68,7 +68,7 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'how-to-pay',
         q: 'How do I pay?',
-        a: "On the Ticket page, choose a tier and quantity, then proceed to Checkout. We process payments securely via Flutterwave (card, USSD, mobile money).",
+        a: "On the Ticket page, choose a tier and quantity, then proceed to Checkout. Pay by bank transfer in naira or US dollars. Your pass is sent by email once the team confirms your transfer.",
       },
       {
         id: 'currency',

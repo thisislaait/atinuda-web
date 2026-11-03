@@ -13,8 +13,11 @@ import {
   SUPPORT_PASS,
   findProduct,
   formatDueDate,
+  formatMoney,
   formatNaira,
   type Instalment,
+  type PayMethod,
+  type TransferCurrency,
 } from '@/lib/atinuda7Checkout';
 
 export type OrderInstalment = Instalment & {
@@ -23,6 +26,8 @@ export type OrderInstalment = Instalment & {
   txRef?: string;
   flwTransactionId?: string;
   flwAmount?: number;
+  declaredAt?: string;
+  confirmedBy?: string;
 };
 
 type ReviewPayment = { reason: string; txRef: string; flwTransactionId: string; amount: number; at: string };
@@ -30,7 +35,7 @@ type ReviewPayment = { reason: string; txRef: string; flwTransactionId: string; 
 export type OrderDoc = {
   txRef: string;
   eventSlug: string;
-  status: 'pending' | 'part_paid' | 'paid' | 'review' | 'cancelled';
+  status: 'pending' | 'part_paid' | 'paid' | 'review' | 'cancelled' | 'lapsed';
   productId: string;
   productName: string;
   quantity: number;
@@ -46,6 +51,12 @@ export type OrderDoc = {
   amountPaid?: number;
   reviewPayments?: ReviewPayment[];
   remindersSent?: Record<string, string>;
+  method?: PayMethod;
+  // What a bank transfer buyer actually sends, one amount per payment, in their chosen currency.
+  transfer?: { currency: TransferCurrency; amounts: number[]; rate: number | null };
+  holdUntil?: string;
+  declaredAt?: string;
+  confirmedBy?: string;
 };
 
 export type IssuedTicket = { ticketNumber: string; ticketType: string; name: string; email: string };
@@ -88,6 +99,17 @@ export const publicSchedule = (order: Pick<OrderDoc, 'instalments'>): PublicInst
 export const nextInstalment = (order: Pick<OrderDoc, 'instalments'>) =>
   order.instalments?.find((i) => i.status !== 'paid') ?? null;
 
+// The amount a buyer pays, shown in the currency they pay in. `n` is the instalment number.
+export function buyerAmount(order: Pick<OrderDoc, 'transfer' | 'total' | 'instalments'>, n?: number) {
+  const part = order.instalments?.find((i) => i.n === n);
+  if (order.transfer) {
+    const { currency, amounts } = order.transfer;
+    const amount = n ? amounts[n - 1] : amounts.reduce((sum, a) => sum + a, 0);
+    return formatMoney(amount, currency);
+  }
+  return formatNaira(part ? part.amount : order.total);
+}
+
 async function verifyWithFlutterwave(
   transactionId: string | number,
 ): Promise<{ ok: true; flw: FlwTransaction } | Extract<FulfilResult, { ok: false }>> {
@@ -110,7 +132,7 @@ async function verifyWithFlutterwave(
   }
 }
 
-function buildTickets(order: OrderDoc): IssuedTicket[] {
+export function buildTickets(order: OrderDoc): IssuedTicket[] {
   const product = findProduct(order.productId);
   const productName = product?.name ?? order.productName;
   const prefix = product?.ticketPrefix ?? 'GEN';
@@ -131,7 +153,7 @@ function buildTickets(order: OrderDoc): IssuedTicket[] {
   ];
 }
 
-function writeTickets(tx: FirebaseFirestore.Transaction, order: OrderDoc, tickets: IssuedTicket[]) {
+export function writeTickets(tx: FirebaseFirestore.Transaction, order: OrderDoc, tickets: IssuedTicket[]) {
   for (const t of tickets) {
     tx.set(adminDb.collection('tickets').doc(t.ticketNumber), {
       ticketNumber: t.ticketNumber,
@@ -322,19 +344,19 @@ export async function sendMail(to: string, subject: string, html: string) {
   return true;
 }
 
-export const scheduleTable = (order: Pick<OrderDoc, 'instalments'>) =>
+export const scheduleTable = (order: Pick<OrderDoc, 'instalments' | 'transfer' | 'total'>) =>
   `<table style="border-collapse:collapse;font-size:14px;margin:16px 0">${(order.instalments ?? [])
-    .map((i) => `<tr><td style="padding:6px 16px 6px 0">${formatNaira(i.amount)}</td><td style="padding:6px 16px 6px 0">${i.status === 'paid' ? 'Paid' : `Due ${formatDueDate(i.dueAt)}`}</td></tr>`)
+    .map((i) => `<tr><td style="padding:6px 16px 6px 0">${buyerAmount(order, i.n)}</td><td style="padding:6px 16px 6px 0">${i.status === 'paid' ? 'Paid' : `Due ${formatDueDate(i.dueAt)}`}</td></tr>`)
     .join('')}</table>`;
 
-async function sendInstalmentReceipt(order: OrderDoc, paid: Instalment) {
+export async function sendInstalmentReceipt(order: OrderDoc, paid: Instalment) {
   const next = nextInstalment(order);
   await sendMail(
     order.buyer.email,
     paid.n === 1 ? `Your ${EVENT_LABEL} place is held` : `Instalment received for ${EVENT_LABEL}`,
     `<div style="font-family:Helvetica,Arial,sans-serif;color:#1B1E1C;max-width:560px">
       <p>Hello ${esc(order.buyer.name)},</p>
-      <p>We have received ${formatNaira(paid.amount)} towards your ${esc(order.productName)} pass for ${EVENT_LABEL}, ${EVENT_WHEN} in ${EVENT_WHERE}. Your place and price are held, and your pass is issued when the final payment clears.</p>
+      <p>We have received ${buyerAmount(order, paid.n)} towards your ${esc(order.productName)} pass for ${EVENT_LABEL}, ${EVENT_WHEN} in ${EVENT_WHERE}. Your place and price are held, and your pass is issued when the final payment clears.</p>
       ${scheduleTable(order)}
       ${next ? `<p><a href="${payLink(order)}" style="color:#1B1E1C">Pay your next instalment</a>. This link is private to you. We will remind you before each due date.</p>` : ''}
       <p>Order reference: <strong>${order.txRef}</strong></p>
@@ -343,7 +365,7 @@ async function sendInstalmentReceipt(order: OrderDoc, paid: Instalment) {
   );
 }
 
-async function sendConfirmation(order: OrderDoc, tickets: IssuedTicket[]) {
+export async function sendConfirmation(order: OrderDoc, tickets: IssuedTicket[]) {
   const rows = tickets
     .map((t) => `<tr><td style="padding:6px 16px 6px 0;font-family:monospace">${t.ticketNumber}</td><td style="padding:6px 16px 6px 0">${t.ticketType}</td><td style="padding:6px 0">${t.name ? esc(t.name) : 'To be assigned'}</td></tr>`)
     .join('');
@@ -354,7 +376,7 @@ async function sendConfirmation(order: OrderDoc, tickets: IssuedTicket[]) {
     `
       <div style="font-family:Helvetica,Arial,sans-serif;color:#1B1E1C;max-width:560px">
         <p>Hello ${esc(order.buyer.name)},</p>
-        <p>Your payment of ${formatNaira(order.total)} is confirmed. ${EVENT_LABEL} takes place on ${EVENT_WHEN} in ${EVENT_WHERE}.</p>
+        <p>Your payment of ${buyerAmount(order)} is confirmed. ${EVENT_LABEL} takes place on ${EVENT_WHEN} in ${EVENT_WHERE}.</p>
         <table style="border-collapse:collapse;font-size:14px;margin:16px 0">${rows}</table>
         <p>Order reference: <strong>${order.txRef}</strong></p>
         <p>To assign unnamed passes, reply to this email with each attendee's name and email.</p>

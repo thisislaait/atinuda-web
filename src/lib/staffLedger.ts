@@ -1,6 +1,6 @@
 // Turns Atinuda 7.0 orders into the staff view of money received. No server imports, so the
 // staff page and the daily email share these rules. Each paid instalment is its own payment.
-import { INSTALMENT_GRACE_DAYS } from '@/lib/atinuda7Checkout';
+import { INSTALMENT_GRACE_DAYS, formatMoney } from '@/lib/atinuda7Checkout';
 import type { OrderDoc } from '@/lib/atinuda7Fulfil';
 
 export type StaffOrder = OrderDoc & {
@@ -26,6 +26,27 @@ export type PaymentRow = {
   orderRef: string;
   flwTransactionId: string;
   booking: 'Paid' | 'Part paid' | 'Cancelled';
+  channel: 'Bank transfer' | 'Flutterwave';
+  // What the buyer sent when that isn't naira. `amount` stays in naira so totals add up.
+  paidAs: string;
+  confirmedBy: string;
+};
+
+// A bank transfer staff should look for. `n` is the instalment, or null for payment in one go.
+export type AwaitingTransfer = {
+  id: string;
+  orderRef: string;
+  n: number | null;
+  state: 'sent' | 'not_marked' | 'overdue' | 'lapsed';
+  buyerName: string;
+  buyerEmail: string;
+  buyerPhone: string;
+  pass: string;
+  naira: number;
+  send: string;
+  bank: string;
+  payment: string;
+  note: string;
 };
 
 export type AttentionItem = {
@@ -44,6 +65,7 @@ export type AttentionItem = {
 export type Ledger = {
   rows: PaymentRow[];
   attention: AttentionItem[];
+  awaiting: AwaitingTransfer[];
   outstanding: number;
   generatedAt: string;
 };
@@ -75,6 +97,9 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const SETTLE_MS = 15 * 60 * 1000;
 
 const LEVEL_ORDER: AttentionItem['level'][] = ['check', 'overdue', 'cancelled', 'due'];
+const AWAITING_ORDER: AwaitingTransfer['state'][] = ['sent', 'overdue', 'not_marked', 'lapsed'];
+// How long a lapsed order stays on the list, in case its money turns up late.
+const LAPSED_SHOWN_DAYS = 14;
 
 export const lagosDay = (at: string | Date) =>
   new Date(at).toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' });
@@ -82,12 +107,15 @@ export const lagosDay = (at: string | Date) =>
 export const addDays = (day: string, n: number) =>
   new Date(Date.parse(`${day}T00:00:00Z`) + n * DAY_MS).toISOString().slice(0, 10);
 
+const BANK_LABEL = { NGN: 'GT Bank', USD: 'Access Bank' } as const;
+
 const dateLabel = (iso: string) =>
   new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' });
 
 export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledger {
   const rows: PaymentRow[] = [];
   const attention: AttentionItem[] = [];
+  const awaiting: AwaitingTransfer[] = [];
   let outstanding = 0;
 
   for (const o of orders) {
@@ -97,6 +125,13 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
       buyerPhone: o.buyer.phone,
     };
     const row = { ...buyer, company: o.buyer.company, pass: o.productName, quantity: o.quantity, orderRef: o.txRef };
+    const isTransfer = o.method === 'transfer';
+    const channel = isTransfer ? ('Bank transfer' as const) : ('Flutterwave' as const);
+    const paidAs = (n: number | null) => {
+      if (o.transfer?.currency !== 'USD') return '';
+      const { amounts, currency } = o.transfer;
+      return formatMoney(n ? amounts[n - 1] : amounts.reduce((sum, a) => sum + a, 0), currency);
+    };
     const flag = (id: string, level: AttentionItem['level'], label: string, amount: number, note: string) =>
       attention.push({ id: `${o.txRef}-${id}`, level, label, ...buyer, pass: o.productName, amount, note, orderRef: o.txRef });
 
@@ -113,6 +148,9 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
           payment: `Instalment ${i.n} of ${o.instalments!.length}`,
           flwTransactionId: i.flwTransactionId ?? '',
           booking,
+          channel,
+          paidAs: paidAs(i.n),
+          confirmedBy: i.confirmedBy ?? '',
         });
       }
     } else if (o.status === 'paid' && o.paidAtIso) {
@@ -125,6 +163,9 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
         payment: 'Paid in full',
         flwTransactionId: o.flwTransactionId ?? '',
         booking: 'Paid',
+        channel,
+        paidAs: paidAs(null),
+        confirmedBy: o.confirmedBy ?? '',
       });
     }
 
@@ -142,7 +183,8 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
       const unpaid = (o.instalments ?? []).filter((i) => i.status !== 'paid');
       outstanding += unpaid.reduce((sum, i) => sum + i.amount, 0);
       const next = unpaid[0];
-      if (next) {
+      // Bank transfer instalments are followed up on the transfers list instead.
+      if (next && !isTransfer) {
         const due = new Date(next.dueAt).getTime();
         if (due < now.getTime()) {
           const cancelOn = new Date(due + INSTALMENT_GRACE_DAYS * DAY_MS).toISOString();
@@ -154,9 +196,64 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
     }
   }
 
+  for (const o of orders) {
+    if (o.method !== 'transfer' || !o.transfer) continue;
+    const account = BANK_LABEL[o.transfer.currency];
+    const base = {
+      orderRef: o.txRef,
+      buyerName: o.buyer.name,
+      buyerEmail: o.buyer.email,
+      buyerPhone: o.buyer.phone,
+      pass: o.productName,
+      bank: account,
+    };
+    const send = (n: number | null) => {
+      const { amounts, currency } = o.transfer!;
+      return formatMoney(n ? amounts[n - 1] : amounts.reduce((sum, a) => sum + a, 0), currency);
+    };
+
+    if (o.status === 'part_paid' || ((o.status === 'pending' || o.status === 'lapsed') && o.plan === 'instalments')) {
+      const next = (o.instalments ?? []).find((i) => i.status !== 'paid');
+      if (!next) continue;
+      const of = o.instalments!.length;
+      const due = new Date(next.dueAt).getTime();
+      const late = o.status === 'part_paid' && due < now.getTime();
+      if (o.status === 'part_paid' && !next.declaredAt && !late && due - now.getTime() > 7 * DAY_MS) continue;
+      const lapsedLong = o.status === 'lapsed' && o.holdUntil && now.getTime() - new Date(o.holdUntil).getTime() > LAPSED_SHOWN_DAYS * DAY_MS;
+      if (lapsedLong) continue;
+      const state: AwaitingTransfer['state'] = o.status === 'lapsed' ? 'lapsed' : next.declaredAt ? 'sent' : late ? 'overdue' : 'not_marked';
+      awaiting.push({
+        ...base,
+        id: `${o.txRef}-${next.n}`,
+        n: next.n,
+        state,
+        naira: next.amount,
+        send: send(next.n),
+        payment: `Instalment ${next.n} of ${of}`,
+        note: state === 'lapsed' ? 'The 3-day hold ended. You can still confirm if the money arrived.' : `Due ${dateLabel(next.dueAt)}.`,
+      });
+    } else if (o.status === 'pending' || o.status === 'lapsed') {
+      if (o.status === 'lapsed' && o.holdUntil && now.getTime() - new Date(o.holdUntil).getTime() > LAPSED_SHOWN_DAYS * DAY_MS) continue;
+      const state: AwaitingTransfer['state'] = o.status === 'lapsed' ? 'lapsed' : o.declaredAt ? 'sent' : 'not_marked';
+      awaiting.push({
+        ...base,
+        id: o.txRef,
+        n: null,
+        state,
+        naira: o.total,
+        send: send(null),
+        payment: 'Full payment',
+        note: state === 'lapsed'
+          ? 'The 3-day hold ended. You can still confirm if the money arrived.'
+          : `Held until ${dateLabel(o.holdUntil ?? now.toISOString())}.`,
+      });
+    }
+  }
+  awaiting.sort((a, b) => AWAITING_ORDER.indexOf(a.state) - AWAITING_ORDER.indexOf(b.state));
+
   rows.sort((a, b) => b.at.localeCompare(a.at));
   attention.sort((a, b) => LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level));
-  return { rows, attention, outstanding, generatedAt: now.toISOString() };
+  return { rows, attention, awaiting, outstanding, generatedAt: now.toISOString() };
 }
 
 // Every Flutterwave transaction id an order has recorded, including those held for review.

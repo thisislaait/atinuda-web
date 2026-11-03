@@ -102,6 +102,11 @@ export const CSS = `
   .sa-flag-amount { font-weight: 600; white-space: nowrap; }
   .sa-flag-note { color: var(--ink-2); font-size: 13px; }
   .sa-flag-contact { color: var(--ink-3); font-size: 13px; overflow-wrap: anywhere; }
+  .sa-transfer { padding: 14px 20px; border-top: 1px solid var(--line-2); display: grid; gap: 4px; }
+  .sa-transfer:first-child { border-top: 0; }
+  .sa-transfer b { font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
+  .sa-transfer-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+  .sa-cta-sm { padding: 6px 12px; font-size: 13px; }
   .sa-check { padding: 12px 20px 16px; border-top: 1px solid var(--line-2); color: var(--ink-2); font-size: 13px; }
 
   .sa-bars { display: grid; gap: 14px; padding: 0 20px 20px; }
@@ -152,7 +157,7 @@ export const CSS = `
     .sa-app { grid-template-columns: minmax(0, 1fr); }
     .sa-side { position: static; height: auto; padding: 14px 16px 8px; }
     .sa-logo { margin: 0 0 12px; width: 96px; }
-    .sa-nav { grid-template-columns: repeat(3, auto); justify-content: start; gap: 4px; }
+    .sa-nav { display: flex; overflow-x: auto; gap: 4px; }
     .sa-nav button { padding: 7px 10px; gap: 8px; white-space: nowrap; }
     .sa-who { display: none; }
     .sa-main { padding: 20px 16px 48px; }
@@ -175,6 +180,7 @@ export const CSS = `
     .sa-tools, .sa-phead, .sa-pager { padding-left: 16px; padding-right: 16px; }
     .sa-flag { padding-left: 16px; padding-right: 16px; }
     .sa-check { padding-left: 16px; padding-right: 16px; }
+    .sa-transfer { padding-left: 16px; padding-right: 16px; }
     .sa-bars { padding: 0 16px 16px; }
   }
   @media (prefers-reduced-motion: reduce) {

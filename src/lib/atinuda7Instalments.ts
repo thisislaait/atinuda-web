@@ -2,7 +2,7 @@
 // bookings that pass the grace period, and sends the team a Monday summary of who owes what.
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
 import { EVENT_LABEL, INSTALMENT_GRACE_DAYS, formatDueDate, formatNaira } from '@/lib/atinuda7Checkout';
-import { TEAM_EMAIL, esc, nextInstalment, payLink, scheduleTable, sendMail, type OrderDoc } from '@/lib/atinuda7Fulfil';
+import { TEAM_EMAIL, buyerAmount, esc, nextInstalment, payLink, scheduleTable, sendMail, type OrderDoc } from '@/lib/atinuda7Fulfil';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -31,6 +31,8 @@ export async function runInstalmentSweep(now: Date = new Date()): Promise<SweepS
     try {
       const next = nextInstalment(order);
       if (!next) continue;
+      // The buyer says this transfer is sent and staff have yet to match it: don't chase or cancel.
+      if (next.declaredAt) continue;
       const daysToDue = (new Date(next.dueAt).getTime() - now.getTime()) / DAY_MS;
 
       if (daysToDue < -INSTALMENT_GRACE_DAYS) {
@@ -87,8 +89,8 @@ function sendReminder(order: OrderDoc, stage: ReminderStage) {
   const date = formatDueDate(next.dueAt);
   const lastDay = formatDueDate(new Date(new Date(next.dueAt).getTime() + INSTALMENT_GRACE_DAYS * DAY_MS).toISOString());
   const line = stage === 'overdue'
-    ? `Your payment of ${formatNaira(next.amount)} was due on ${date}. Please pay by ${lastDay}. After that date your booking is cancelled and your place is released.`
-    : `Your next payment of ${formatNaira(next.amount)} is due on ${date}.`;
+    ? `Your payment of ${buyerAmount(order, next.n)} was due on ${date}. Please pay by ${lastDay}. After that date your booking is cancelled and your place is released.`
+    : `Your next payment of ${buyerAmount(order, next.n)} is due on ${date}.`;
   return sendMail(
     order.buyer.email,
     stage === 'overdue' ? `Your ${EVENT_LABEL} payment is overdue` : `Your ${EVENT_LABEL} instalment is due on ${date}`,

@@ -11,13 +11,13 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/firebase/config';
 import { formatNaira } from '@/lib/atinuda7Checkout';
-import { addDays, lagosDay, type AttentionItem, type Comparison, type Ledger, type PaymentRow } from '@/lib/staffLedger';
+import { addDays, lagosDay, type AttentionItem, type AwaitingTransfer, type Comparison, type Ledger, type PaymentRow } from '@/lib/staffLedger';
 import EquityCurve, { type CurvePoint } from './EquityCurve';
 import { CSS } from './styles';
 
 type Sample = { ledger: Ledger; comparison: Comparison };
 type Range = '7' | '30' | '90' | 'all';
-type View = 'overview' | 'payments' | 'attention';
+type View = 'overview' | 'transfers' | 'payments' | 'attention';
 type TypeFilter = 'all' | 'full' | 'instalments' | 'cancelled';
 
 const RANGES: { id: Range; label: string }[] = [
@@ -77,9 +77,9 @@ const csvCell = (value: string | number) => {
 };
 
 function downloadCsv(rows: PaymentRow[]) {
-  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Order reference', 'Flutterwave ID', 'Booking'];
+  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Paid as', 'Paid by', 'Confirmed by', 'Order reference', 'Flutterwave ID', 'Booking'];
   const lines = rows.map((r) =>
-    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.orderRef, r.flwTransactionId, r.booking]
+    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.paidAs, r.channel, r.confirmedBy, r.orderRef, r.flwTransactionId, r.booking]
       .map(csvCell)
       .join(','),
   );
@@ -173,6 +173,9 @@ function PaymentDrawer({ row, onClose }: { row: PaymentRow; onClose: () => void 
     ['Company', row.company || 'Not given'],
     ['Pass', row.quantity > 1 ? `${row.pass} × ${row.quantity}` : row.pass],
     ['Paid', dateTime(row.at)],
+    ['Paid by', row.channel],
+    ...(row.paidAs ? ([['Paid as', row.paidAs]] as [string, string][]) : []),
+    ...(row.confirmedBy ? ([['Confirmed by', row.confirmedBy]] as [string, string][]) : []),
     ['Booking', row.booking],
     ['Reference', row.orderRef],
     ['Flutterwave ID', row.flwTransactionId || 'Not recorded'],
@@ -255,6 +258,57 @@ function UnrecordedItem({ item }: { item: Comparison['unrecorded'][number] }) {
       <p className="sa-flag-name">{item.name || 'Name not given'}</p>
       <p className="sa-flag-note">Flutterwave shows this paid on {dateTime(item.at)}, but no order records it and no ticket has been issued.</p>
       <p className="sa-flag-contact">{item.email ? `${item.email}, ` : ''}{item.ref}</p>
+    </div>
+  );
+}
+
+const AWAITING_LABEL: Record<AwaitingTransfer['state'], { text: string; pill: string }> = {
+  sent: { text: 'Buyer says sent', pill: 'sa-pill-paid' },
+  overdue: { text: 'Overdue', pill: 'sa-pill-overdue' },
+  not_marked: { text: 'Not marked as sent', pill: 'sa-pill-part' },
+  lapsed: { text: 'Hold ended', pill: 'sa-pill-due' },
+};
+
+function TransferItem({ item, onConfirm }: { item: AwaitingTransfer; onConfirm: (item: AwaitingTransfer) => Promise<string | null> }) {
+  const [asking, setAsking] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  const label = AWAITING_LABEL[item.state];
+
+  const confirm = async () => {
+    setBusy(true);
+    setProblem('');
+    const failure = await onConfirm(item);
+    if (failure) {
+      setProblem(failure);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="sa-transfer">
+      <div className="sa-flag-head">
+        <span className={`sa-pill ${label.pill}`}>{label.text}</span>
+        <span className="sa-flag-amount">{item.send}</span>
+      </div>
+      <p className="sa-flag-name">{item.buyerName}, {item.pass}</p>
+      <p className="sa-flag-note">
+        {item.payment}. Look in {item.bank} for reference <b>{item.orderRef}</b>
+        {item.send !== formatNaira(item.naira) ? `, counted as ${formatNaira(item.naira)}` : ''}. {item.note}
+      </p>
+      <p className="sa-flag-contact">{item.buyerEmail}, {item.buyerPhone}</p>
+      <div className="sa-transfer-actions">
+        {!asking ? (
+          <button className="sa-btn" onClick={() => setAsking(true)}>Confirm payment</button>
+        ) : (
+          <>
+            <button className="sa-cta sa-cta-sm" onClick={confirm} disabled={busy}>{busy ? 'Confirming…' : `Yes, ${item.send} has arrived`}</button>
+            <button className="sa-btn" onClick={() => setAsking(false)} disabled={busy}>Cancel</button>
+            <span className="sa-flag-contact">The buyer is emailed straight away, and their pass is issued if this is the last payment.</span>
+          </>
+        )}
+      </div>
+      {problem && <p className="sa-error" role="alert">{problem}</p>}
     </div>
   );
 }
@@ -384,6 +438,8 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
     }
   }
 
+  const awaiting = ledger?.awaiting ?? [];
+  const toConfirm = awaiting.filter((a) => a.state === 'sent').length;
   const unrecorded = comparison?.unrecorded ?? [];
   const attention = ledger?.attention ?? [];
   const attentionCount = unrecorded.length + attention.length;
@@ -406,7 +462,25 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
       ? 'Checking against Flutterwave…'
       : `Flutterwave check, last ${comparison.days} days: ${comparison.matched} matched, ${unrecorded.length} not recorded.${comparison.partial ? ' Flutterwave returned only part of its records, so this is incomplete.' : ''}${comparison.otherCount > 0 ? ` ${plural(comparison.otherCount, 'other payment')} on the account (${formatNaira(comparison.otherNaira)} in naira) came from outside this checkout and are not counted here.` : ''}`;
 
-  const titles: Record<View, string> = { overview: 'Overview', payments: 'Payments', attention: 'Needs attention' };
+  const titles: Record<View, string> = { overview: 'Overview', transfers: 'Bank transfers', payments: 'Payments', attention: 'Needs attention' };
+
+  const confirmItem = async (item: AwaitingTransfer): Promise<string | null> => {
+    if (sample) return 'This is a preview, so nothing was confirmed.';
+    if (!user) return 'Please sign in again.';
+    try {
+      const resp = await fetch('/api/staff/confirm-transfer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await user.getIdToken()}` },
+        body: JSON.stringify({ orderRef: item.orderRef, n: item.n }),
+      });
+      const json = await resp.json();
+      if (!resp.ok || !json.ok) return json.message || 'That payment was not confirmed. Try again.';
+      await load(user);
+      return null;
+    } catch {
+      return 'That payment may not have been confirmed. Refresh and check before trying again.';
+    }
+  };
 
   return (
     <div className="sa-app">
@@ -414,10 +488,11 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
       <aside className="sa-side">
         <Image className="sa-logo" src="/assets/images/whitelogo.png" alt="Atinuda" width={680} height={250} priority />
         <nav className="sa-nav" aria-label="Staff pages">
-          {(['overview', 'payments', 'attention'] as View[]).map((v) => (
+          {(['overview', 'transfers', 'payments', 'attention'] as View[]).map((v) => (
             <button key={v} aria-current={view === v ? 'page' : undefined} onClick={() => setView(v)}>
               {titles[v]}
               {v === 'attention' && attentionCount > 0 && <span className="sa-count">{attentionCount}</span>}
+              {v === 'transfers' && toConfirm > 0 && <span className="sa-count">{toConfirm}</span>}
             </button>
           ))}
         </nav>
@@ -445,7 +520,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
               <div className="sa-top-actions">
                 <span className="sa-updated" role="status">{refreshing ? 'Refreshing…' : `Updated ${time(ledger.generatedAt)}, Lagos time`}</span>
                 {user && <button className="sa-btn" onClick={() => { load(user); compare(user); }} disabled={refreshing}>Refresh</button>}
-                {view !== 'attention' && (
+                {(view === 'overview' || view === 'payments') && (
                   <div className="sa-seg" role="group" aria-label="Date range">
                     {RANGES.map((r) => (
                       <button key={r.id} aria-pressed={range === r.id} onClick={() => setRange(r.id)}>{r.label}</button>
@@ -516,6 +591,14 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                   </section>
 
                   <div className="sa-stack">
+                    {toConfirm > 0 && (
+                      <section className="sa-panel" aria-labelledby="sa-toconfirm">
+                        <div className="sa-phead">
+                          <h2 id="sa-toconfirm">{plural(toConfirm, 'transfer')} to confirm</h2>
+                          <button className="sa-textbtn" onClick={() => setView('transfers')}>Review</button>
+                        </div>
+                      </section>
+                    )}
                     <section className="sa-panel" aria-labelledby="sa-flagged">
                       <div className="sa-phead">
                         <h2 id="sa-flagged">Needs attention</h2>
@@ -544,6 +627,14 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                   </div>
                 </div>
               </>
+            )}
+
+            {view === 'transfers' && (
+              <section className="sa-panel" aria-label="Bank transfers to check">
+                {awaiting.length === 0
+                  ? <p className="sa-empty" style={{ paddingTop: 20 }}>No bank transfers to check. New orders appear here as soon as a buyer sees the bank details.</p>
+                  : <div className="sa-flags">{awaiting.map((a) => <TransferItem key={a.id} item={a} onConfirm={confirmItem} />)}</div>}
+              </section>
             )}
 
             {view === 'payments' && (

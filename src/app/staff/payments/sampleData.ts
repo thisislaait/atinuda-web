@@ -1,4 +1,5 @@
 // Invented buyers for the local preview at /staff/payments?sample=1. Never used in production.
+import { USD_RATE, transferAmounts } from '@/lib/atinuda7Checkout';
 import { buildLedger, type Comparison, type StaffOrder } from '@/lib/staffLedger';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -74,6 +75,26 @@ export function sampleLedger() {
     flwAmount: 200000,
     reviewReason: 'underpaid',
   });
+  // Bank transfers staff still need to check, one for each state on the list.
+  const hold = new Date(now + 2 * DAY_MS).toISOString();
+  const transfer = (i: number, currency: 'NGN' | 'USD', extra: Partial<StaffOrder>): StaffOrder => {
+    const base = fullOrder(i, 0, now);
+    return {
+      ...base,
+      status: 'pending',
+      method: 'transfer',
+      amountPaid: undefined,
+      paidAtIso: undefined,
+      flwTransactionId: undefined,
+      holdUntil: hold,
+      transfer: { currency, amounts: transferAmounts([base.total], currency), rate: currency === 'USD' ? USD_RATE : null },
+      ...extra,
+    };
+  };
+  orders.push(transfer(50, 'NGN', { declaredAt: new Date(now - 3_600_000).toISOString() }));
+  orders.push(transfer(51, 'USD', { declaredAt: new Date(now - 7_200_000).toISOString() }));
+  orders.push(transfer(52, 'NGN', {}));
+  orders.push(transfer(53, 'NGN', { status: 'lapsed', holdUntil: new Date(now - 2 * DAY_MS).toISOString() }));
   return buildLedger(orders, new Date(now));
 }
 
