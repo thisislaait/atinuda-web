@@ -10,6 +10,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import AuthModal from "@/components/auth/AuthModal";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 import { CookieConsent } from "@/components/CookieConsent";
+import { SiteAnalytics } from "@/components/SiteAnalytics";
+import { SHARE_IMAGE, SITE_URL, jsonLdHtml, organisationJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: {
@@ -18,12 +20,14 @@ export const metadata: Metadata = {
   },
   description:
     'Atinuda convenes Africa\'s most consequential founders, executives, and cultural architects for transformative summits, the Elevation programme, and Spark the Future.',
-  metadataBase: new URL('https://atinuda.com'),
+  metadataBase: new URL(SITE_URL),
+  // Each page's address on the main domain, without tracking or other query strings.
+  alternates: { canonical: './' },
   openGraph: {
     siteName: 'Atinuda',
     type: 'website',
     locale: 'en_GB',
-    images: [{ url: '/assets/images/Retreat/Finale/ATINUDA6_DAY6_46.JPG', width: 1200, height: 630 }],
+    images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -45,6 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(organisationJsonLd)} />
         {/* 👇 Now your entire site has access to auth context */}
         <AuthProvider>
           <SmoothScrollProvider>
@@ -55,6 +60,7 @@ export default function RootLayout({
             <SummitFooter />
             <Toaster position="top-right" />
             <CookieConsent />
+            <SiteAnalytics />
           </SmoothScrollProvider>
         </AuthProvider>
       </body>

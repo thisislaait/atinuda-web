@@ -3,12 +3,13 @@ import Link from 'next/link';
 import { CompareMobile } from './CompareMobile';
 import Image from 'next/image';
 import { findProduct, formatNaira, isEarlyBird, type ProductId } from '@/lib/atinuda7Checkout';
+import { eventJsonLd, jsonLdHtml } from '@/lib/seo';
 
 // Re-rendered hourly so early bird prices drop off the page once the deadline passes.
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Passes & Pricing | Atinuda 7.0',
+  title: { absolute: 'Passes & Pricing | Atinuda 7.0' },
   description: 'Five passes for Atinuda 7.0, 6–8 October 2027 in Lagos — from the main-stage programme to the Executive Dinner Gala and the private leadership session.',
 };
 
@@ -257,6 +258,7 @@ function Reserve({ pass, variant }: { pass: Pass; variant: 'outline' | 'solid' |
 export default function PricingPage() {
   return (
     <div style={{ background: BG }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(eventJsonLd())} />
 
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section style={{ position: 'relative', minHeight: '100svh', background: DARK, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>

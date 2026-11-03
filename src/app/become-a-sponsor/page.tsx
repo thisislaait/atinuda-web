@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
 import BecomeSponsorForm from "../../components/ui/SponsorForm";
 import Image from "next/image";
 
+
+export const metadata: Metadata = {
+  title: "Become a Sponsor",
+  description: "Partner with Atinuda and reach the founders, executives and investors shaping Africa’s experience economy at Atinuda 7.0, 6–8 October 2027 in Lagos.",
+};
 
 export default function BecomeSponsorPage() {
     return (

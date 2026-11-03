@@ -3,11 +3,15 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FiSearch, FiChevronDown, FiChevronUp} from 'react-icons/fi';
+import { PRODUCTS, USD_RATE, formatNaira, unitPrice } from '@/lib/atinuda7Checkout';
+
+const PASS_LIST = PRODUCTS.filter((p) => p.kind !== 'test')
+  .map((p) => `• ${p.name} (${formatNaira(unitPrice(p))}): ${p.summary}`)
+  .join('\n');
 
 /**
  * FAQ DATA
- * Edit freely — content is grouped by category.
- * Dates/tiers match your app: Oct 6–8, 2025, Lagos; ticket tiers & APPOEMN discounts.
+ * Edit freely — content is grouped by category. Passes and prices come from the checkout catalogue.
  */
 type FaqItem = { id: string; q: string; a: string };
 type FaqCategory = { id: string; title: string; items: FaqItem[] };
@@ -20,65 +24,44 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'what-is-atinuda',
         q: 'What is Atinuda?',
-        a: "Atinuda is a multi-day creative industry experience featuring talks, workshops, and a dinner gala — happening October 6–8, 2025 in Lagos, Nigeria. The 2025 theme is “Local To Global – Creative Transformations.”",
-      },
-      {
-        id: 'who-is-it-for',
-        q: 'Who is it for?',
-        a: 'Designers, brand builders, entrepreneurs, event & experiential pros, agencies, marketing teams, and ambitious students — basically anyone growing creative work and communities.',
+        a: "Sub-Saharan Africa’s definitive summit for the experiential economy. Atinuda 7.0, themed “Tomorrow, Now: The Architecture of Scale”, brings together fashion founders, hospitality executives, creative directors and sector investors for three days in Lagos.",
       },
       {
         id: 'where-when',
-        q: 'Where & when does it hold?',
-        a: 'Lagos, Nigeria — October 6–8, 2025. Check-in opens 8:30 AM on conference days (10:00 AM – 6:00 PM). Dinner Gala is the evening of Oct 8.',
+        q: 'When and where is Atinuda 7.0?',
+        a: 'Lagos, Nigeria, on 6–8 October 2027. The venue will be announced here.',
       },
     ],
   },
   {
     id: 'tickets',
-    title: 'Tickets & Access',
+    title: 'Passes',
     items: [
       {
         id: 'ticket-tiers',
-        q: 'What does each ticket include?',
-        a: [
-          '• Conference Access – All main sessions (Oct 6–8).',
-          '• Workshop Access – Hands-on expert sessions (limited seats).',
-          '• Premium Experience – Conference + Workshop bundled rate.',
-          '• Executive Access – Premium plus access to the private Executive Dinner.',
-          '• Dinner Gala Only – Invitation to the evening Gala & Executive Dinner (Oct 8).',
-        ].join('\n'),
+        q: 'What does each pass include?',
+        a: `${PASS_LIST}\n\nThe pricing page compares every pass in full.`,
       },
       {
         id: 'qr-tickets',
-        q: 'How do I get my ticket/QR code?',
-        a: 'After a successful payment you’ll land on a success page and receive an email with your ticket details. Your QR code is also generated and shown — bring it to check-in.',
-      },
-      {
-        id: 'check-in',
-        q: 'What happens at check-in?',
-        a: 'Show your QR code (phone is fine) + ticket number. We scan and mark your access (Day 1/Day 2/Dinner).',
+        q: 'How do I get my pass?',
+        a: 'Once your payment is confirmed, we email your ticket number and a link to your invitation, which you can download as a PDF. On instalments, your pass follows the final payment.',
       },
     ],
   },
   {
     id: 'payments',
-    title: 'Payments & Discounts',
+    title: 'Payments',
     items: [
       {
         id: 'how-to-pay',
         q: 'How do I pay?',
-        a: "On the Ticket page, choose a tier and quantity, then proceed to Checkout. Pay by bank transfer in naira or US dollars. Your pass is sent by email once the team confirms your transfer.",
+        a: 'Choose your pass on the pricing page and pay by bank transfer. Attach your transfer screenshot or receipt at checkout, and your pass follows once the team confirms your payment.',
       },
       {
         id: 'currency',
-        q: 'What currency can I pay with?',
-        a: 'You can switch between NGN or USD on the Ticket page. Your total updates automatically.',
-      },
-      {
-        id: 'appoemn-discount',
-        q: 'APPOEMN member discounts — how do they work?',
-        a: 'During sign-up, tick “I’m an APPOEMN member” and enter your official APPOEMN Membership ID. If validated, you receive a one-time discount automatically at checkout: EXCO: 50% (APPO50-xxxxx), Members: 20% (APPO20-xxxxx). The discount applies automatically when you’re logged in and hasn’t been used.',
+        q: 'What currency can I pay in?',
+        a: `Naira or US dollars. Dollar amounts are converted at ₦${USD_RATE.toLocaleString('en-NG')} to $1 and rounded up to the whole dollar.`,
       },
       {
         id: 'refunds',
@@ -99,7 +82,7 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'what-to-bring',
         q: 'What should I bring?',
-        a: 'Your QR ticket, a valid ID (optional, for name verification), and anything you need for note-taking. For workshops, bring your laptop if relevant.',
+        a: 'Your ticket number or invitation, and anything you need for note-taking. For workshops, bring your laptop if relevant.',
       },
       {
         id: 'dress-code',
@@ -136,7 +119,7 @@ const CATEGORIES: FaqCategory[] = [
   },
 ];
 
-const BUY_TICKETS_URL = '/get-the-app';
+const BUY_TICKETS_URL = '/pricing';
 
 export default function FaqPage() {
   const [query, setQuery] = useState('');
@@ -158,14 +141,14 @@ export default function FaqPage() {
 
   // SEO JSON-LD (top questions)
   const jsonLd = useMemo(() => {
-    const firstTen = CATEGORIES.flatMap((c) => c.items).slice(0, 10);
+    const all = CATEGORIES.flatMap((c) => c.items);
     return {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: firstTen.map((it) => ({
+      mainEntity: all.map((it) => ({
         '@type': 'Question',
         name: it.q,
-        acceptedAnswer: { '@type': 'Answer', text: it.a.replace(/\n/g, '<br/>') },
+        acceptedAnswer: { '@type': 'Answer', text: it.a },
       })),
     };
   }, []);
@@ -181,11 +164,11 @@ export default function FaqPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="flex-col items-center gap-3">
             <p className="text-sm uppercase tracking-widest text-[#ff7f41] mb-2">
-          Local To Global – Creative Transformations
+          Atinuda 7.0, 6–8 October 2027, Lagos
             </p>
-            <h2 className="text-2xl md:text-3xl hero-text text-black font-bold mb-4">
+            <h1 className="text-2xl md:text-3xl hero-text text-black font-bold mb-4">
           Answers to the most common questions
-            </h2>
+            </h1>
           </div>
           <Link
             href={BUY_TICKETS_URL}

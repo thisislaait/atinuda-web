@@ -71,6 +71,12 @@ Instalments are allowed; staff track them on a spreadsheet and confirm each paym
 
 A confirmed order's private page shows each ticket as an invitation, downloadable as an A5 PDF from `/api/checkout/invitation`. Pinyon Script sets the guest's name and Cormorant Garamond the headings, both under the SIL Open Font License. Saol isn't used because its WOFF2 files don't embed cleanly and its licence may not cover PDFs. On screen the invitation is smoked glass with light text over an event photograph, at the owner's request (3 November 2026). The PDF stays plain paper, because it may be printed. Names with letters the script lacks fall back to another font, so no letter prints blank. Orders paid through Flutterwave in one go have no private token, so they need one added before they can download an invitation.
 
+## Search and measurement
+
+The main address is `https://www.atinuda.africa`, set in `src/lib/seo.ts` and `metadataBase`. `atinuda.com` is not ours to serve from: it shows a holding page and has no email, so nothing should point there. Site email goes to `hello@atinuda.africa`, including the former `press@` and `careers@` addresses, until those are confirmed.
+
+Visit counts use Vercel Web Analytics, which sets no cookies and identifies no one. Staff pages and private order links are excluded. This relaxes the earlier "nothing tracks you" position. **Open decision:** confirm it with whoever handles NDPA compliance.
+
 ## Project-specific overrides of the house design system
 
 The house standard in `~/.claude/CLAUDE.md` is the default. This project deliberately departs from it where the brand requires:

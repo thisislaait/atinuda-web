@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
+import { SHARE_IMAGE } from '@/lib/seo';
 import { ExternalLink } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Press & Media',
   description:
-    'Press coverage, brand assets, and media enquiries for Atinuda — Africa\'s premier leadership and creative excellence platform. Contact press@atinuda.com.',
-  openGraph: { title: 'Press & Media | Atinuda', description: 'Press coverage and media resources for Atinuda.' },
+    'Press coverage, brand assets, and media enquiries for Atinuda — Africa\'s premier leadership and creative excellence platform. Contact hello@atinuda.africa.',
+  openGraph: { title: 'Press & Media | Atinuda', description: 'Press coverage and media resources for Atinuda.', images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }] },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
@@ -90,10 +91,10 @@ export default function PressPage() {
               For media enquiries, interview requests, or press access to an Atinuda event, contact our communications team.
             </p>
             <a
-              href="mailto:press@atinuda.com"
+              href="mailto:hello@atinuda.africa"
               className="inline-flex items-center gap-2 text-sm font-medium border-b border-[#1a1a1a] pb-0.5 hover:text-[#4a4a4a] hover:border-[#4a4a4a] transition-colors"
             >
-              press@atinuda.com
+              hello@atinuda.africa
             </a>
           </div>
         </div>
@@ -163,8 +164,8 @@ export default function PressPage() {
             <div>
               <p className="nav-text text-[10px] tracking-[0.2em] text-white/40 mb-4">MEDIA CONTACT</p>
               <p className="text-sm text-white/60 mb-3">Press enquiries, coverage requests, media accreditation:</p>
-              <a href="mailto:press@atinuda.com" className="text-white font-medium hover:text-white/70 transition-colors">
-                press@atinuda.com
+              <a href="mailto:hello@atinuda.africa" className="text-white font-medium hover:text-white/70 transition-colors">
+                hello@atinuda.africa
               </a>
             </div>
           </div>
@@ -184,7 +185,7 @@ export default function PressPage() {
                 High-resolution brand assets, approved retreat photography, and speaker headshots are available for editorial use. Please credit all imagery: <em>Photography courtesy of Atinuda / Oaken Events.</em>
               </p>
               <a
-                href="mailto:press@atinuda.com?subject=Brand Assets Request"
+                href="mailto:hello@atinuda.africa?subject=Brand Assets Request"
                 className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
               >
                 Request press assets

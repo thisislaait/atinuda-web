@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 // The site sets no analytics or marketing cookies, so this is a notice, not a consent form.
-// If tracking is ever added, it must read STORAGE_KEY and stay off until the visitor opts in.
+// Visit counts use Vercel Web Analytics, which sets no cookies and identifies no one. Anything
+// that does track individuals must read STORAGE_KEY and stay off until the visitor opts in.
 const sans = { fontFamily: 'Hanken Grotesk, system-ui, sans-serif' };
 const INK = '#1B1E1C';
 const BG  = '#F4F5F3';
@@ -45,7 +46,7 @@ export function CookieConsent() {
       }}
     >
       <p style={{ ...sans, fontSize: '13px', lineHeight: 1.5, color: '#5A615C', margin: 0 }}>
-        This site uses only the cookies it needs to work. Nothing tracks you.{' '}
+        This site uses only the cookies it needs to work, and counts visits anonymously without cookies.{' '}
         <a href="/privacy" style={{ color: INK, textDecoration: 'underline' }}>Privacy</a>
       </p>
       <button

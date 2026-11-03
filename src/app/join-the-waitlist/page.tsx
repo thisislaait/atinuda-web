@@ -49,7 +49,7 @@ export default function JoinWaitlist() {
         submittedAt: new Date().toISOString(),
       });
 
-      await fetch('https://formsubmit.co/ajax/hello@atinuda.com', {
+      await fetch('https://formsubmit.co/ajax/hello@atinuda.africa', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ ...formData, _subject: 'Atinuda 2027 — Waitlist' }),

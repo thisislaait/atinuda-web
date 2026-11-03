@@ -53,7 +53,7 @@ Run every change through the checks below before calling it done. Decisions and 
 12. **Error tracking and uptime.** No Sentry or equivalent, no external uptime check, no billing alerts on Vercel, Firebase or Flutterwave.
 13. **CI and dependency updates.** No GitHub Actions and no Dependabot. Run typecheck, lint and build on every push to `main`.
 14. **Longer ticket numbers.** Six hex characters is 16.7 million per pass type, and a ticket number alone opens its ticket page.
-15. **Privacy basics under the NDPA.** A data map (below), a retention period for attendee data after the event, a way to delete or export a person's data, a processor list with agreements (Flutterwave, Google/Firebase, Vercel, Hostinger), and a breach-response owner.
+15. **Privacy basics under the NDPA.** A data map (below), a retention period for attendee data after the event, a way to delete or export a person's data, a processor list with agreements (Flutterwave, Google/Firebase, Vercel, Hostinger, FormSubmit), and a breach-response owner.
 
 ### Data map (to complete)
 

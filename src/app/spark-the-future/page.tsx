@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SHARE_IMAGE } from '@/lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Spark the Future — Pitch Programme',
   description:
     'An annual pitch programme for early-stage African entrepreneurs working in sustainability, technology, and the creative economy. 10 ventures. One stage. Live in front of active investors.',
-  openGraph: { title: 'Spark the Future | Atinuda', description: '10 ventures. One stage. Live in front of active investors and 300+ African leaders.' },
+  openGraph: { title: 'Spark the Future | Atinuda', description: '10 ventures. One stage. Live in front of active investors and 300+ African leaders.', images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }] },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
@@ -63,7 +64,7 @@ export default function SparkTheFuturePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
-              href="mailto:hello@atinuda.com?subject=Spark the Future — 2026 Interest"
+              href="mailto:hello@atinuda.africa?subject=Spark the Future — 2026 Interest"
               className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
             >
               Register interest for 2026
@@ -182,13 +183,13 @@ export default function SparkTheFuturePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <a
-                href="mailto:hello@atinuda.com?subject=Spark the Future 2026 — Venture Interest"
+                href="mailto:hello@atinuda.africa?subject=Spark the Future 2026 — Venture Interest"
                 className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
               >
                 Register my venture
               </a>
               <a
-                href="mailto:hello@atinuda.com?subject=Spark the Future 2026 — Partnership"
+                href="mailto:hello@atinuda.africa?subject=Spark the Future 2026 — Partnership"
                 className="inline-flex items-center gap-3 border border-[#1a1a1a] text-sm tracking-wide px-8 py-4 hover:bg-[#1a1a1a] hover:text-white transition-colors"
               >
                 Partner with us

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
-  title: 'Tomorrow, Now: The Architecture of Scale | Atinuda 7.0',
+  title: { absolute: 'Tomorrow, Now: The Architecture of Scale | Atinuda 7.0' },
   description:
     'The Atinuda 7.0 theme. Africa’s experience economy has the talent; Tomorrow, Now: The Architecture of Scale is about the financing, routes to market, intellectual property, training and standards that let it grow. Lagos, 6–8 October 2027.',
   openGraph: {

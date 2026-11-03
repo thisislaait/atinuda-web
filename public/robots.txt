@@ -4,6 +4,7 @@ Allow: /
 # Admin and internal routes
 Disallow: /admin/
 Disallow: /staff/
+Disallow: /pricing/pay
 Disallow: /checkin/
 Disallow: /api/
 Disallow: /attendee-sheets/
@@ -23,4 +24,4 @@ Disallow: /retreat-workshop-sessions/
 Disallow: /ticket-payment/
 Disallow: /tickets-table/
 
-Sitemap: https://atinuda.com/sitemap.xml
+Sitemap: https://www.atinuda.africa/sitemap.xml

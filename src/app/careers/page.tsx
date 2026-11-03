@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SHARE_IMAGE } from '@/lib/seo';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Careers',
   description:
     'Join the team building Africa\'s most consequential leadership platform. Open roles at Atinuda — produced by Oaken Events, Lagos.',
-  openGraph: { title: 'Careers | Atinuda', description: 'Build Africa\'s most consequential leadership platform with us.' },
+  openGraph: { title: 'Careers | Atinuda', description: 'Build Africa\'s most consequential leadership platform with us.', images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }] },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
@@ -116,7 +117,7 @@ export default function CareersPage() {
                 </div>
                 <p className="text-[#4a4a4a] leading-relaxed mb-6">{role.body}</p>
                 <a
-                  href={`mailto:careers@atinuda.com?subject=Application: ${role.title}`}
+                  href={`mailto:hello@atinuda.africa?subject=Application: ${role.title}`}
                   className="inline-flex items-center gap-2 text-sm font-medium border-b border-[#1a1a1a] pb-0.5 hover:text-[#4a4a4a] hover:border-[#4a4a4a] transition-colors"
                 >
                   Apply for this role
@@ -139,7 +140,7 @@ export default function CareersPage() {
               We hire slowly and deliberately, which means the right role for you may not be open today. Send us your CV and a short note on what you&apos;d build here. When the right moment comes, we&apos;ll know where to look.
             </p>
             <a
-              href="mailto:careers@atinuda.com?subject=Talent Pool — General Application"
+              href="mailto:hello@atinuda.africa?subject=Talent Pool — General Application"
               className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
             >
               Join the talent pool

@@ -174,7 +174,7 @@ const notIncluded = [
 const faqs = [
   {
     q: 'How do I apply for a retreat pass?',
-    a: "Retreat passes are available at atinuda.com/retreat-ticket. Once you apply, your submission is reviewed for cohort fit. Approved applicants receive a confirmation and payment link.",
+    a: "To ask about the retreat, write to hello@atinuda.africa. Once you apply, your submission is reviewed for cohort fit. Approved applicants receive a confirmation and payment link.",
   },
   {
     q: 'What is the investment?',
@@ -670,7 +670,7 @@ export default function HomePage() {
                   <ArrowRight size={13} aria-hidden="true" />
                 </Link>
                 <a
-                  href="mailto:hello@atinuda.com?subject=Programme Deck Request"
+                  href="mailto:hello@atinuda.africa?subject=Programme Deck Request"
                   className="inline-flex items-center gap-3 border border-[#2b1f1a] text-[#2b1f1a] text-sm tracking-wide px-8 py-4 hover:bg-[#2b1f1a] hover:text-white transition-colors"
                 >
                   Request the programme deck

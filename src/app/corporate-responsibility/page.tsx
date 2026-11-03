@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SHARE_IMAGE } from '@/lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Corporate Responsibility',
   description:
     'Atinuda\'s commitment to youth entrepreneurship, accessible excellence, knowledge transfer, and local partnership across the African continent.',
-  openGraph: { title: 'Corporate Responsibility | Atinuda', description: 'Building rooms that give back — Atinuda\'s community commitments.' },
+  openGraph: { title: 'Corporate Responsibility | Atinuda', description: 'Building rooms that give back — Atinuda\'s community commitments.', images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }] },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
@@ -116,7 +117,7 @@ export default function CorporateResponsibilityPage() {
                   View 2025 edition
                 </Link>
                 <a
-                  href="mailto:hello@atinuda.com?subject=Spark the Future — Interest"
+                  href="mailto:hello@atinuda.africa?subject=Spark the Future — Interest"
                   className="inline-flex items-center gap-3 border border-[#1a1a1a] text-sm tracking-wide px-8 py-4 hover:bg-[#1a1a1a] hover:text-white transition-colors"
                 >
                   Get in touch
@@ -158,7 +159,7 @@ export default function CorporateResponsibilityPage() {
               These places are nominated by members of the community, endorsed by the programme team, and funded in part by commercial partnerships. If you would like to sponsor a place or nominate someone for the next edition, we would like to hear from you.
             </p>
             <a
-              href="mailto:hello@atinuda.com?subject=Sponsored Seat Enquiry"
+              href="mailto:hello@atinuda.africa?subject=Sponsored Seat Enquiry"
               className="inline-flex items-center gap-3 border border-[#1a1a1a] text-sm tracking-wide px-8 py-4 hover:bg-[#1a1a1a] hover:text-white transition-colors"
             >
               Enquire about sponsoring a seat
@@ -177,7 +178,7 @@ export default function CorporateResponsibilityPage() {
             We work with a small number of partners whose values align with ours. If you are building something that belongs in this conversation, we want to talk.
           </p>
           <a
-            href="mailto:hello@atinuda.com?subject=Community Partnership"
+            href="mailto:hello@atinuda.africa?subject=Community Partnership"
             className="inline-flex items-center gap-3 bg-[#0d2010] text-white text-sm tracking-wide px-8 py-4 hover:bg-[#1a3a1a] transition-colors"
           >
             Start the conversation

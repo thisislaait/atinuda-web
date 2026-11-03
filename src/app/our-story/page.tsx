@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Our Story | Atinuda',
+  title: 'Our Story',
   description:
     'Atinuda builds the rooms that change what is possible for African leadership. The story behind the community, the summits, and the people who show up.',
 };
@@ -405,7 +405,7 @@ export default function OurStoryPage() {
                   <ArrowRight size={14} aria-hidden="true" />
                 </Link>
                 <a
-                  href="mailto:hello@atinuda.com"
+                  href="mailto:hello@atinuda.africa"
                   className="inline-flex items-center justify-center gap-2 text-sm text-white/45 hover:text-white transition-colors group"
                 >
                   Send us a message

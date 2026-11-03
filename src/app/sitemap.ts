@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/local-to-global-summit-2025`, lastModified: now, changeFrequency: 'yearly', priority: 0.5 },
     { url: `${base}/summit`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/faq`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${base}/become-a-sponsor`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${base}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];
 

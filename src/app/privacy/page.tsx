@@ -1,6 +1,11 @@
 // pages/privacy.tsx  (Next.js pages router)
 // or app/privacy/page.tsx (Next.js app router)
-import type { NextPage } from 'next';
+import type { Metadata, NextPage } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'How Atinuda collects, uses and protects your information.',
+};
 
 const Privacy: NextPage = () => (
   <main style={{ maxWidth: 780, margin: '0 auto', padding: '48px 24px', fontFamily: 'Inter, system-ui, sans-serif', color: '#0f172a', lineHeight: 1.6 }}>
@@ -19,7 +24,8 @@ const Privacy: NextPage = () => (
         <li>Profile details you add (company, interests, avatar).</li>
         <li>Event and ticket data: purchases, QR codes, check-ins, RSVPs.</li>
         <li>Device and usage data: app interactions, device type, OS, diagnostics.</li>
-        <li>Payments: processed by Flutterwave; we store transaction references, not card details.</li>
+        <li>Payments: bank transfer receipts you attach, and payments processed by Flutterwave, where we store transaction references, not card details.</li>
+        <li>Website visits: anonymous visit counts through Vercel Web Analytics, which uses no cookies and does not identify you.</li>
         <li>Uploads you provide (e.g., photos, speaker assets).</li>
       </ul>
     </section>

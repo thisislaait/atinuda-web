@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import LocalToGlobalSummitPage from '@/components/summit/LocalToGlobalSummitPage';
 
 export const metadata: Metadata = {
-  title: 'Local To Global Summit 2025 | Atinuda',
+  title: 'Local To Global Summit 2025',
   description:
     "Atinuda's annual conference for African founders, executives, and creative leaders. Main-stage keynotes, workshop tracks, Spark the Future pitch finals, and the Executive Dinner Gala. Lagos, Nigeria.",
   openGraph: {

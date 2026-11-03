@@ -7,7 +7,7 @@ import SpeakerGrid from '@/components/speakers/SpeakerGrid';
 
 export const metadata: Metadata = {
   title: 'Speakers, Atinuda Retreat 2026 | Mauritius',
-  description: `Meet the ${totalSpeakers} speakers confirmed for the Atinuda Elevation Retreat 2026 in Mauritius. Founders, executives, creative directors, and global connectors.`,
+  description: `The ${totalSpeakers} speakers of the Atinuda Elevation Retreat, March 2026 in Mauritius. Founders, executives, creative directors, and global connectors.`,
 };
 
 export default function SpeakersPage() {
@@ -42,7 +42,7 @@ export default function SpeakersPage() {
                 The voices<br />in the room.
               </h1>
               <p className="text-white/60 text-base leading-relaxed">
-                {totalSpeakers} speakers confirmed for March 2026. More to be announced.
+                {totalSpeakers} speakers, March 2026. Atinuda 7.0 speakers will be announced here.
               </p>
             </div>
             <Link

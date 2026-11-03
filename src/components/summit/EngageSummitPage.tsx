@@ -685,7 +685,7 @@ export default function EngageSummitPage() {
                 Sponsorship is framed as category access to a curated, paying audience of senior operators, founders, and policy-aligned stakeholders.
               </p>
               <a
-                href="mailto:hello@atinuda.com?subject=Local To Global Summit — Sponsorship"
+                href="mailto:hello@atinuda.africa?subject=Local To Global Summit — Sponsorship"
                 className="inline-flex items-center gap-3 bg-[#ff7f41] text-white nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:bg-white hover:text-[#040c14] transition-all duration-300"
               >
                 DISCUSS PARTNERSHIP
@@ -797,7 +797,7 @@ export default function EngageSummitPage() {
                   GET YOUR TICKET
                 </Link>
                 <a
-                  href="mailto:hello@atinuda.com"
+                  href="mailto:hello@atinuda.africa"
                   className="inline-flex items-center gap-3 border border-white/18 text-white/60 nav-text text-[10px] tracking-[0.18em] px-8 py-4 hover:border-white/44 hover:text-white transition-all duration-300"
                 >
                   ENQUIRE

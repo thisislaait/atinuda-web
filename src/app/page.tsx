@@ -5,6 +5,10 @@ import { Instagram, Linkedin, Twitter } from 'lucide-react';
 import { BigWord, PillarStack, type PillarPanel } from '@/components/home/Parallax';
 import { parallaxStyles } from '@/components/home/parallaxStyles';
 import { HeroVideo } from '@/components/home/HeroVideo';
+import { SHARE_IMAGE, eventJsonLd, jsonLdHtml } from '@/lib/seo';
+
+// Re-rendered hourly so the event data's prices follow the early bird deadline.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Atinuda 7.0 | Tomorrow, Now: The Architecture of Scale',
@@ -13,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Atinuda 7.0 | Tomorrow, Now',
     description: 'The Architecture of Scale. A leadership conference for Africa’s experience economy. Lagos, 6–8 October 2027.',
-    images: [{ url: '/assets/images/summit/H1C10404.jpg' }],
+    images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }],
   },
 };
 
@@ -138,6 +142,7 @@ function Split({ id, label, title, children, link, href, image, alt, reverse }: 
 export default function HomePage() {
   return (
     <div style={{ background: BG }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(eventJsonLd())} />
 
       {/* ── Hero ── */}
       <section className="hm-hero">

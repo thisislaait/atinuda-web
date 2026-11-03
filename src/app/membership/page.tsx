@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SHARE_IMAGE } from '@/lib/seo';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   title: 'The Inner Circle — Membership',
   description:
     'Year-round access to Africa\'s most consequential leadership community. The Inner Circle gives permanent members priority access, exclusive programming, and the connections built in the room.',
-  openGraph: { title: 'The Inner Circle | Atinuda', description: 'Year-round access to Africa\'s most consequential leadership community.' },
+  openGraph: { title: 'The Inner Circle | Atinuda', description: 'Year-round access to Africa\'s most consequential leadership community.', images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }] },
 };
 
 const serifDisplay = { fontFamily: 'SaolDisplay, Georgia, serif', fontStyle: 'italic' as const };
