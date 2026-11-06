@@ -26,7 +26,7 @@ export default async function GetTheAppPage() {
     <main id="nohero" style={{ background: BG, minHeight: '100svh', display: 'flex', alignItems: 'center' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto', padding: '140px 24px 96px' }}>
         <p style={{ ...sans, fontSize: '11px', letterSpacing: '0.32em', textTransform: 'uppercase', color: MUTED, marginBottom: '28px' }}>
-          Atinuda 7.0 &nbsp;·&nbsp; 6–8 October 2027 &nbsp;·&nbsp; Lagos
+          Atinuda 7.0 &nbsp;·&nbsp; 5–7 October 2027 &nbsp;·&nbsp; Lagos
         </p>
         <h1 style={{ ...saol, fontSize: 'clamp(2.6rem, 6vw, 4.2rem)', lineHeight: 1, color: INK, marginBottom: '24px' }}>
           Passes are reserved in the Atinuda app.

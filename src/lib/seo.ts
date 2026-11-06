@@ -31,8 +31,8 @@ export function eventJsonLd(now: Date = new Date()) {
     name: 'Atinuda 7.0: Tomorrow, Now',
     description:
       'Sub-Saharan Africa’s definitive summit for the experiential economy, bringing together fashion founders, hospitality executives, creative directors and sector investors for three days in Lagos.',
-    startDate: '2027-10-06',
-    endDate: '2027-10-08',
+    startDate: '2027-10-05',
+    endDate: '2027-10-07',
     eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     // The venue has not been announced. Add its name and street address when it is.

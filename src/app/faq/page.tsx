@@ -29,7 +29,7 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'where-when',
         q: 'When and where is Atinuda 7.0?',
-        a: 'Lagos, Nigeria, on 6–8 October 2027. The venue will be announced here.',
+        a: 'Lagos, Nigeria, on 5–7 October 2027. The venue will be announced here.',
       },
     ],
   },
@@ -164,7 +164,7 @@ export default function FaqPage() {
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="flex-col items-center gap-3">
             <p className="text-sm uppercase tracking-widest text-[#ff7f41] mb-2">
-          Atinuda 7.0, 6–8 October 2027, Lagos
+          Atinuda 7.0, 5–7 October 2027, Lagos
             </p>
             <h1 className="text-2xl md:text-3xl hero-text text-black font-bold mb-4">
           Answers to the most common questions

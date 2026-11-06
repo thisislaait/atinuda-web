@@ -10,7 +10,7 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: { absolute: 'Passes & Pricing | Atinuda 7.0' },
-  description: 'Five passes for Atinuda 7.0, 6–8 October 2027 in Lagos — from the main-stage programme to the Executive Dinner Gala and the private leadership session.',
+  description: 'Five passes for Atinuda 7.0, 5–7 October 2027 in Lagos — from the main-stage programme to the Executive Dinner Gala and the private leadership session.',
 };
 
 const DARK   = '#0F0F0F';
@@ -106,6 +106,7 @@ const PASSES: Pass[] = [
     features: [
       ...AMANI_PROGRAMME,
       'Reserved VIP seating and dedicated VIP registration',
+      'Deluxe Gift Package',
     ],
     // Support Pass is not publicised for now.
     // note: 'A Support Pass (₦135,000) may be added at checkout for an accompanying PA, assistant or content creator.',
@@ -123,6 +124,7 @@ const PASSES: Pass[] = [
       'Extended Q&A within the private executive session',
       'Priority seating across the main programme',
       'Dedicated VVIP registration',
+      'Premium Gift Package',
     ],
     note: 'The private Executive Leadership Session is a separate, focused off-site experience for Amani and Adé guests.',
   },
@@ -146,6 +148,8 @@ const FEATURES = [
   'Extended private Q&A',
   'Standard Conference Package',
   'Atinuda Gift Package',
+  'Deluxe Gift Package',
+  'Premium Gift Package',
 ];
 
 type Cell = 'yes' | 'no' | 'partial';
@@ -166,6 +170,8 @@ const MATRIX: Cell[][] = [
   ['no', 'no', 'no', 'no', 'yes'],
   ['yes', 'no', 'no', 'no', 'no'],
   ['no', 'yes', 'yes', 'no', 'no'],
+  ['no', 'no', 'no', 'yes', 'no'],
+  ['no', 'no', 'no', 'no', 'yes'],
 ];
 
 // Everything beyond the five passes, grouped by what the buyer is trying to do.
@@ -275,7 +281,7 @@ export default function PricingPage() {
 
         <div className="pp-wrap" style={{ position: 'relative', zIndex: 1, paddingTop: '160px', paddingBottom: 'clamp(48px, 7vh, 88px)' }}>
           <p className="pp-caps" style={{ color: 'rgba(244,245,243,0.6)', marginBottom: '28px' }}>
-            Atinuda 7.0 &nbsp;·&nbsp; 6–8 October 2027 &nbsp;·&nbsp; Lagos
+            Atinuda 7.0 &nbsp;·&nbsp; 5–7 October 2027 &nbsp;·&nbsp; Lagos
           </p>
           <h1 style={{ ...saol, fontSize: 'clamp(3.6rem, 8.5vw, 10.5rem)', color: BG, lineHeight: 0.92, letterSpacing: '-0.025em', maxWidth: '1100px', marginBottom: '36px' }}>
             Five ways into<br />
@@ -513,7 +519,7 @@ export default function PricingPage() {
       <section style={{ background: BG, textAlign: 'center', borderTop: '1px solid #DBDFDB' }}>
         <div className="pp-wrap" style={{ paddingTop: 'clamp(104px, 13vw, 176px)', paddingBottom: 'clamp(104px, 13vw, 176px)' }}>
           <p className="pp-caps" style={{ color: '#8D948E', marginBottom: '40px' }}>
-            Atinuda 7.0 &nbsp;·&nbsp; 6–8 October 2027 &nbsp;·&nbsp; Lagos
+            Atinuda 7.0 &nbsp;·&nbsp; 5–7 October 2027 &nbsp;·&nbsp; Lagos
           </p>
           <h2 style={{ ...saol, fontSize: 'clamp(3.4rem, 8vw, 9.5rem)', color: INK, lineHeight: 0.92, letterSpacing: '-0.025em', marginBottom: '32px' }}>
             Reserve your pass.

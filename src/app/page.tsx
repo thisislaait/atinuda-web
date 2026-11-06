@@ -13,10 +13,10 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: 'Atinuda 7.0 | Tomorrow, Now: The Architecture of Scale',
   description:
-    'A leadership conference for Africa’s experience economy. Atinuda 7.0 takes place in Lagos on 6–8 October 2027.',
+    'A leadership conference for Africa’s experience economy. Atinuda 7.0 takes place in Lagos on 5–7 October 2027.',
   openGraph: {
     title: 'Atinuda 7.0 | Tomorrow, Now',
-    description: 'The Architecture of Scale. A leadership conference for Africa’s experience economy. Lagos, 6–8 October 2027.',
+    description: 'The Architecture of Scale. A leadership conference for Africa’s experience economy. Lagos, 5–7 October 2027.',
     images: [{ url: SHARE_IMAGE, width: 1200, height: 630 }],
   },
 };
@@ -152,7 +152,7 @@ export default function HomePage() {
         />
         <div className="hm-shade" />
         <div className="hm-hero-inner">
-          <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.85)' }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 6–8 October 2027</p>
+          <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.85)' }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 5–7 October 2027</p>
           <h1 className="hm-display hm-hero-title">Tomorrow, Now.</h1>
           <p className="hm-display hm-hero-sub">The Architecture of Scale</p>
         </div>
@@ -268,7 +268,7 @@ export default function HomePage() {
         <div className="hm-shade" style={{ background: 'rgba(15,15,15,0.72)' }} />
         <div className="hm-wrap" style={{ position: 'relative', textAlign: 'center' }}>
           <p className="hm-caps" style={{ color: 'rgba(244,245,243,0.75)' }}>Atinuda 7.0 &nbsp;·&nbsp; Tomorrow, Now</p>
-          <h2 className="hm-display" style={{ color: BG, fontSize: 'clamp(2.8rem, 7vw, 6.4rem)', margin: '24px 0 48px' }}>Lagos, 6–8 October 2027</h2>
+          <h2 className="hm-display" style={{ color: BG, fontSize: 'clamp(2.8rem, 7vw, 6.4rem)', margin: '24px 0 48px' }}>Lagos, 5–7 October 2027</h2>
           <Link href="/pricing" className="hm-btn">Attend</Link>
 
           <footer className="hm-footer">

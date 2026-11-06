@@ -10,7 +10,7 @@ Anything the code could not settle is marked **Open decision**. Nothing here is 
 
 | Question | Answer |
 |---|---|
-| Users | Event buyers and attendees for Atinuda 7.0 (6–8 October 2027, Lagos), plus staff using the `/admin` and check-in pages. **Open decision:** expected buyers and attendees for 7.0. |
+| Users | Event buyers and attendees for Atinuda 7.0 (5–7 October 2027, Lagos), plus staff using the `/admin` and check-in pages. **Open decision:** expected buyers and attendees for 7.0. |
 | Consumers or businesses | Mostly individuals. Companies buy group passes, but as single orders; there are no company accounts. |
 | Personal data held | Names, emails, phone numbers, companies, attendee lists, check-in records, membership status (APPOEMN), menu choices. **Open decision:** whether the menu forms collect dietary or allergy data, which counts as health data. |
 | Money | Yes. NGN payments through Flutterwave's hosted modal; card data never touches our servers. |

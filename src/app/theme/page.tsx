@@ -5,10 +5,10 @@ import Image from 'next/image';
 export const metadata: Metadata = {
   title: { absolute: 'Tomorrow, Now: The Architecture of Scale | Atinuda 7.0' },
   description:
-    'The Atinuda 7.0 theme. Africa’s experience economy has the talent; Tomorrow, Now: The Architecture of Scale is about the financing, routes to market, intellectual property, training and standards that let it grow. Lagos, 6–8 October 2027.',
+    'The Atinuda 7.0 theme. Africa’s experience economy has the talent; Tomorrow, Now: The Architecture of Scale is about the financing, routes to market, intellectual property, training and standards that let it grow. Lagos, 5–7 October 2027.',
   openGraph: {
     title: 'Tomorrow, Now: The Architecture of Scale',
-    description: 'The Atinuda 7.0 theme. Lagos, 6–8 October 2027.',
+    description: 'The Atinuda 7.0 theme. Lagos, 5–7 October 2027.',
     images: [{ url: '/assets/images/summit/new-images/IMG_1181L.jpg' }],
   },
 };
@@ -89,7 +89,7 @@ export default function ThemePage() {
           <Image src={`${NEW}/IMG_1282L.jpg`} alt="An address from the Atinuda stage" fill sizes="(max-width: 860px) 100vw, 50vw" className="th-cover" />
         </div>
         <div className="th-split-text">
-          <p className="th-label">In Lagos, 6–8 October 2027</p>
+          <p className="th-label">In Lagos, 5–7 October 2027</p>
           <h2 className="th-display th-h2">Where the theme is worked out</h2>
           <p className="th-body">
             Atinuda 7.0 brings the founders, executives, investors and policymakers already building this architecture to Lagos for three days. Main-stage conversations across six pillars, practical workshops, and closed sessions in the Roundtable, Future Lab and African Room each take one part of the theme and work it through.
@@ -100,7 +100,7 @@ export default function ThemePage() {
 
       {/* ── Closing ── */}
       <section className="th-wrap th-closing">
-        <p className="th-caps" style={{ color: MUTED }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 6–8 October 2027</p>
+        <p className="th-caps" style={{ color: MUTED }}>Atinuda 7.0 &nbsp;·&nbsp; Lagos &nbsp;·&nbsp; 5–7 October 2027</p>
         <h2 className="th-display" style={{ fontSize: 'clamp(2.6rem, 6vw, 5.4rem)', margin: '22px 0 44px' }}>Be part of building it.</h2>
         <div className="th-ctas">
           <Link href="/pricing" className="th-btn th-btn-dark">Attend Atinuda 7.0</Link>

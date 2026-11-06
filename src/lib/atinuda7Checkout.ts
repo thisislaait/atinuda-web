@@ -5,7 +5,7 @@
 
 export const EVENT_SLUG = 'atinuda-7';
 export const EVENT_LABEL = 'Atinuda 7.0';
-export const EVENT_WHEN = '6–8 October 2027';
+export const EVENT_WHEN = '5–7 October 2027';
 export const EVENT_WHERE = 'Lagos';
 
 // Early bird ends at midnight Lagos time (WAT, UTC+1) going into 1 January 2027.
