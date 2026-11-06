@@ -2,6 +2,7 @@
 // staff page and the daily email share these rules. Each paid instalment is its own payment.
 import { INSTALMENT_GRACE_DAYS, formatMoney } from '@/lib/atinuda7Checkout';
 import type { OrderDoc } from '@/lib/atinuda7Fulfil';
+import { sourceLabel } from '@/lib/leadSource';
 
 export type StaffOrder = OrderDoc & {
   paidAtIso?: string;
@@ -33,6 +34,12 @@ export type PaymentRow = {
   paidAs: string;
   confirmedBy: string;
   ticketEmail: 'Sent' | 'Failed' | 'Not confirmed' | null;
+  // The one name used to total sales by source.
+  source: string;
+  // The evidence behind it: the tagged link, the referring site and what the buyer told us.
+  sourceRef: string;
+  sourceSite: string;
+  sourceHeard: string;
 };
 
 // A bank transfer staff should look for. `n` is the instalment, or null for payment in one go.
@@ -145,7 +152,16 @@ export function buildLedger(orders: StaffOrder[], now: Date = new Date()): Ledge
       buyerPhone: o.buyer.phone,
       company: o.buyer.company,
     };
-    const row = { ...buyer, pass: o.productName, quantity: o.quantity, orderRef: o.txRef };
+    const row = {
+      ...buyer,
+      pass: o.productName,
+      quantity: o.quantity,
+      orderRef: o.txRef,
+      source: sourceLabel(o.source),
+      sourceRef: o.source?.ref ?? '',
+      sourceSite: o.source?.referrer ?? '',
+      sourceHeard: o.source?.heard ?? '',
+    };
     const isTransfer = o.method === 'transfer';
     const channel = isTransfer ? ('Bank transfer' as const) : ('Flutterwave' as const);
     const paidAs = (n: number | null) => {

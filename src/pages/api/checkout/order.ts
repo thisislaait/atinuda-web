@@ -17,6 +17,7 @@ import {
 } from '@/lib/atinuda7Checkout';
 import { instalmentAttemptRef } from '@/lib/atinuda7Fulfil';
 import { STAFF_EMAILS } from '@/lib/staffPayments';
+import { cleanLeadSource } from '@/lib/leadSource';
 
 type Person = { name?: unknown; email?: unknown };
 
@@ -29,6 +30,7 @@ type OrderBody = {
   currency?: unknown;
   buyer?: { name?: unknown; email?: unknown; phone?: unknown; company?: unknown };
   attendees?: Person[];
+  source?: unknown;
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -138,6 +140,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       currency: 'NGN',
       buyer,
       attendees,
+      source: cleanLeadSource(body.source),
       plan: payInThree ? 'instalments' : 'full',
       method,
       ...(instalments ? { instalments } : {}),

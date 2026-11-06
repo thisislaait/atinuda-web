@@ -77,9 +77,9 @@ const csvCell = (value: string | number) => {
 };
 
 function downloadCsv(rows: PaymentRow[]) {
-  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Paid as', 'Paid by', 'Confirmed by', 'Ticket email', 'Order reference', 'Flutterwave ID', 'Booking'];
+  const header = ['Date', 'Time', 'Buyer', 'Email', 'Phone', 'Company', 'Pass', 'Quantity', 'Payment', 'Amount (NGN)', 'Paid as', 'Paid by', 'Confirmed by', 'Ticket email', 'Order reference', 'Flutterwave ID', 'Booking', 'Source', 'Tagged link', 'Referring site', 'Buyer said'];
   const lines = rows.map((r) =>
-    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.paidAs, r.channel, r.confirmedBy, r.ticketEmail ?? '', r.orderRef, r.flwTransactionId, r.booking]
+    [r.day, time(r.at), r.buyerName, r.buyerEmail, r.buyerPhone, r.company, r.pass, r.quantity, r.payment, r.amount, r.paidAs, r.channel, r.confirmedBy, r.ticketEmail ?? '', r.orderRef, r.flwTransactionId, r.booking, r.source, r.sourceRef, r.sourceSite, r.sourceHeard]
       .map(csvCell)
       .join(','),
   );
@@ -244,6 +244,10 @@ function PaymentDrawer({ row, onClose, onReceipt }: { row: PaymentRow; onClose: 
     ...(row.confirmedBy ? ([['Confirmed by', row.confirmedBy]] as [string, string][]) : []),
     ...(row.ticketEmail ? ([['Ticket email', row.ticketEmail]] as [string, string][]) : []),
     ['Booking', row.booking],
+    ['Source', row.source],
+    ...(row.sourceRef ? ([['Tagged link', row.sourceRef]] as [string, string][]) : []),
+    ...(row.sourceSite ? ([['Referring site', row.sourceSite]] as [string, string][]) : []),
+    ...(row.sourceHeard ? ([['Buyer said', row.sourceHeard]] as [string, string][]) : []),
     ['Reference', row.orderRef],
     ['Flutterwave ID', row.flwTransactionId || 'Not recorded'],
   ];
@@ -512,6 +516,18 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
     });
   }, [inRange, query, typeFilter]);
 
+  // An order on instalments adds to the money with each payment, but counts once.
+  const sourceTotals = useMemo(() => {
+    const bySource = new Map<string, { total: number; orders: Set<string> }>();
+    for (const r of inRange) {
+      const entry = bySource.get(r.source) ?? { total: 0, orders: new Set<string>() };
+      entry.total += r.amount;
+      entry.orders.add(r.orderRef);
+      bySource.set(r.source, entry);
+    }
+    return [...bySource].map(([source, e]) => ({ source, total: e.total, orders: e.orders.size })).sort((x, y) => y.total - x.total);
+  }, [inRange]);
+
   const passTotals = useMemo(() => {
     const totals = new Map<string, number>();
     for (const r of inRange) totals.set(r.pass, (totals.get(r.pass) ?? 0) + r.amount);
@@ -558,6 +574,7 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageRows = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const passMax = passTotals[0]?.[1] ?? 1;
+  const sourceMax = sourceTotals[0]?.total ?? 1;
 
   const compareLine = compareFailed
     ? 'The Flutterwave check did not run. Choose Refresh to try again.'
@@ -731,6 +748,20 @@ export default function PaymentsClient({ sample }: { sample?: Sample }) {
                         {attention.slice(0, Math.max(0, 3 - unrecorded.length)).map((a) => <FlagItem key={a.id} item={a} onResend={resendTickets} />)}
                       </div>
                     </section>
+
+                    {sourceTotals.length > 0 && (
+                      <section className="sa-panel" aria-labelledby="sa-sources">
+                        <div className="sa-phead"><h2 id="sa-sources">Received by source</h2></div>
+                        <div className="sa-bars">
+                          {sourceTotals.map((s) => (
+                            <div key={s.source}>
+                              <div className="sa-bar-row"><span>{s.source} ({plural(s.orders, 'order')})</span><b>{formatNaira(s.total)}</b></div>
+                              <div className="sa-bar-track"><div className="sa-bar-fill" style={{ width: `${(s.total / sourceMax) * 100}%` }} /></div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
 
                     {passTotals.length > 0 && (
                       <section className="sa-panel" aria-labelledby="sa-passes">

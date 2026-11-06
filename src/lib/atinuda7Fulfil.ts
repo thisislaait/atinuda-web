@@ -6,6 +6,7 @@
 import { randomBytes, timingSafeEqual } from 'crypto';
 import nodemailer from 'nodemailer';
 import { adminDb, FieldValue } from '@/utils/firebaseAdmin';
+import type { LeadSource } from '@/lib/leadSource';
 import {
   EVENT_LABEL,
   EVENT_WHEN,
@@ -44,6 +45,7 @@ export type OrderDoc = {
   currency: 'NGN';
   buyer: { name: string; email: string; phone: string; company: string };
   attendees: { name: string; email: string }[];
+  source?: LeadSource;
   tickets?: IssuedTicket[];
   plan?: 'full' | 'instalments';
   instalments?: OrderInstalment[];

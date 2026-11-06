@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
+import { HEARD_OPTIONS, storedLeadSource } from '@/lib/leadSource';
 import {
   EVENT_LABEL,
   EVENT_WHEN,
@@ -72,6 +73,7 @@ export default function CheckoutClient() {
   const receiptRef = useRef<HTMLDivElement>(null);
   const [heldSchedule, setHeldSchedule] = useState<ScheduleRow[] | null>(null);
   const [buyer, setBuyer] = useState({ name: '', email: '', phone: '', company: '' });
+  const [heard, setHeard] = useState('');
   const [seatOneIsBuyer, setSeatOneIsBuyer] = useState(true);
   const [showSeats, setShowSeats] = useState(false);
   const [seats, setSeats] = useState<Seat[]>([]);
@@ -182,7 +184,7 @@ export default function CheckoutClient() {
         const res = await fetch('/api/checkout/order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'transfer', currency, buyer, attendees: attendeesPayload() }),
+          body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'transfer', currency, buyer, attendees: attendeesPayload(), source: { ...storedLeadSource(), heard } }),
         });
         const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; payToken?: string };
         if (!res.ok || !json.ok || !json.orderRef || !json.payToken) throw new Error(json.message || 'We could not record your order.');
@@ -219,7 +221,7 @@ export default function CheckoutClient() {
       const res = await fetch('/api/checkout/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'flutterwave', buyer, attendees: attendeesPayload() }),
+        body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'flutterwave', buyer, attendees: attendeesPayload(), source: { ...storedLeadSource(), heard } }),
       });
       const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; txRef?: string; amount?: number };
       if (!res.ok || !json.ok || !json.txRef || !json.amount) throw new Error(json.message || 'We could not start your order.');
@@ -432,6 +434,13 @@ export default function CheckoutClient() {
               <Field label="Email" type="email" value={buyer.email} autoComplete="email" error={showErrors ? fieldErrors.email : ''} onChange={(v) => setBuyer({ ...buyer, email: v })} />
               <Field label="Phone" type="tel" value={buyer.phone} autoComplete="tel" error={showErrors ? fieldErrors.phone : ''} onChange={(v) => setBuyer({ ...buyer, phone: v })} />
               <Field label="Company" value={buyer.company} autoComplete="organization" error={showErrors ? fieldErrors.company : ''} onChange={(v) => setBuyer({ ...buyer, company: v })} />
+              <label className="co-field">
+                <span className="co-caps">How did you hear about Atinuda? (optional)</span>
+                <select value={heard} onChange={(e) => setHeard(e.target.value)}>
+                  <option value="">Choose one</option>
+                  {HEARD_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </label>
             </div>
 
             <div className="co-attendees">
@@ -1010,6 +1019,8 @@ export const CSS = `
   .co-field .co-caps { color: #8D948E; font-size: 10px; }
   .co-field input { font: inherit; font-size: 16px; color: ${INK}; background: transparent; border: 0; border-bottom: 1px solid #DBDFDB; padding: 8px 0 10px; outline: none; border-radius: 0; transition: border-color .2s ease; }
   .co-field input:focus { border-bottom-color: ${INK}; }
+  .co-field select { font: inherit; font-size: 16px; color: ${INK}; background: transparent; border: 0; border-bottom: 1px solid #DBDFDB; padding: 8px 0 10px; margin-left: -4px; width: calc(100% + 4px); outline: none; border-radius: 0; }
+  .co-field select:focus-visible { border-bottom-color: ${INK}; }
   .co-field.has-error input { border-bottom-color: #8C3B2E; }
   .co-field-error { font-size: 12px; color: #8C3B2E; }
   .co-attendees { margin-top: 48px; display: grid; gap: 20px; }

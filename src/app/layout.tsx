@@ -11,6 +11,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import { SmoothScrollProvider } from "@/providers/SmoothScrollProvider";
 import { CookieConsent } from "@/components/CookieConsent";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
+import { SourceCapture } from "@/components/SourceCapture";
 import { SHARE_IMAGE, SITE_URL, jsonLdHtml, organisationJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function RootLayout({
             <Toaster position="top-right" />
             <CookieConsent />
             <SiteAnalytics />
+            <SourceCapture />
           </SmoothScrollProvider>
         </AuthProvider>
       </body>

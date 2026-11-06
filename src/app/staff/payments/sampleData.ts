@@ -14,6 +14,14 @@ const PASSES = [
 
 const NAMES = ['Sample Buyer A', 'Sample Buyer B', 'Sample Buyer C', 'Sample Buyer D', 'Sample Buyer E', 'Sample Buyer F', 'Sample Buyer G'];
 
+const SOURCES = [
+  { ref: 'lagos-fashion-week', referrer: '', heard: '' },
+  { ref: '', referrer: '', heard: 'A colleague or friend' },
+  { ref: 'early-bird-invite', referrer: '', heard: 'An invitation from the Atinuda team' },
+  { ref: '', referrer: 'google.com', heard: '' },
+  { ref: '', referrer: '', heard: '' },
+];
+
 function fullOrder(i: number, daysAgo: number, now: number): StaffOrder {
   const pass = PASSES[i % PASSES.length];
   const name = NAMES[i % NAMES.length];
@@ -30,6 +38,7 @@ function fullOrder(i: number, daysAgo: number, now: number): StaffOrder {
     buyer: { name, email: `buyer${i}@example.com`, phone: '+234 800 000 0000', company: `Sample Company ${(i % 5) + 1} Ltd` },
     attendees: [],
     plan: 'full',
+    source: SOURCES[i % SOURCES.length],
     amountPaid: pass.price,
     paidAtIso: new Date(now - daysAgo * DAY_MS - (i % 7) * 3_600_000).toISOString(),
     flwTransactionId: String(900000 + i),

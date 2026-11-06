@@ -77,6 +77,8 @@ The main address is `https://www.atinuda.africa`, set in `src/lib/seo.ts` and `m
 
 Visit counts use Vercel Web Analytics, which sets no cookies and identifies no one. Staff pages and private order links are excluded. This relaxes the earlier "nothing tracks you" position. **Open decision:** confirm it with whoever handles NDPA compliance.
 
+Sales are attributed by source. A landing with `?ref=` or `utm_` tags, or from another website, is kept in the browser's local storage for 30 days and saved on the order only when one is placed, with an optional "how did you hear" answer at checkout. Staff see the totals on `/staff/payments`. A tagged link outranks the buyer's answer, which outranks the referring site. **Open decision:** include this storage in the same NDPA check.
+
 ## Project-specific overrides of the house design system
 
 The house standard in `~/.claude/CLAUDE.md` is the default. This project deliberately departs from it where the brand requires:

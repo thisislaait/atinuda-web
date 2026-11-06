@@ -46,7 +46,7 @@ export function CookieConsent() {
       }}
     >
       <p style={{ ...sans, fontSize: '13px', lineHeight: 1.5, color: '#5A615C', margin: 0 }}>
-        This site uses only the cookies it needs to work, and counts visits anonymously without cookies.{' '}
+        This site uses only the cookies it needs to work, and counts visits anonymously without cookies. If you order, we also see which link brought you here.{' '}
         <a href="/privacy" style={{ color: INK, textDecoration: 'underline' }}>Privacy</a>
       </p>
       <button

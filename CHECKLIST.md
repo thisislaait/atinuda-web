@@ -64,6 +64,7 @@ Run every change through the checks below before calling it done. Decisions and 
 | Instalment schedule, private pay token, payment records | `orders` | Buyer via private link, staff (the pay token is never sent to the staff page) | To define | To define |
 | Transfer receipts (may show name, bank and account details) | Firebase Storage, `transfer-receipts/`, encrypted | Staff, through `/api/staff/receipt` | To define | To define |
 | Yesterday's buyer names, passes and amounts | Daily email to staff inboxes | `STAFF_EMAILS` in `src/lib/staffPayments.ts` | To define | To define |
+| How the buyer found us (campaign tag, referring site, their answer) | Browser local storage for 30 days, then `orders` if they buy | Staff | To define | To define |
 | Check-ins | `events/{slug}/attendees`, check-in collections | Staff | To define | To define |
 | Account profiles | `users` | Owner, staff | To define | To define |
 

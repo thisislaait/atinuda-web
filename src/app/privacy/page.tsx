@@ -26,6 +26,7 @@ const Privacy: NextPage = () => (
         <li>Device and usage data: app interactions, device type, OS, diagnostics.</li>
         <li>Payments: bank transfer receipts you attach, and payments processed by Flutterwave, where we store transaction references, not card details.</li>
         <li>Website visits: anonymous visit counts through Vercel Web Analytics, which uses no cookies and does not identify you.</li>
+        <li>How you found us: the campaign link or website that brought you here, kept in your browser for 30 days and sent to us only if you place an order, with your answer if you tell us how you heard about Atinuda. We use it to see which outreach works.</li>
         <li>Uploads you provide (e.g., photos, speaker assets).</li>
       </ul>
     </section>
