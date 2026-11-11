@@ -525,7 +525,7 @@ export default function PricingPage() {
             Reserve your pass.
           </h2>
           <p style={{ ...sans, fontSize: '16px', lineHeight: 1.7, color: '#5A615C', maxWidth: '460px', margin: '0 auto 56px' }}>
-            Early bird rates apply to every pass and single experience until 31 December 2026. Individual delegates can pay in three instalments: 50% at booking, 25% after 30 days and 25% after 60. Group bookings for companies and associations are available through Ubuntu.
+            Early bird rates apply to every pass and single experience until 31 December 2026. Individual delegates who book by 2 July 2027 can pay in three instalments: 50% at booking, then 25% at 30 and 60 days after booking. Group bookings for companies and associations are available through Ubuntu.
           </p>
           <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             <Link href={RESERVE_HREF} className="pp-btn pp-btn-solid">

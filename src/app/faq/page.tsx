@@ -71,7 +71,7 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'instalments',
         q: 'Can I pay in instalments?',
-        a: 'Yes, on single-pass orders booked by 31 July 2027. You pay 50% at checkout, 25% after 30 days and 25% after 60 days, using a private link we email you. You keep the price you booked at while you stay on schedule, including the early bird rate, and your pass is issued after the final payment clears. If a payment is more than seven days late, your booking is cancelled and your place released.',
+        a: 'Yes, on single-pass orders booked by 2 July 2027. You pay 50% at checkout, 25% 30 days after booking and 25% 60 days after booking, using a private link we email you, so every plan is paid in full by 31 August 2027. You keep the price you booked at while you stay on schedule, including the early bird rate, and your pass is issued after the final payment clears. If a payment is more than seven days late, your booking is cancelled and your place released.',
       },
     ],
   },

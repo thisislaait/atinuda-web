@@ -39,7 +39,7 @@ Anything the code could not settle is marked **Open decision**. Nothing here is 
 
 ## Pay in 3 (agreed with the client, 2 November 2026)
 
-Single-pass orders only, booked by 31 July 2027: 50% at checkout, 25% after 30 days, 25% after 60. Each instalment is a separate Flutterwave payment made through an emailed private link, with no automatic debit, so bank transfer and USSD buyers can use it. Amounts are fixed on the order, so the early bird rate holds while the buyer stays on schedule. Tickets are issued after the final payment. A payment more than 7 days late cancels the booking; refunds are decided case by case by the team.
+Single-pass orders only, booked by 2 July 2027: 50% at checkout, 25% after 30 days, 25% after 60, so every plan is paid by 31 August 2027 and nobody is still paying in the weeks before the event (decided 11 November 2026; the plan previously closed on 31 July). No instalment can fall due after 31 August as a safeguard. Each instalment is a separate Flutterwave payment made through an emailed private link, with no automatic debit, so bank transfer and USSD buyers can use it. Amounts are fixed on the order, so the early bird rate holds while the buyer stays on schedule. Tickets are issued after the final payment. A payment more than 7 days late cancels the booking; refunds are decided case by case by the team.
 
 A daily Vercel Cron job (`/api/checkout/instalment-reminders`, needs `CRON_SECRET`) sends reminders and cancellations. Staff also see progress through a Monday email to `hello@atinuda.africa`. *Revisit* that email now `/staff/payments` shows the same information.
 

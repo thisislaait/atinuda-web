@@ -415,7 +415,7 @@ export default function CheckoutClient() {
                     </div>
                     {payInThree && (
                       <p className="co-plan-note">
-                        50% today, 25% after 30 days and 25% after 60. Your price is held and your pass is issued after the final payment. A payment more than 7 days late cancels the booking and releases your place.
+                        50% today, then 25% at 30 and 60 days after booking, all paid by 31 August 2027. Your price is held and your pass is issued after the final payment. A payment more than 7 days late cancels the booking and releases your place.
                       </p>
                     )}
                   </>

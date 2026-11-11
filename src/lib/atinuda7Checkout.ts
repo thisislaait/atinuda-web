@@ -201,7 +201,12 @@ const INSTALMENT_STEPS = [
   { percent: 25, afterDays: 60 },
 ] as const;
 
-export const INSTALMENT_PLAN_UNTIL = '2027-08-01T00:00:00+01:00';
+// The plan is offered on orders placed up to and including 2 July 2027, the last day a booking gets the full
+// 30 and 60 days before INSTALMENTS_DUE_BY.
+export const INSTALMENT_PLAN_UNTIL = '2027-07-03T00:00:00+01:00';
+// Every instalment is due by this date, so no buyer is still paying in the weeks before the event. With
+// the plan closing on 2 July this only guards against edge cases, such as a booking late on 2 July.
+export const INSTALMENTS_DUE_BY = '2027-08-31T23:59:59+01:00';
 export const INSTALMENT_GRACE_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -214,7 +219,8 @@ export function instalmentSchedule(total: number, start: Date = new Date()): Ins
     // The last payment takes whatever is left, so the three always add up to the total.
     const amount = i === INSTALMENT_STEPS.length - 1 ? remaining : Math.round((total * step.percent) / 100);
     remaining -= amount;
-    return { n: i + 1, amount, dueAt: new Date(start.getTime() + step.afterDays * DAY_MS).toISOString() };
+    const due = Math.min(start.getTime() + step.afterDays * DAY_MS, new Date(INSTALMENTS_DUE_BY).getTime());
+    return { n: i + 1, amount, dueAt: new Date(due).toISOString() };
   });
 }
 
