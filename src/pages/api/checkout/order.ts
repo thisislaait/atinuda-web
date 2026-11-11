@@ -10,6 +10,7 @@ import {
   TRANSFER_HOLD_DAYS,
   USD_RATE,
   FLUTTERWAVE_OPEN,
+  TRANSFER_OPEN,
   instalmentSchedule,
   instalmentsAvailable,
   quote,
@@ -69,6 +70,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (method === 'flutterwave' && !FLUTTERWAVE_OPEN) {
     return res.status(409).json({ ok: false, message: 'Flutterwave is temporarily unavailable. Please pay by bank transfer.' });
   }
+  if (method === 'transfer' && !TRANSFER_OPEN) {
+    return res.status(409).json({ ok: false, message: 'Bank transfer is not available. Please pay with Flutterwave.' });
+  }
   const currency = method === 'transfer' && body.currency === 'USD' ? 'USD' : 'NGN';
 
   const payInThree = body.plan === 'instalments';
@@ -108,7 +112,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         rate: currency === 'USD' ? USD_RATE : null,
       }
     : null;
-  const payToken = instalments || transfer ? randomBytes(16).toString('hex') : null;
+  // Every order gets a private page, where the buyer pays later instalments and downloads their invitation.
+  const payToken = randomBytes(16).toString('hex');
 
   if (transfer) {
     try {
@@ -144,7 +149,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       plan: payInThree ? 'instalments' : 'full',
       method,
       ...(instalments ? { instalments } : {}),
-      ...(payToken ? { payToken } : {}),
+      payToken,
       ...(transfer ? { transfer, holdUntil: new Date(Date.now() + TRANSFER_HOLD_DAYS * DAY_MS).toISOString() } : {}),
       createdAt: FieldValue.serverTimestamp(),
     });
@@ -158,7 +163,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Each instalment is its own Flutterwave payment, with its own reference.
   if (instalments) {
-    return res.status(200).json({ ok: true, orderRef: txRef, txRef: instalmentAttemptRef(txRef, 1), amount: instalments[0].amount, currency: 'NGN' });
+    return res.status(200).json({ ok: true, orderRef: txRef, payToken, txRef: instalmentAttemptRef(txRef, 1), amount: instalments[0].amount, currency: 'NGN' });
   }
-  return res.status(200).json({ ok: true, orderRef: txRef, txRef, amount: q.total, currency: 'NGN' });
+  return res.status(200).json({ ok: true, orderRef: txRef, payToken, txRef, amount: q.total, currency: 'NGN' });
 }

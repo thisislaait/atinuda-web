@@ -98,6 +98,14 @@ const paymentPill = (r: PaymentRow) => {
   return <span className="sa-pill sa-pill-part">{r.payment}</span>;
 };
 
+// The ticket email carries the passes and the invitation link. Rows with no ticket yet (an early instalment) show a dash.
+const ticketEmailPill = (r: PaymentRow) => {
+  if (r.ticketEmail === 'Sent') return <span className="sa-pill sa-pill-paid">Sent</span>;
+  if (r.ticketEmail === 'Failed') return <span className="sa-pill sa-pill-check">Failed</span>;
+  if (r.ticketEmail === 'Not confirmed') return <span className="sa-pill sa-pill-due">Not confirmed</span>;
+  return <span className="sa-subline" aria-label="No ticket yet">—</span>;
+};
+
 function SignIn({ notice }: { notice?: string }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -298,7 +306,7 @@ function PaymentsTable({ rows, onOpen }: { rows: PaymentRow[]; onOpen: (r: Payme
   return (
     <table className="sa-table">
       <thead>
-        <tr><th>Buyer</th><th>Company and phone</th><th>Pass</th><th>Payment</th><th>Date</th><th className="sa-num">Amount</th></tr>
+        <tr><th>Buyer</th><th>Company and phone</th><th>Pass</th><th>Payment</th><th>Ticket email</th><th>Date</th><th className="sa-num">Amount</th></tr>
       </thead>
       <tbody>
         {rows.map((r) => (
@@ -313,6 +321,7 @@ function PaymentsTable({ rows, onOpen }: { rows: PaymentRow[]; onOpen: (r: Payme
             </td>
             <td className="sa-td-pass">{r.pass}{r.quantity > 1 ? ` × ${r.quantity}` : ''}</td>
             <td className="sa-td-status">{paymentPill(r)}</td>
+            <td className="sa-td-email">{ticketEmailPill(r)}</td>
             <td className="sa-td-date sa-date">{dateTime(r.at)}</td>
             <td className="sa-num">{formatNaira(r.amount)}</td>
           </tr>

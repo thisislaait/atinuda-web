@@ -182,7 +182,8 @@ export const CSS = `
     .sa-td-company { grid-column: 1 / -1; grid-row: 2; font-size: 13px; }
     .sa-td-pass { grid-column: 1; grid-row: 3; color: var(--ink-2); font-size: 13px; }
     .sa-td-status { grid-column: 2; grid-row: 3; justify-self: end; }
-    .sa-td-date { grid-column: 1 / -1; grid-row: 4; font-size: 13px; }
+    .sa-td-date { grid-column: 1; grid-row: 4; font-size: 13px; }
+    .sa-td-email { grid-column: 2; grid-row: 4; justify-self: end; }
     .sa-tools, .sa-phead, .sa-pager { padding-left: 16px; padding-right: 16px; }
     .sa-flag { padding-left: 16px; padding-right: 16px; }
     .sa-check { padding-left: 16px; padding-right: 16px; }

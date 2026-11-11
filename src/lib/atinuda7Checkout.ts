@@ -223,9 +223,11 @@ export const formatDueDate = (iso: string) =>
 
 export const formatNaira = (n: number) => `₦${Math.round(n).toLocaleString('en-NG')}`;
 
-// Bank transfer is how buyers pay while Flutterwave's compliance hold is in place.
-// Set FLUTTERWAVE_OPEN to true once Flutterwave confirms the hold is lifted.
-export const FLUTTERWAVE_OPEN = false;
+// Which payment methods new orders can use. Flutterwave was off during its compliance hold in November 2026;
+// bank transfer was taken off checkout on 11 November 2026 once Flutterwave was back. Orders already placed
+// by transfer keep their bank details on their private page, so buyers can finish their instalments.
+export const FLUTTERWAVE_OPEN = true;
+export const TRANSFER_OPEN = false;
 
 export type PayMethod = 'transfer' | 'flutterwave';
 export type TransferCurrency = 'NGN' | 'USD';

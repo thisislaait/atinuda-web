@@ -7,10 +7,8 @@ import { FLUTTERWAVE_OPEN } from '@/lib/atinuda7Checkout';
 import { instalmentAttemptRef, nextInstalment, orderForToken, publicSchedule, type OrderDoc } from '@/lib/atinuda7Fulfil';
 import { declareTransfer, transferDue } from '@/lib/atinuda7Transfers';
 
-async function loadOrder(orderId: unknown, token: unknown): Promise<OrderDoc | null> {
-  const order = await orderForToken(orderId, token);
-  return order && (order.plan === 'instalments' || order.method === 'transfer') ? order : null;
-}
+// Every order has a private page, including Flutterwave orders paid in one go, which show the invitation.
+const loadOrder = (orderId: unknown, token: unknown): Promise<OrderDoc | null> => orderForToken(orderId, token);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ ok: false, message: 'Method not allowed' });
@@ -44,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if (params.action === 'declare') {
+    if (order.method !== 'transfer') return res.status(409).json({ ok: false, message: 'This order is not paid by bank transfer.' });
     try {
       const result = await declareTransfer(order);
       if (!result.ok) return res.status(409).json({ ok: false, message: result.message });

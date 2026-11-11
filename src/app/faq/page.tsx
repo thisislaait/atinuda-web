@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { FiSearch, FiChevronDown, FiChevronUp} from 'react-icons/fi';
-import { PRODUCTS, USD_RATE, formatNaira, unitPrice } from '@/lib/atinuda7Checkout';
+import { PRODUCTS, formatNaira, unitPrice } from '@/lib/atinuda7Checkout';
 
 const PASS_LIST = PRODUCTS.filter((p) => p.kind !== 'test')
   .map((p) => `• ${p.name} (${formatNaira(unitPrice(p))}): ${p.summary}`)
@@ -56,12 +56,12 @@ const CATEGORIES: FaqCategory[] = [
       {
         id: 'how-to-pay',
         q: 'How do I pay?',
-        a: 'Choose your pass on the pricing page and pay by bank transfer. Attach your transfer screenshot or receipt at checkout, and your pass follows once the team confirms your payment.',
+        a: 'Choose your pass on the pricing page and pay at checkout through Flutterwave, by card, bank transfer or USSD. Your pass is emailed as soon as the payment clears.',
       },
       {
         id: 'currency',
         q: 'What currency can I pay in?',
-        a: `Naira or US dollars. Dollar amounts are converted at ₦${USD_RATE.toLocaleString('en-NG')} to $1 and rounded up to the whole dollar.`,
+        a: 'Checkout charges in naira. If you pay with a card issued in another currency, your bank converts the amount at its own rate.',
       },
       {
         id: 'refunds',

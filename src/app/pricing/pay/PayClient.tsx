@@ -345,7 +345,21 @@ export default function PayClient() {
           </>
         )}
         {order?.method === 'transfer' && <TransferView order={order} onDeclare={declare} busy={busy} error={error} downloadUrl={`/api/checkout/invitation?order=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token)}`} />}
-        {order && order.method !== 'transfer' && (
+        {order && order.method !== 'transfer' && order.status === 'paid' && order.tickets.length > 0 && (
+          <Invitation order={order} downloadUrl={`/api/checkout/invitation?order=${encodeURIComponent(orderId)}&t=${encodeURIComponent(token)}`} />
+        )}
+        {order && order.method !== 'transfer' && order.instalments.length === 0 && order.status !== 'paid' && (
+          <>
+            <p className="co-caps" style={{ color: COPPER }}>Your order</p>
+            <h1 style={{ ...saol, fontSize: 'clamp(2.4rem, 5vw, 4.4rem)', lineHeight: 1, letterSpacing: '-0.025em', color: INK, margin: '24px 0 20px', maxWidth: '900px' }}>
+              Payment not confirmed yet
+            </h1>
+            <p style={{ fontSize: '16px', lineHeight: 1.75, color: '#5A615C', maxWidth: '560px' }}>
+              {`If you were charged, write to hello@atinuda.africa and quote ${order.orderRef}. We will confirm your ${order.productName} pass by email.`}
+            </p>
+          </>
+        )}
+        {order && order.method !== 'transfer' && order.instalments.length > 0 && !(order.status === 'paid' && order.tickets.length > 0) && (
           <>
             <p className="co-caps" style={{ color: COPPER }}>{eyebrow}</p>
             <h1 style={{ ...saol, fontSize: 'clamp(2.4rem, 5vw, 4.4rem)', lineHeight: 1, letterSpacing: '-0.025em', color: INK, margin: '24px 0 20px', maxWidth: '900px' }}>

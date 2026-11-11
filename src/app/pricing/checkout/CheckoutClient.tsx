@@ -14,6 +14,7 @@ import {
   PRODUCTS,
   BANK_ACCOUNTS,
   FLUTTERWAVE_OPEN,
+  TRANSFER_OPEN,
   SUPPORT_PASS,
   TRANSFER_HOLD_DAYS,
   USD_RATE,
@@ -66,7 +67,7 @@ export default function CheckoutClient() {
   const [quantity, setQuantity] = useState(() => clampQty(Number(params?.get('qty') ?? 1)));
   const [supportPasses, setSupportPasses] = useState(0);
   const [plan, setPlan] = useState<PaymentPlan>('full');
-  const [method, setMethod] = useState<PayMethod | null>(null);
+  const [method, setMethod] = useState<PayMethod | null>(TRANSFER_OPEN ? null : 'flutterwave');
   const [currency, setCurrency] = useState<TransferCurrency>('NGN');
   const [askReceipt, setAskReceipt] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
@@ -124,7 +125,7 @@ export default function CheckoutClient() {
   const attendeesPayload = () =>
     seats.map((s, i) => (i === 0 && seatOneIsBuyer ? { name: buyer.name, email: buyer.email } : s));
 
-  async function confirm(txRef: string, transactionId: string | number) {
+  async function confirm(txRef: string, transactionId: string | number, orderPage: string | null) {
     setStage('confirming');
     try {
       const res = await fetch('/api/checkout/confirm', {
@@ -134,6 +135,11 @@ export default function CheckoutClient() {
       });
       const json = (await res.json()) as { ok?: boolean; message?: string; tickets?: Ticket[]; instalments?: ScheduleRow[] };
       if (!res.ok || !json.ok) throw new Error(json.message || 'We could not confirm your payment.');
+      // Paid in full: show the invitation on the order's private page, as bank transfer buyers see it.
+      if (orderPage && !json.instalments?.length) {
+        window.location.assign(orderPage);
+        return;
+      }
       setTickets(json.tickets ?? []);
       if (json.instalments?.length) setHeldSchedule(json.instalments);
       setStage('done');
@@ -217,17 +223,19 @@ export default function CheckoutClient() {
     let txRef: string;
     let amount: number;
     let reference: string;
+    let orderPage: string | null = null;
     try {
       const res = await fetch('/api/checkout/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, quantity, supportPasses, plan: payInThree ? 'instalments' : 'full', method: 'flutterwave', buyer, attendees: attendeesPayload(), source: { ...storedLeadSource(), heard } }),
       });
-      const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; txRef?: string; amount?: number };
+      const json = (await res.json()) as { ok?: boolean; message?: string; orderRef?: string; payToken?: string; txRef?: string; amount?: number };
       if (!res.ok || !json.ok || !json.txRef || !json.amount) throw new Error(json.message || 'We could not start your order.');
       txRef = json.txRef;
       amount = json.amount;
       reference = json.orderRef ?? json.txRef;
+      if (json.orderRef && json.payToken) orderPage = `/pricing/pay?order=${encodeURIComponent(json.orderRef)}&t=${encodeURIComponent(json.payToken)}`;
     } catch (err) {
       setStage('idle');
       setError(err instanceof Error ? err.message : 'We could not start your order.');
@@ -252,7 +260,7 @@ export default function CheckoutClient() {
       callback: (resp: { transaction_id?: string | number }) => {
         if (paidRef.current || resp?.transaction_id == null) return;
         paidRef.current = true;
-        confirm(txRef, resp.transaction_id);
+        confirm(txRef, resp.transaction_id, orderPage);
       },
       onclose: () => {
         if (!paidRef.current) setStage('idle');
@@ -476,10 +484,12 @@ export default function CheckoutClient() {
             <div className="co-plan">
               <p className="co-caps" style={{ color: '#8D948E' }}>Payment method</p>
               <div className="co-plans" role="radiogroup" aria-label="Payment method">
+                {TRANSFER_OPEN && (
                 <button type="button" role="radio" aria-checked={payByTransfer} className={`co-preset${payByTransfer ? ' is-active' : ''}`} onClick={() => setMethod('transfer')}>
                   <span className="co-preset-label">Pay via bank transfer</span>
                   <span className="co-preset-sub">Naira or US dollars</span>
                 </button>
+                )}
                 <button type="button" role="radio" aria-checked={method === 'flutterwave'} aria-disabled={!FLUTTERWAVE_OPEN} disabled={!FLUTTERWAVE_OPEN} className={`co-preset co-method-off${method === 'flutterwave' ? ' is-active' : ''}`} onClick={() => setMethod('flutterwave')}>
                   <span className="co-preset-label">Pay with Flutterwave</span>
                   <span className="co-preset-sub">{FLUTTERWAVE_OPEN ? 'Card, transfer or USSD' : 'Temporarily unavailable'}</span>
